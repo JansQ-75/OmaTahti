@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Bell, ChartLine, ClipboardCheck, ClipboardList, Flame, MessageCircle, Play } from "lucide-react";
 import { SoftCard, SourceBadge } from "@/components/common/Section";
-import { SwitchRoleButton } from "@/components/navigation/RoleActions";
+import { SwitchClientButton, SwitchRoleButton } from "@/components/navigation/RoleActions";
 import { useActiveClient } from "@/hooks/useAppData";
 import { bodyAreaLabel } from "@/data/bodyAreas";
 import { getProgram } from "@/data/programs";
@@ -27,7 +27,10 @@ export function ClientHomePage() {
           <p className="text-muted-foreground">Hyvää päivää,</p>
           <h1 className="text-3xl font-bold">{client.firstName}</h1>
         </div>
-        <SwitchRoleButton />
+        <div className="flex flex-wrap gap-2">
+          <SwitchClientButton />
+          <SwitchRoleButton />
+        </div>
       </div>
 
       {(!client.intake || client.intakeDraft) && (
