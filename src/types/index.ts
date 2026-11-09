@@ -6,6 +6,10 @@ export type BodyArea = "ankle" | "knee" | "shoulder" | "hip" | "wrist" | "back";
 
 export type DataSource = "client-reported" | "camera" | "simulated" | "rule-based" | "ai-summary";
 
+export type WeightBearing = "normaalisti" | "ontuen" | "ei pysty";
+export type WalkingTolerance = "yli 30 min" | "10–30 min" | "alle 10 min";
+
+/** Client-reported intake. Everything here is "asiakkaan ilmoittama", never a diagnosis. */
 export interface Intake {
   completedAt: string;
   age: number;
@@ -13,15 +17,27 @@ export interface Intake {
   previousInjuries: string;
   bodyArea: BodyArea;
   side: "vasen" | "oikea";
+  injuryType: string; // e.g. "Nilkan nivelsidevamma (nyrjähdys)"
   mechanism: string;
   injuryDate: string;
   painLocation: string;
-  painLevel: number; // 0–10
+  painAtRest: number; // 0–10
+  painLevel: number; // 0–10, pain on load / activity
+  symptoms: string[];
+  weightBearing: WeightBearing;
+  walkingTolerance: WalkingTolerance;
   difficultActivities: string[];
   perceivedMobility: "hyvä" | "kohtalainen" | "heikko";
   otherSymptoms: string;
   goals: string;
   redFlags: string[];
+}
+
+/** Unfinished intake answers, saved locally on every change so the client can continue later. */
+export interface IntakeDraft {
+  step: number;
+  answers: Partial<Omit<Intake, "completedAt">>;
+  updatedAt: string;
 }
 
 export type ExerciseCategory = "liikkuvuus" | "lihasvoima" | "tasapaino" | "liikehallinta";
@@ -130,6 +146,7 @@ export interface Client {
   name: string;
   firstName: string;
   intake?: Intake;
+  intakeDraft?: IntakeDraft;
   baselineStatus: "done" | "pending" | "skipped";
   program?: AssignedProgram;
   sessions: ExerciseSession[];
