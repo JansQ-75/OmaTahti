@@ -69,8 +69,8 @@ function buildClientA(): Client {
         exerciseId: ex,
         date: daysAgo(d),
         status: "completed" as const,
-        painBefore: painBy[d],
-        painAfter: painBy[d],
+        painBefore: painBy[d] ?? 0,
+        painAfter: painBy[d] ?? 0,
         trackingSource: (ex === "ankle-flex" || ex === "single-leg-balance" ? "camera" : "none") as
           | "camera"
           | "none",
