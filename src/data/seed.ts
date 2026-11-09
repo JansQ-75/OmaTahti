@@ -1,6 +1,6 @@
 import type { AppData, Client } from "@/types";
 
-export const DATA_VERSION = 2;
+export const DATA_VERSION = 3;
 
 // Dates are relative to "today" so the demo always looks current.
 // Built lazily (never at module scope).
@@ -40,10 +40,15 @@ function buildClientA(): Client {
       previousInjuries: "Sama nilkka nyrjähti kevyesti 5 vuotta sitten.",
       bodyArea: "ankle",
       side: "oikea",
+      injuryType: "Nilkan nivelsidevamma (nyrjähdys)",
       mechanism: "Nilkka kääntyi sisäänpäin polkujuoksussa.",
       injuryDate: daysAgo(28, 18),
       painLocation: "Ulkokehrän etupuoli",
+      painAtRest: 2,
       painLevel: 5,
+      symptoms: ["Turvotus", "Jäykkyys", "Epävakauden tunne (nilkka pettää)"],
+      weightBearing: "ontuen",
+      walkingTolerance: "10–30 min",
       difficultActivities: ["Portaat", "Pidempi kävely", "Juoksu"],
       perceivedMobility: "kohtalainen",
       otherSymptoms: "Lievä turvotus iltaisin.",
@@ -166,10 +171,15 @@ function buildClientB(): Client {
       previousInjuries: "Ei aiempia vammoja.",
       bodyArea: "ankle",
       side: "vasen",
+      injuryType: "Nilkan nivelsidevamma (nyrjähdys)",
       mechanism: "Astui harhaan portaissa.",
       injuryDate: daysAgo(10, 15),
       painLocation: "Ulkokehrän alapuoli",
+      painAtRest: 1,
       painLevel: 4,
+      symptoms: ["Turvotus", "Mustelma"],
+      weightBearing: "ontuen",
+      walkingTolerance: "alle 10 min",
       difficultActivities: ["Portaat", "Epätasainen maasto"],
       perceivedMobility: "heikko",
       otherSymptoms: "Mustelma ja turvotus.",
