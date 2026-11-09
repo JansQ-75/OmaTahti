@@ -90,7 +90,7 @@ Role guards redirect to `/` if the wrong role opens a section. Both roles read t
 4. Client program and exercise instructions (based on the STADA ankle guide), start and mark done.
 5. Completion records, pain before/after, progress charts (Recharts), streak.
 6. Messaging and rule-based notifications in both roles.
-7. Camera tracking with MediaPipe Pose, per-exercise feedback, simulated fallback mode.
+7. Camera tracking with MediaPipe Pose, real tracking for only 1–2 carefully chosen exercises (e.g. seated ankle flexion/extension filmed from the side, and single-leg balance filmed from the front). Each tracked exercise specifies required camera angle, distance and lighting guidance. All other exercises use a clearly labelled simulated mode. Feedback is suppressed (shown as "Kamera ei tunnista liikettä riittävän hyvin") whenever landmark confidence is low; detecting a movement is never presented as judging its correctness.
 8. Orange-juice gamification tied to movement.
 9. Summaries and rule-based "AI" feedback, clearly labelled.
 10. End-to-end check of all paths on mobile and desktop, persistence after refresh, polish.
