@@ -85,13 +85,15 @@ Role guards redirect to `/` if the wrong role opens a section. Both roles read t
 ## Phases (from the spec)
 
 1. Base structure, visual identity, role selection, both layouts and navigation, role home pages.
-2. Client intake wizard (ankle ligament injury first), localStorage, summary, program selection.
+2. Client intake wizard (ankle ligament injury first), localStorage, summary, program selection. Plus guided baseline movement assessment: camera position/distance/lighting instructions, selected movement estimates saved locally as baseline (with camera setup metadata), skippable with "Tee myöhemmin", results labelled camera-based vs simulated. Pose analysis core built here and reused in phase 7.
 3. Physio home, client list, intake view, choose/edit/assign program.
 4. Client program and exercise instructions (based on the STADA ankle guide), start and mark done. The ankle demo program has at most 4 exercises: 1–2 with real camera tracking and at most 2 others that use a clearly labelled simulated mode.
 5. Completion records, pain before/after, progress charts (Recharts), streak.
 6. Messaging and rule-based notifications in both roles.
 7. Camera tracking with MediaPipe Pose, real tracking for only 1–2 carefully chosen exercises (e.g. seated ankle flexion/extension filmed from the side, and single-leg balance filmed from the front). Each tracked exercise specifies required camera angle, distance and lighting guidance. All other exercises use a clearly labelled simulated mode. Feedback is suppressed (shown as "Kamera ei tunnista liikettä riittävän hyvin") whenever landmark confidence is low; detecting a movement is never presented as judging its correctness.
-8. Orange-juice gamification tied to movement.
+   Detected repetitions are emitted as events that the orange game consumes.
+8. Orange-juice gamification tied to detected (or clearly simulated) repetitions.
+   Physio "Liikeanalyysi" tab (filled in phases 7–9): baseline and later estimates over time, compared only for the same movement and similar camera setup, with source badges (kamera-arvio / simuloitu / asiakkaan ilmoittama) and a "not a clinical measurement" note.
 9. Summaries and rule-based "AI" feedback, clearly labelled.
 10. End-to-end check of all paths on mobile and desktop, persistence after refresh, polish.
 
