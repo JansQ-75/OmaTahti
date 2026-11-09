@@ -1,6 +1,6 @@
 import type { AppData, Client } from "@/types";
 
-export const DATA_VERSION = 1;
+export const DATA_VERSION = 2;
 
 // Dates are relative to "today" so the demo always looks current.
 // Built lazily (never at module scope).
@@ -145,16 +145,7 @@ function buildClientA(): Client {
         date: daysAgo(5, 7),
         type: "activity-dropping",
         text: "Harjoittelu väheni selvästi viime viikolla (1 harjoituskerta, tavoite 4).",
-        audience: ["client", "physio"],
-        handled: false,
-        source: "rule-based",
-      },
-      {
-        id: "a-n2",
-        date: daysAgo(1, 20),
-        type: "new-message",
-        text: "Uusi viesti asiakkaalta: kysymys varpaille nousuun palaamisesta.",
-        audience: ["physio"],
+        audience: ["client"],
         handled: false,
         source: "rule-based",
       },
@@ -199,17 +190,7 @@ function buildClientB(): Client {
     painLog: [{ id: "b-p1", date: daysAgo(1, 12), level: 4, source: "client-reported" }],
     assessments: [],
     messages: [],
-    notifications: [
-      {
-        id: "b-n1",
-        date: daysAgo(1, 12),
-        type: "program-pending",
-        text: "Uusi asiakas: ehdotettu kuntoutusohjelma odottaa hyväksyntää.",
-        audience: ["physio"],
-        handled: false,
-        source: "rule-based",
-      },
-    ],
+    notifications: [],
   };
 }
 

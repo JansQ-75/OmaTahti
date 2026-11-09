@@ -1,49 +1,28 @@
 import { Link } from "@tanstack/react-router";
-import { AlertTriangle, MessageCircle, Users } from "lucide-react";
-import { PageHeader, SoftCard, SourceBadge } from "@/components/common/Section";
+import { MessageCircle, Users } from "lucide-react";
+import { PageHeader, SoftCard } from "@/components/common/Section";
 import { SwitchRoleButton } from "@/components/navigation/RoleActions";
 import { useAppData } from "@/hooks/useAppData";
-import { formatDate, openNotifications } from "@/utils/progress";
 
 export function PhysioHomePage() {
   const data = useAppData();
   if (!data) return null;
 
-  const alerts = data.clients.flatMap((c) =>
-    openNotifications(c, "physio").map((n) => ({ ...n, clientName: c.name })),
-  );
   const latestClientMessages = data.clients
     .map((c) => ({ client: c, msg: [...c.messages].reverse().find((m) => m.from === "client") }))
     .filter((x) => x.msg);
-  const needAttention = data.clients.filter((c) => openNotifications(c, "physio").length > 0);
 
   return (
     <div className="space-y-6">
       <PageHeader title="Hei, Laura" subtitle="Fysioterapeutin etusivu" action={<SwitchRoleButton />} />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Stat icon={MessageCircle} value={latestClientMessages.length} label="Uusia viestejä" />
-        <Stat icon={AlertTriangle} value={alerts.length} label="Käsittelemättömiä ilmoituksia" />
-        <Stat icon={Users} value={needAttention.length} label="Asiakasta vaatii huomiota" />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Link to="/fysioterapeutti/viestit" className="block rounded-3xl transition-transform hover:-translate-y-0.5">
+          <Stat icon={MessageCircle} value={latestClientMessages.length} label="Uusia viestejä →" />
+        </Link>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-2">
-        <SoftCard>
-          <h2 className="text-lg font-semibold">Käsittelemättömät ilmoitukset</h2>
-          <ul className="mt-3 space-y-3">
-            {alerts.map((a) => (
-              <li key={a.id} className="rounded-xl bg-warning-soft p-3 text-sm">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-semibold">{a.clientName}</span>
-                  <SourceBadge source="rule-based" />
-                </div>
-                <p className="mt-1">{a.text}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{formatDate(a.date)}</p>
-              </li>
-            ))}
-          </ul>
-        </SoftCard>
-
+      <div>
         <SoftCard>
           <h2 className="text-lg font-semibold">Uusimmat viestit asiakkailta</h2>
           <ul className="mt-3 space-y-3">
