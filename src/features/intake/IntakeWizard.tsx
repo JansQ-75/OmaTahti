@@ -10,7 +10,7 @@ import { BODY_AREAS } from "@/data/bodyAreas";
 import { getIntakeOptions } from "@/data/intake";
 import { completeIntake, saveIntakeDraft } from "@/services/intake";
 import { cn } from "@/lib/utils";
-import type { Client, Intake } from "@/types";
+import type { Client } from "@/types";
 import { IntakeSummary } from "./IntakeSummary";
 import { INTAKE_STEPS, answersFromIntake, toIntake, validateStep, type IntakeAnswers, type IntakeStepId } from "./intakeLogic";
 
@@ -53,7 +53,7 @@ export function IntakeWizard({ client }: { client: Client }) {
   if (!draft) return <p className="text-muted-foreground">Ladataan…</p>;
 
   const stepIndex = Math.min(Math.max(draft.step, 0), INTAKE_STEPS.length - 1);
-  const step = INTAKE_STEPS[stepIndex];
+  const step = INTAKE_STEPS[stepIndex] ?? INTAKE_STEPS[0];
   const a = draft.answers;
 
   const set = (patch: IntakeAnswers) => {
@@ -372,5 +372,3 @@ function Fact({ icon, children }: { icon: ReactNode; children: ReactNode }) {
     </li>
   );
 }
-
-export type { Intake };

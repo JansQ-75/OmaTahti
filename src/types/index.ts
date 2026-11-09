@@ -36,7 +36,7 @@ export interface Intake {
 /** Unfinished intake answers, saved locally on every change so the client can continue later. */
 export interface IntakeDraft {
   step: number;
-  answers: Partial<Omit<Intake, "completedAt">>;
+  answers: { [K in keyof Omit<Intake, "completedAt">]?: Intake[K] | undefined };
   updatedAt: string;
 }
 

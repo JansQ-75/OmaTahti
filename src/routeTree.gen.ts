@@ -19,6 +19,8 @@ import { Route as AsiakasViestitRouteImport } from './routes/asiakas/viestit'
 import { Route as FysioterapeuttiIndexRouteImport } from './routes/fysioterapeutti/index'
 import { Route as FysioterapeuttiAsiakkaatRouteImport } from './routes/fysioterapeutti/asiakkaat'
 import { Route as FysioterapeuttiViestitRouteImport } from './routes/fysioterapeutti/viestit'
+import { Route as AsiakasAlkukartoitusIndexRouteImport } from './routes/asiakas/alkukartoitus/index'
+import { Route as AsiakasAlkukartoitusKyselyRouteImport } from './routes/asiakas/alkukartoitus/kysely'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -71,6 +73,18 @@ const FysioterapeuttiViestitRoute = FysioterapeuttiViestitRouteImport.update({
   path: '/viestit',
   getParentRoute: () => FysioterapeuttiRoute,
 } as any)
+const AsiakasAlkukartoitusIndexRoute =
+  AsiakasAlkukartoitusIndexRouteImport.update({
+    id: '/alkukartoitus/',
+    path: '/alkukartoitus/',
+    getParentRoute: () => AsiakasRoute,
+  } as any)
+const AsiakasAlkukartoitusKyselyRoute =
+  AsiakasAlkukartoitusKyselyRouteImport.update({
+    id: '/alkukartoitus/kysely',
+    path: '/alkukartoitus/kysely',
+    getParentRoute: () => AsiakasRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -83,6 +97,8 @@ export interface FileRoutesByFullPath {
   '/fysioterapeutti/viestit': typeof FysioterapeuttiViestitRoute
   '/asiakas/': typeof AsiakasIndexRoute
   '/fysioterapeutti/': typeof FysioterapeuttiIndexRoute
+  '/asiakas/alkukartoitus/kysely': typeof AsiakasAlkukartoitusKyselyRoute
+  '/asiakas/alkukartoitus/': typeof AsiakasAlkukartoitusIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -93,6 +109,8 @@ export interface FileRoutesByTo {
   '/fysioterapeutti/viestit': typeof FysioterapeuttiViestitRoute
   '/asiakas': typeof AsiakasIndexRoute
   '/fysioterapeutti': typeof FysioterapeuttiIndexRoute
+  '/asiakas/alkukartoitus/kysely': typeof AsiakasAlkukartoitusKyselyRoute
+  '/asiakas/alkukartoitus': typeof AsiakasAlkukartoitusIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -106,6 +124,8 @@ export interface FileRoutesById {
   '/fysioterapeutti/viestit': typeof FysioterapeuttiViestitRoute
   '/asiakas/': typeof AsiakasIndexRoute
   '/fysioterapeutti/': typeof FysioterapeuttiIndexRoute
+  '/asiakas/alkukartoitus/kysely': typeof AsiakasAlkukartoitusKyselyRoute
+  '/asiakas/alkukartoitus/': typeof AsiakasAlkukartoitusIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -120,6 +140,8 @@ export interface FileRouteTypes {
     | '/fysioterapeutti/viestit'
     | '/asiakas/'
     | '/fysioterapeutti/'
+    | '/asiakas/alkukartoitus/kysely'
+    | '/asiakas/alkukartoitus/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -130,6 +152,8 @@ export interface FileRouteTypes {
     | '/fysioterapeutti/viestit'
     | '/asiakas'
     | '/fysioterapeutti'
+    | '/asiakas/alkukartoitus/kysely'
+    | '/asiakas/alkukartoitus'
   id:
     | '__root__'
     | '/'
@@ -142,6 +166,8 @@ export interface FileRouteTypes {
     | '/fysioterapeutti/viestit'
     | '/asiakas/'
     | '/fysioterapeutti/'
+    | '/asiakas/alkukartoitus/kysely'
+    | '/asiakas/alkukartoitus/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -222,6 +248,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FysioterapeuttiViestitRouteImport
       parentRoute: typeof FysioterapeuttiRoute
     }
+    '/asiakas/alkukartoitus/': {
+      id: '/asiakas/alkukartoitus/'
+      path: '/alkukartoitus'
+      fullPath: '/asiakas/alkukartoitus/'
+      preLoaderRoute: typeof AsiakasAlkukartoitusIndexRouteImport
+      parentRoute: typeof AsiakasRoute
+    }
+    '/asiakas/alkukartoitus/kysely': {
+      id: '/asiakas/alkukartoitus/kysely'
+      path: '/alkukartoitus/kysely'
+      fullPath: '/asiakas/alkukartoitus/kysely'
+      preLoaderRoute: typeof AsiakasAlkukartoitusKyselyRouteImport
+      parentRoute: typeof AsiakasRoute
+    }
   }
 }
 
@@ -230,6 +270,8 @@ interface AsiakasRouteChildren {
   AsiakasHarjoituksetRoute: typeof AsiakasHarjoituksetRoute
   AsiakasViestitRoute: typeof AsiakasViestitRoute
   AsiakasIndexRoute: typeof AsiakasIndexRoute
+  AsiakasAlkukartoitusKyselyRoute: typeof AsiakasAlkukartoitusKyselyRoute
+  AsiakasAlkukartoitusIndexRoute: typeof AsiakasAlkukartoitusIndexRoute
 }
 
 const AsiakasRouteChildren: AsiakasRouteChildren = {
@@ -237,6 +279,8 @@ const AsiakasRouteChildren: AsiakasRouteChildren = {
   AsiakasHarjoituksetRoute: AsiakasHarjoituksetRoute,
   AsiakasViestitRoute: AsiakasViestitRoute,
   AsiakasIndexRoute: AsiakasIndexRoute,
+  AsiakasAlkukartoitusKyselyRoute: AsiakasAlkukartoitusKyselyRoute,
+  AsiakasAlkukartoitusIndexRoute: AsiakasAlkukartoitusIndexRoute,
 }
 
 const AsiakasRouteWithChildren =
