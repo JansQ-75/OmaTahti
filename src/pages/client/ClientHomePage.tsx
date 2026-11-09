@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Bell, ChartLine, ClipboardList, Flame, MessageCircle, Play } from "lucide-react";
+import { Bell, ChartLine, ClipboardCheck, ClipboardList, Flame, MessageCircle, Play } from "lucide-react";
 import { SoftCard, SourceBadge } from "@/components/common/Section";
 import { SwitchRoleButton } from "@/components/navigation/RoleActions";
 import { useActiveClient } from "@/hooks/useAppData";
@@ -29,6 +29,24 @@ export function ClientHomePage() {
         </div>
         <SwitchRoleButton />
       </div>
+
+      {(!client.intake || client.intakeDraft) && (
+        <SoftCard className="bg-accent-soft">
+          <p className="text-sm font-medium text-accent-foreground">Aloita tästä</p>
+          <h2 className="mt-1 text-xl font-semibold">
+            {client.intakeDraft ? "Alkukartoitus on kesken" : "Tee alkukartoitus"}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Kerro vammastasi, kivusta ja toimintakyvystä, niin fysioterapeutti voi suunnitella ohjelmasi.
+          </p>
+          <Link
+            to="/asiakas/alkukartoitus/kysely"
+            className="mt-4 inline-flex min-h-12 items-center gap-2 rounded-2xl bg-primary px-6 text-lg font-semibold text-primary-foreground hover:bg-primary/90"
+          >
+            <ClipboardCheck className="h-5 w-5" /> {client.intakeDraft ? "Jatka alkukartoitusta" : "Aloita alkukartoitus"}
+          </Link>
+        </SoftCard>
+      )}
 
       {program && (
         <SoftCard className="bg-[image:var(--gradient-hero)]">
@@ -79,12 +97,13 @@ export function ClientHomePage() {
         </SoftCard>
       )}
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {(
           [
             { to: "/asiakas/harjoitukset", label: "Koko harjoitusohjelma", icon: ClipboardList },
             { to: "/asiakas/edistyminen", label: "Oma edistyminen", icon: ChartLine },
             { to: "/asiakas/viestit", label: "Ota yhteyttä fysioterapeuttiin", icon: MessageCircle },
+            { to: "/asiakas/alkukartoitus", label: "Oma alkukartoitus", icon: ClipboardCheck },
           ] as const
         ).map((a) => (
           <Link
