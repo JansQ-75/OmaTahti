@@ -1,23 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RoleSelectPage } from "@/pages/RoleSelectPage";
 
-// The home route ships no og:image, so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "OmaTahti – Kuntoutusta omaan tahtiin" },
+      { name: "description", content: "Valitse rooli: jatka asiakkaana tai fysioterapeuttina OmaTahti-etäkuntoutusdemossa." },
+      { property: "og:title", content: "OmaTahti – Kuntoutusta omaan tahtiin" },
+      { property: "og:description", content: "Etäkuntoutuksen demosovellus asiakkaalle ja fysioterapeutille." },
+    ],
+  }),
+  component: RoleSelectPage,
 });
-
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}
