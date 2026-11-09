@@ -20,9 +20,6 @@ export function PhysioHomePage() {
         <Link to="/fysioterapeutti/viestit" className="block rounded-3xl transition-transform hover:-translate-y-0.5">
           <Stat icon={MessageCircle} value={latestClientMessages.length} label="Uusia viestejä →" />
         </Link>
-        <Link to="/fysioterapeutti/asiakkaat" className="block rounded-3xl transition-transform hover:-translate-y-0.5">
-          <Stat icon={Users} value={data.clients.length} label="Asiakasta →" />
-        </Link>
       </div>
 
       <div>
