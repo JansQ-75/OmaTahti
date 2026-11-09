@@ -46,7 +46,7 @@ export function RoleLayout({ role, items, roleLabel }: { role: Role; items: NavI
             <Link
               key={it.to}
               to={it.to}
-              activeOptions={{ exact: it.exact }}
+              activeOptions={{ exact: it.exact ?? false }}
               className={linkCls}
               activeProps={{ className: activeCls, "aria-current": "page" }}
             >
@@ -78,7 +78,7 @@ export function RoleLayout({ role, items, roleLabel }: { role: Role; items: NavI
           <Link
             key={it.to}
             to={it.to}
-            activeOptions={{ exact: it.exact }}
+            activeOptions={{ exact: it.exact ?? false }}
             className="flex flex-col items-center gap-1 py-2.5 text-xs font-medium text-muted-foreground"
             activeProps={{ className: "text-primary", "aria-current": "page" }}
           >
