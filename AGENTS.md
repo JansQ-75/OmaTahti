@@ -36,3 +36,5 @@ use the editor.
 - Demo seed data is built lazily with dates relative to today (never at module scope) so the demo stays current and Workers SSR stays safe.
 - Only completed sessions count toward completions and streaks (`src/utils/progress.ts`); interrupted sessions never count.
 - Role sections are guarded by `RoleLayout`; a mismatched role redirects to `/`.
+- Feature logic lives in `src/features/<feature>` with pure rules in `*Logic.ts` (tested), and store writes in `src/services/<feature>.ts`, so UI stays thin and rules are testable.
+- Intake answers autosave to `client.intakeDraft` on every change and move to `client.intake` only on save; body-area-specific intake options live in `src/data/intake.ts`.
