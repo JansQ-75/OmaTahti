@@ -53,7 +53,7 @@ export function IntakeWizard({ client }: { client: Client }) {
   if (!draft) return <p className="text-muted-foreground">Ladataan…</p>;
 
   const stepIndex = Math.min(Math.max(draft.step, 0), INTAKE_STEPS.length - 1);
-  const step = INTAKE_STEPS[stepIndex];
+  const step = INTAKE_STEPS[stepIndex] ?? INTAKE_STEPS[0];
   const a = draft.answers;
 
   const set = (patch: IntakeAnswers) => {

@@ -26,7 +26,7 @@ export function ClientIntakePage() {
         <SoftCard className="mb-5 bg-accent-soft">
           <p className="text-lg font-semibold">Sinulla on keskeneräinen alkukartoitus</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Jäit kohtaan ”{INTAKE_STEPS[Math.min(draft.step, INTAKE_STEPS.length - 1)].title}”. Vastauksesi on tallennettu tälle laitteelle.
+            Jäit kohtaan ”{INTAKE_STEPS[Math.min(draft.step, INTAKE_STEPS.length - 1)]?.title}”. Vastauksesi on tallennettu tälle laitteelle.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link to="/asiakas/alkukartoitus/kysely" className={btnPrimary}>

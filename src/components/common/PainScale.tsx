@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /** 0–10 numeric pain scale with large touch targets. */
-export function PainScale({ value, onChange, label }: { value?: number; onChange: (v: number) => void; label: string }) {
+export function PainScale({ value, onChange, label }: { value?: number | undefined; onChange: (v: number) => void; label: string }) {
   return (
     <div>
       <div role="radiogroup" aria-label={label} className="grid grid-cols-6 gap-1.5 sm:grid-cols-11">

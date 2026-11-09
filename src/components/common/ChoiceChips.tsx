@@ -18,7 +18,7 @@ export function SingleChoice<T extends string>({
   columns = 1,
 }: {
   options: readonly T[];
-  value?: T;
+  value?: T | undefined;
   onChange: (v: T) => void;
   label: string;
   columns?: 1 | 2 | 3;
@@ -65,7 +65,7 @@ export function MultiChoice({
   noneLabel = "Ei mitään näistä",
 }: {
   options: readonly string[];
-  value?: string[];
+  value?: string[] | undefined;
   onChange: (v: string[]) => void;
   label: string;
   noneLabel?: string;

@@ -29,8 +29,8 @@ export function IntakeSummary({
   onEdit,
 }: {
   answers: IntakeAnswers;
-  completedAt?: string;
-  onEdit?: (step: IntakeStepId) => void;
+  completedAt?: string | undefined;
+  onEdit?: ((step: IntakeStepId) => void) | undefined;
 }) {
   const a = answers;
   const stop = needsProfessional(a);
@@ -115,7 +115,7 @@ function Block({
 }: {
   title: string;
   step: IntakeStepId;
-  onEdit?: (step: IntakeStepId) => void;
+  onEdit?: ((step: IntakeStepId) => void) | undefined;
   children: ReactNode;
 }) {
   const stepTitle = INTAKE_STEPS.find((s) => s.id === step)?.title;
@@ -139,7 +139,7 @@ function Block({
   );
 }
 
-function Row({ label, value }: { label: string; value?: string }) {
+function Row({ label, value }: { label: string; value?: string | undefined }) {
   return (
     <div className="grid gap-0.5 py-2 sm:grid-cols-[14rem_1fr] sm:gap-4">
       <p className="text-sm text-muted-foreground">{label}</p>
