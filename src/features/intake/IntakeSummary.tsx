@@ -134,7 +134,7 @@ function Block({
           </button>
         )}
       </div>
-      <dl className="divide-y divide-border">{children}</dl>
+      <div className="divide-y divide-border">{children}</div>
     </SoftCard>
   );
 }
@@ -142,8 +142,8 @@ function Block({
 function Row({ label, value }: { label: string; value?: string }) {
   return (
     <div className="grid gap-0.5 py-2 sm:grid-cols-[14rem_1fr] sm:gap-4">
-      <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className="font-medium">{value || "–"}</dd>
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="font-medium">{value || "–"}</p>
     </div>
   );
 }
