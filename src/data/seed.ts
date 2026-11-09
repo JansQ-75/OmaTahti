@@ -1,6 +1,6 @@
 import type { AppData, Client } from "@/types";
 
-export const DATA_VERSION = 1;
+export const DATA_VERSION = 2;
 
 // Dates are relative to "today" so the demo always looks current.
 // Built lazily (never at module scope).
