@@ -112,3 +112,11 @@ After each phase: verify the app runs, earlier features still work, all buttons 
 - Stack: TanStack Start + React 19 + TypeScript + Vite + Tailwind v4 + shadcn; Recharts for charts; `@mediapipe/tasks-vision` loaded only in the browser (phase 7).
 - localStorage is read after page load to avoid hydration mismatches; demo data seeds on first visit, with a "Palauta demodata" reset option.
 - Design direction (proposed for phase 1): calm, warm health look — soft sage/teal primary, warm off-white background, a warm orange accent (ties to the orange game), rounded cards, large touch targets, friendly readable typeface (not Inter/Poppins).
+
+## Additional retained requirements
+
+- **Physio program editing (phase 3):** add/remove exercises, adjust reps/sets and weekly frequency, add individual instructions; changes take effect only after approval.
+- **Exercise interruption (phases 4–5):** pause or stop, record a reason (pain, other symptom, other). Interrupted sessions stay incomplete and never count toward completions or streak.
+- **Measurement metadata:** every movement assessment stores date, movement/exercise, camera setup (view, distance, lighting), tracking confidence and source (camera/simulated).
+- **Shared data:** one store read by both roles; actions in one role appear in the other immediately.
+- **Priority:** a complete client–physio workflow over advanced animation or camera features; simulated functionality always labelled.
