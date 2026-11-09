@@ -35,3 +35,28 @@ export function openNotifications(client: Client, role: "client" | "physio") {
 export function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("fi-FI", { day: "numeric", month: "numeric" });
 }
+
+const SHORT_DAYS = ["Su", "Ma", "Ti", "Ke", "To", "Pe", "La"];
+
+/** Last N days (oldest first), whether a completed session happened that day. */
+export function trainedLastDays(sessions: ExerciseSession[], n: number, now = new Date()) {
+  const days = new Set(completedSessions(sessions).map((s) => dayKey(s.date)));
+  return Array.from({ length: n }, (_, i) => {
+    const d = new Date(now);
+    d.setDate(d.getDate() - (n - 1 - i));
+    return { label: SHORT_DAYS[d.getDay()], trained: days.has(dayKey(d.toISOString())) };
+  });
+}
+
+/** Completed sessions in the current Mon–Sun week, indexed Mon=0 … Sun=6. */
+export function sessionsByWeekday(sessions: ExerciseSession[], now = new Date()) {
+  const monday = new Date(now);
+  monday.setHours(0, 0, 0, 0);
+  monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+  const counts = [0, 0, 0, 0, 0, 0, 0];
+  for (const s of completedSessions(sessions)) {
+    const d = new Date(s.date);
+    if (d >= monday && d.getTime() < monday.getTime() + 7 * 86400000) counts[(d.getDay() + 6) % 7]++;
+  }
+  return counts;
+}

@@ -5,7 +5,7 @@ import { SwitchRoleButton } from "@/components/navigation/RoleActions";
 import { useActiveClient } from "@/hooks/useAppData";
 import { bodyAreaLabel } from "@/data/bodyAreas";
 import { getProgram } from "@/data/programs";
-import { currentStreak, openNotifications, sessionsInLastDays } from "@/utils/progress";
+import { currentStreak, openNotifications, sessionsByWeekday, sessionsInLastDays, trainedLastDays } from "@/utils/progress";
 
 export function ClientHomePage() {
   const client = useActiveClient();
@@ -13,8 +13,11 @@ export function ClientHomePage() {
 
   const program = client.program ? getProgram(client.program.programId) : undefined;
   const streak = currentStreak(client.sessions);
-  const weekCount = sessionsInLastDays(client.sessions, 7);
+  const week = sessionsByWeekday(client.sessions);
+  const weekCount = week.reduce((a, b) => a + b, 0);
   const target = client.program?.timesPerWeek ?? 0;
+  const last7 = trainedLastDays(client.sessions, 7);
+  const week = sessionsByWeekday(client.sessions);
   const notes = openNotifications(client, "client");
   const unreadFromPhysio = client.messages.filter((m) => m.from === "physio").slice(-1)[0];
 
@@ -46,30 +49,8 @@ export function ClientHomePage() {
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <SoftCard>
-          <div className="flex items-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft">
-              <Flame className="h-6 w-6 text-accent" />
-            </span>
-            <div>
-              <p className="text-3xl font-bold">{streak}</p>
-              <p className="text-sm text-muted-foreground">peräkkäistä harjoittelupäivää</p>
-            </div>
-          </div>
-        </SoftCard>
-        <SoftCard>
-          <p className="text-sm text-muted-foreground">Harjoituskerrat 7 päivän aikana</p>
-          <p className="mt-1 text-3xl font-bold">
-            {weekCount}
-            <span className="text-lg font-medium text-muted-foreground"> / {target}</span>
-          </p>
-          <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-success"
-              style={{ width: `${Math.min(100, target ? (weekCount / target) * 100 : 0)}%` }}
-            />
-          </div>
-        </SoftCard>
+        <StreakCard streak={streak} days={last7} />
+        <WeekBarsCard week={week} weekCount={weekCount} target={target} />
       </div>
 
       {(notes.length > 0 || unreadFromPhysio) && (
@@ -117,5 +98,68 @@ export function ClientHomePage() {
         ))}
       </div>
     </div>
+  );
+}
+
+const WEEKDAYS = ["Ma", "Ti", "Ke", "To", "Pe", "La", "Su"];
+
+function StreakCard({ streak, days }: { streak: number; days: { label: string; trained: boolean }[] }) {
+  return (
+    <SoftCard className="bg-accent-soft">
+      <div className="flex items-center gap-3">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-[var(--shadow-card)]">
+          <Flame className="h-7 w-7" />
+        </span>
+        <div>
+          <p className="text-3xl font-bold leading-none">
+            {streak} <span className="text-lg font-semibold">päivän putki</span>
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {streak > 0 ? "Jatka huomenna, niin putki kasvaa!" : "Aloita uusi putki tänään!"}
+          </p>
+        </div>
+      </div>
+      <ol className="mt-4 flex items-center justify-between gap-1" aria-label="Viimeiset 7 päivää">
+        {days.map((d, i) => (
+          <li key={i} className="flex flex-1 flex-col items-center gap-1">
+            <span
+              className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                d.trained ? "bg-accent text-accent-foreground" : "border-2 border-dashed border-border bg-card text-muted-foreground"
+              }`}
+            >
+              <Flame className="h-4 w-4" />
+            </span>
+            <span className="text-xs text-muted-foreground">{d.label}</span>
+          </li>
+        ))}
+      </ol>
+    </SoftCard>
+  );
+}
+
+function WeekBarsCard({ week, weekCount, target }: { week: number[]; weekCount: number; target: number }) {
+  const max = Math.max(2, ...week);
+  const today = (new Date().getDay() + 6) % 7;
+  return (
+    <SoftCard>
+      <div className="flex items-baseline justify-between gap-2">
+        <p className="text-sm text-muted-foreground">Tämän viikon harjoitukset</p>
+        <p className="text-sm font-semibold">
+          {weekCount} / {target} <span className="font-normal text-muted-foreground">tavoite</span>
+        </p>
+      </div>
+      <div className="mt-4 flex h-28 items-end justify-between gap-2" role="img" aria-label="Harjoituskerrat viikonpäivittäin">
+        {week.map((n, i) => (
+          <div key={i} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
+            <span className="text-xs font-semibold">{n > 0 ? n : ""}</span>
+            <div
+              className={`w-full max-w-8 rounded-t-lg ${n > 0 ? "bg-success" : "bg-muted"}`}
+              style={{ height: n > 0 ? `${(n / max) * 100}%` : "6px" }}
+            />
+            <span className={`text-xs ${i === today ? "font-bold text-foreground" : "text-muted-foreground"}`}>{WEEKDAYS[i]}</span>
+          </div>
+        ))}
+      </div>
+    </SoftCard>
   );
 }
