@@ -1,6 +1,6 @@
 import type { AppData, Client } from "@/types";
 
-export const DATA_VERSION = 3;
+export const DATA_VERSION = 4;
 
 // Dates are relative to "today" so the demo always looks current.
 // Built lazily (never at module scope).
@@ -159,45 +159,14 @@ function buildClientA(): Client {
 }
 
 function buildClientB(): Client {
+  // Story: brand-new client who has not started the intake yet.
   return {
     id: "client-mikko",
     name: "Mikko Virtanen",
     firstName: "Mikko",
     baselineStatus: "pending",
-    intake: {
-      completedAt: daysAgo(1, 12),
-      age: 52,
-      sex: "mies",
-      previousInjuries: "Ei aiempia vammoja.",
-      bodyArea: "ankle",
-      side: "vasen",
-      injuryType: "Nilkan nivelsidevamma (nyrjähdys)",
-      mechanism: "Astui harhaan portaissa.",
-      injuryDate: daysAgo(10, 15),
-      painLocation: "Ulkokehrän alapuoli",
-      painAtRest: 1,
-      painLevel: 4,
-      symptoms: ["Turvotus", "Mustelma"],
-      weightBearing: "ontuen",
-      walkingTolerance: "alle 10 min",
-      difficultActivities: ["Portaat", "Epätasainen maasto"],
-      perceivedMobility: "heikko",
-      otherSymptoms: "Mustelma ja turvotus.",
-      goals: "Kävellä työmatkat kivutta.",
-      redFlags: [],
-    },
-    program: {
-      programId: "ankle-sprain-early",
-      status: "proposed",
-      timesPerWeek: 3,
-      exercises: [
-        { exerciseId: "ankle-flex", sets: 3, reps: 15 },
-        { exerciseId: "single-leg-balance", sets: 2, holdSeconds: 20 },
-        { exerciseId: "heel-raise", sets: 2, reps: 10 },
-      ],
-    },
     sessions: [],
-    painLog: [{ id: "b-p1", date: daysAgo(1, 12), level: 4, source: "client-reported" }],
+    painLog: [],
     assessments: [],
     messages: [],
     notifications: [],

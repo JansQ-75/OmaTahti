@@ -63,3 +63,8 @@ export function setRole(role: Role | null) {
   else window.localStorage.removeItem(ROLE_KEY);
   emit();
 }
+
+/** Switch which demo client the client role uses; data of each client stays separate. */
+export function setActiveClient(clientId: string) {
+  updateData((d) => (d.clients.some((c) => c.id === clientId) ? { ...d, activeClientId: clientId } : d));
+}

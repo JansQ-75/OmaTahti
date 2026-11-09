@@ -13,7 +13,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { resetDemoData, setRole } from "@/services/storage";
+import { resetDemoData, setActiveClient, setRole } from "@/services/storage";
+import { useAppData } from "@/hooks/useAppData";
 
 export function SwitchRoleButton({ className }: { className?: string }) {
   const navigate = useNavigate();
@@ -60,5 +61,27 @@ export function ResetDemoButton({ className }: { className?: string }) {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+  );
+}
+
+/** Demo helper: switch between the demo clients without leaving the client role. */
+export function SwitchClientButton({ className }: { className?: string }) {
+  const data = useAppData();
+  const navigate = useNavigate();
+  if (!data) return null;
+  const other = data.clients.find((c) => c.id !== data.activeClientId);
+  if (!other) return null;
+  return (
+    <Button
+      variant="outline"
+      className={className}
+      onClick={() => {
+        setActiveClient(other.id);
+        navigate({ to: "/asiakas" });
+        toast.success(`Vaihdettu asiakkaaksi ${other.name}`);
+      }}
+    >
+      <Repeat className="h-4 w-4" /> Vaihda asiakkaaksi {other.firstName}
+    </Button>
   );
 }
