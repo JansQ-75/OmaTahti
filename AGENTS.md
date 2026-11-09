@@ -28,3 +28,11 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## OmaTahti architecture rules
+- Frontend-only prototype: all data lives in one localStorage store (`src/services/storage.ts`) read by both roles, so role views never diverge; replace this module to add a backend.
+- Route files in `src/routes` stay thin and render components from `src/pages`; `__root.tsx` is the composition layer (no App.tsx), because TanStack Router is fixed by the template.
+- Programs and exercises are pure data in `src/data`; new body areas/programs are added there without UI changes.
+- Demo seed data is built lazily with dates relative to today (never at module scope) so the demo stays current and Workers SSR stays safe.
+- Only completed sessions count toward completions and streaks (`src/utils/progress.ts`); interrupted sessions never count.
+- Role sections are guarded by `RoleLayout`; a mismatched role redirects to `/`.
