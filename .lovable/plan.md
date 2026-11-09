@@ -82,6 +82,14 @@ Role guards redirect to `/` if the wrong role opens a section. Both roles read t
 - **AiSummaryProvider** – rule-based summary for physio, labelled as prototype support, not a clinical decision.
 - **Program editor (physio)** – proposed changes stay pending until the physio approves them.
 
+## Demo data (seeded on first visit, shared model for both clients)
+
+- **Client A – ongoing (~3 weeks):** completed ankle intake, baseline assessment, active program of 3–4 exercises, 8–10 completions spread over 3 weeks, improving pain trend, 2–3 repeat assessments of the same movement (with camera setup + confidence), 3–4 messages, at least one notification needing physio attention, progress summary. All dates and values tell one consistent story.
+- **Client B – starting:** completed intake, baseline done or pending, proposed program awaiting physio approval, no exercise history.
+- Fictional data only. Changes persist across role switches. Visible "Palauta demodata" restores everything (messages, notifications, completions, measurements).
+- Supports scenario A (review progress) and scenario B (review intake, edit and approve program).
+- Seed data model created in phase 1; fields filled as each phase adds its feature.
+
 ## Phases (from the spec)
 
 1. Base structure, visual identity, role selection, both layouts and navigation, role home pages.
