@@ -100,7 +100,7 @@ export function ClientHomePage() {
   );
 }
 
-const WEEKDAYS = ["Ma", "Ti", "Ke", "To", "Pe", "La", "Su"];
+const WEEKDAYS: string[] = ["Ma", "Ti", "Ke", "To", "Pe", "La", "Su"];
 
 function StreakCard({ streak, days }: { streak: number; days: { label: string; trained: boolean }[] }) {
   return (
