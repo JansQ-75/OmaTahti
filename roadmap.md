@@ -11,16 +11,16 @@
 - [ ] Phase 9 – Summaries + rule-based AI feedback
 - [ ] Phase 10 – End-to-end polish
 
-## Janinan kommentit (kerätty, ei vielä toteutettu)
+## Janinan kommentit (toteutettu)
 
 Asiakkaan etusivu `/asiakas`:
-- [ ] Streak-kortti: motivoivampi visualisointi, tuo selkeämmin esiin että kyse on putkesta
-- [ ] Viikon treenit -kortti: pylväsdiagrammi, jossa viikonpäivät ja harjoitusten määrä
-- [ ] Ohjelmakortti: "tämä on hyvä" – ennallaan
+- [x] Streak-kortti: motivoivampi visualisointi, tuo selkeämmin esiin että kyse on putkesta
+- [x] Viikon treenit -kortti: pylväsdiagrammi, jossa viikonpäivät ja harjoitusten määrä
+- [x] Ohjelmakortti: "tämä on hyvä" – ennallaan
 
 Fysioterapeutin etusivu `/fysioterapeutti`:
-- [ ] "Uusia viestejä" -kortti: klikkaus vie viestit-näkymään
-- [ ] "Käsittelemättömiä ilmoituksia" -kortti pois (fysioterapeutille ei tule ilmoituksia)
-- [ ] "Asiakasta vaatii huomiota" -kortti pois
-- [ ] "Käsittelemättömät ilmoitukset" -kortti pois
-- [ ] "Ohjelma odottaa hyväksyntää" -ilmoitusta ei synny: fysioterapeutti hyväksyy muutoksen tekohetkellä
+- [x] "Uusia viestejä" -kortti: klikkaus vie viestit-näkymään
+- [x] "Käsittelemättömiä ilmoituksia" -kortti pois (fysioterapeutille ei tule ilmoituksia)
+- [x] "Asiakasta vaatii huomiota" -kortti pois
+- [x] "Käsittelemättömät ilmoitukset" -kortti pois
+- [x] "Ohjelma odottaa hyväksyntää" -ilmoitusta ei synny: fysioterapeutti hyväksyy muutoksen tekohetkellä

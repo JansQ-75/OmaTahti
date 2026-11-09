@@ -5,7 +5,7 @@ import { SwitchRoleButton } from "@/components/navigation/RoleActions";
 import { useActiveClient } from "@/hooks/useAppData";
 import { bodyAreaLabel } from "@/data/bodyAreas";
 import { getProgram } from "@/data/programs";
-import { currentStreak, openNotifications, sessionsByWeekday, sessionsInLastDays, trainedLastDays } from "@/utils/progress";
+import { currentStreak, openNotifications, sessionsByWeekday, trainedLastDays } from "@/utils/progress";
 
 export function ClientHomePage() {
   const client = useActiveClient();
@@ -17,7 +17,6 @@ export function ClientHomePage() {
   const weekCount = week.reduce((a, b) => a + b, 0);
   const target = client.program?.timesPerWeek ?? 0;
   const last7 = trainedLastDays(client.sessions, 7);
-  const week = sessionsByWeekday(client.sessions);
   const notes = openNotifications(client, "client");
   const unreadFromPhysio = client.messages.filter((m) => m.from === "physio").slice(-1)[0];
 
@@ -101,7 +100,7 @@ export function ClientHomePage() {
   );
 }
 
-const WEEKDAYS = ["Ma", "Ti", "Ke", "To", "Pe", "La", "Su"];
+const WEEKDAYS: string[] = ["Ma", "Ti", "Ke", "To", "Pe", "La", "Su"];
 
 function StreakCard({ streak, days }: { streak: number; days: { label: string; trained: boolean }[] }) {
   return (

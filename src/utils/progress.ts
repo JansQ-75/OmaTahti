@@ -44,7 +44,7 @@ export function trainedLastDays(sessions: ExerciseSession[], n: number, now = ne
   return Array.from({ length: n }, (_, i) => {
     const d = new Date(now);
     d.setDate(d.getDate() - (n - 1 - i));
-    return { label: SHORT_DAYS[d.getDay()], trained: days.has(dayKey(d.toISOString())) };
+    return { label: SHORT_DAYS[d.getDay()] ?? "", trained: days.has(dayKey(d.toISOString())) };
   });
 }
 
@@ -56,7 +56,7 @@ export function sessionsByWeekday(sessions: ExerciseSession[], now = new Date())
   const counts = [0, 0, 0, 0, 0, 0, 0];
   for (const s of completedSessions(sessions)) {
     const d = new Date(s.date);
-    if (d >= monday && d.getTime() < monday.getTime() + 7 * 86400000) counts[(d.getDay() + 6) % 7]++;
+    if (d >= monday && d.getTime() < monday.getTime() + 7 * 86400000) counts[(d.getDay() + 6) % 7]! += 1;
   }
   return counts;
 }
