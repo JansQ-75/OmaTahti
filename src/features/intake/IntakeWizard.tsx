@@ -10,7 +10,7 @@ import { BODY_AREAS } from "@/data/bodyAreas";
 import { getIntakeOptions } from "@/data/intake";
 import { completeIntake, saveIntakeDraft } from "@/services/intake";
 import { cn } from "@/lib/utils";
-import type { Client, Intake } from "@/types";
+import type { Client } from "@/types";
 import { IntakeSummary } from "./IntakeSummary";
 import { INTAKE_STEPS, answersFromIntake, toIntake, validateStep, type IntakeAnswers, type IntakeStepId } from "./intakeLogic";
 
@@ -372,5 +372,3 @@ function Fact({ icon, children }: { icon: ReactNode; children: ReactNode }) {
     </li>
   );
 }
-
-export type { Intake };
