@@ -6,7 +6,14 @@ import { useAppData, useRole } from "@/hooks/useAppData";
 import type { Role } from "@/types";
 
 export interface NavItem {
-  to: string;
+  to:
+    | "/asiakas"
+    | "/asiakas/harjoitukset"
+    | "/asiakas/edistyminen"
+    | "/asiakas/viestit"
+    | "/fysioterapeutti"
+    | "/fysioterapeutti/asiakkaat"
+    | "/fysioterapeutti/viestit";
   label: string;
   icon: LucideIcon;
   exact?: boolean;
