@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ClientExercisesPage } from "@/pages/client/ClientPlaceholders";
+import { ClientExercisesPage } from "@/pages/client/ClientExercisesPage";
 
 export const Route = createFileRoute("/asiakas/harjoitukset")({
   head: () => ({

@@ -129,6 +129,11 @@ describe("physio edits (approved at the moment of the change)", () => {
     expect(addExercise(p, "heel-raise", today)).toBe(p);
   });
 
+  it("the last exercise cannot be removed", () => {
+    const one = removeExercise(selfGuided, "band-eversion", today);
+    expect(removeExercise(one, "ankle-flex", today)).toBe(one);
+  });
+
   it("removing an exercise drops only that exercise", () => {
     const p = removeExercise(selfGuided, "band-eversion", today);
     expect(ids(p)).toEqual(["ankle-flex"]);

@@ -27,9 +27,16 @@ export function PhysioHomePage() {
           <h2 className="text-lg font-semibold">Uusimmat viestit asiakkailta</h2>
           <ul className="mt-3 space-y-3">
             {latestClientMessages.map(({ client, msg }) => (
-              <li key={client.id} className="rounded-xl bg-primary-soft p-3 text-sm">
-                <span className="font-semibold">{client.name}</span>
-                <p className="mt-1 text-muted-foreground">{msg!.text}</p>
+              <li key={client.id}>
+                <Link
+                  to="/fysioterapeutti/asiakkaat/$clientId"
+                  params={{ clientId: client.id }}
+                  className="block rounded-xl bg-primary-soft p-3 text-sm transition-colors hover:bg-primary-soft/70"
+                >
+                  <span className="font-semibold">{client.name}</span>
+                  <p className="mt-1 text-muted-foreground">{msg!.text}</p>
+                  <p className="mt-1 font-medium text-primary">Avaa asiakkaan tiedot →</p>
+                </Link>
               </li>
             ))}
           </ul>
