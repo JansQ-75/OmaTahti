@@ -15,6 +15,7 @@ import { Route as FysioterapeuttiRouteImport } from './routes/fysioterapeutti'
 import { Route as AsiakasIndexRouteImport } from './routes/asiakas/index'
 import { Route as AsiakasEdistyminenRouteImport } from './routes/asiakas/edistyminen'
 import { Route as AsiakasHarjoituksetRouteImport } from './routes/asiakas/harjoitukset'
+import { Route as AsiakasHarjoitusRouteImport } from './routes/asiakas/harjoitus'
 import { Route as AsiakasViestitRouteImport } from './routes/asiakas/viestit'
 import { Route as FysioterapeuttiIndexRouteImport } from './routes/fysioterapeutti/index'
 import { Route as FysioterapeuttiViestitRouteImport } from './routes/fysioterapeutti/viestit'
@@ -51,6 +52,11 @@ const AsiakasEdistyminenRoute = AsiakasEdistyminenRouteImport.update({
 const AsiakasHarjoituksetRoute = AsiakasHarjoituksetRouteImport.update({
   id: '/harjoitukset',
   path: '/harjoitukset',
+  getParentRoute: () => AsiakasRoute,
+} as any)
+const AsiakasHarjoitusRoute = AsiakasHarjoitusRouteImport.update({
+  id: '/harjoitus',
+  path: '/harjoitus',
   getParentRoute: () => AsiakasRoute,
 } as any)
 const AsiakasViestitRoute = AsiakasViestitRouteImport.update({
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/fysioterapeutti': typeof FysioterapeuttiRouteWithChildren
   '/asiakas/edistyminen': typeof AsiakasEdistyminenRoute
   '/asiakas/harjoitukset': typeof AsiakasHarjoituksetRoute
+  '/asiakas/harjoitus': typeof AsiakasHarjoitusRoute
   '/asiakas/viestit': typeof AsiakasViestitRoute
   '/fysioterapeutti/viestit': typeof FysioterapeuttiViestitRoute
   '/asiakas/': typeof AsiakasIndexRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/asiakas/edistyminen': typeof AsiakasEdistyminenRoute
   '/asiakas/harjoitukset': typeof AsiakasHarjoituksetRoute
+  '/asiakas/harjoitus': typeof AsiakasHarjoitusRoute
   '/asiakas/viestit': typeof AsiakasViestitRoute
   '/fysioterapeutti/viestit': typeof FysioterapeuttiViestitRoute
   '/asiakas': typeof AsiakasIndexRoute
@@ -128,6 +136,7 @@ export interface FileRoutesById {
   '/fysioterapeutti': typeof FysioterapeuttiRouteWithChildren
   '/asiakas/edistyminen': typeof AsiakasEdistyminenRoute
   '/asiakas/harjoitukset': typeof AsiakasHarjoituksetRoute
+  '/asiakas/harjoitus': typeof AsiakasHarjoitusRoute
   '/asiakas/viestit': typeof AsiakasViestitRoute
   '/fysioterapeutti/viestit': typeof FysioterapeuttiViestitRoute
   '/asiakas/': typeof AsiakasIndexRoute
@@ -145,6 +154,7 @@ export interface FileRouteTypes {
     | '/fysioterapeutti'
     | '/asiakas/edistyminen'
     | '/asiakas/harjoitukset'
+    | '/asiakas/harjoitus'
     | '/asiakas/viestit'
     | '/fysioterapeutti/viestit'
     | '/asiakas/'
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/'
     | '/asiakas/edistyminen'
     | '/asiakas/harjoitukset'
+    | '/asiakas/harjoitus'
     | '/asiakas/viestit'
     | '/fysioterapeutti/viestit'
     | '/asiakas'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/fysioterapeutti'
     | '/asiakas/edistyminen'
     | '/asiakas/harjoitukset'
+    | '/asiakas/harjoitus'
     | '/asiakas/viestit'
     | '/fysioterapeutti/viestit'
     | '/asiakas/'
@@ -233,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AsiakasHarjoituksetRouteImport
       parentRoute: typeof AsiakasRoute
     }
+    '/asiakas/harjoitus': {
+      id: '/asiakas/harjoitus'
+      path: '/harjoitus'
+      fullPath: '/asiakas/harjoitus'
+      preLoaderRoute: typeof AsiakasHarjoitusRouteImport
+      parentRoute: typeof AsiakasRoute
+    }
     '/asiakas/viestit': {
       id: '/asiakas/viestit'
       path: '/viestit'
@@ -288,6 +307,7 @@ declare module '@tanstack/react-router' {
 interface AsiakasRouteChildren {
   AsiakasEdistyminenRoute: typeof AsiakasEdistyminenRoute
   AsiakasHarjoituksetRoute: typeof AsiakasHarjoituksetRoute
+  AsiakasHarjoitusRoute: typeof AsiakasHarjoitusRoute
   AsiakasViestitRoute: typeof AsiakasViestitRoute
   AsiakasIndexRoute: typeof AsiakasIndexRoute
   AsiakasAlkukartoitusKyselyRoute: typeof AsiakasAlkukartoitusKyselyRoute
@@ -297,6 +317,7 @@ interface AsiakasRouteChildren {
 const AsiakasRouteChildren: AsiakasRouteChildren = {
   AsiakasEdistyminenRoute: AsiakasEdistyminenRoute,
   AsiakasHarjoituksetRoute: AsiakasHarjoituksetRoute,
+  AsiakasHarjoitusRoute: AsiakasHarjoitusRoute,
   AsiakasViestitRoute: AsiakasViestitRoute,
   AsiakasIndexRoute: AsiakasIndexRoute,
   AsiakasAlkukartoitusKyselyRoute: AsiakasAlkukartoitusKyselyRoute,
