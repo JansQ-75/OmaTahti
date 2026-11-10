@@ -1,16 +1,5 @@
 import { PageHeader, ComingSoon } from "@/components/common/Section";
 
-export function ClientExercisesPage() {
-  return (
-    <div>
-      <PageHeader title="Harjoitukset" subtitle="Aktiivinen kuntoutusohjelmasi" />
-      <ComingSoon title="Harjoituslista ja harjoitusohjeet" phase={4}>
-        Täällä näet pian ohjelmasi harjoitukset, sarjat ja toistot sekä voit aloittaa harjoituksen.
-      </ComingSoon>
-    </div>
-  );
-}
-
 export function ClientProgressPage() {
   return (
     <div>

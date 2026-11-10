@@ -6,11 +6,19 @@ import { getExercise } from "@/data/exercises";
 import { getProgram } from "@/data/programs";
 import { needsProfessional } from "@/features/intake/intakeLogic";
 import { startSelfGuidedProgram } from "@/services/program";
+import type { ReactNode } from "react";
 import type { Client, ProgramExercise } from "@/types";
 import { dosageText } from "./programLogic";
 
 /** List of program exercises with dosage and notes; reusable in the physio view. */
-export function ProgramExerciseList({ exercises }: { exercises: ProgramExercise[] }) {
+export function ProgramExerciseList({
+  exercises,
+  action,
+}: {
+  exercises: ProgramExercise[];
+  /** Optional per-exercise control, e.g. the physio's remove button. */
+  action?: (e: ProgramExercise) => ReactNode;
+}) {
   return (
     <ol className="space-y-2">
       {exercises.map((e, i) => {
@@ -20,7 +28,7 @@ export function ProgramExerciseList({ exercises }: { exercises: ProgramExercise[
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-soft font-semibold text-primary">
               {i + 1}
             </span>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="font-semibold">{ex?.name ?? e.exerciseId}</p>
               <p className="text-sm text-muted-foreground">
                 {dosageText(e)}
@@ -29,6 +37,7 @@ export function ProgramExerciseList({ exercises }: { exercises: ProgramExercise[
               {ex && <p className="mt-0.5 text-sm">{ex.purpose}</p>}
               {e.note && <p className="mt-1 text-sm font-medium text-primary">{e.note}</p>}
             </div>
+            {action && <div className="shrink-0 self-center">{action(e)}</div>}
           </li>
         );
       })}

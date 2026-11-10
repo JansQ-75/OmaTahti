@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { getData, resetDemoData, setActiveClient } from "@/services/storage";
 import { completeIntake, saveIntakeDraft } from "@/services/intake";
-import { startSelfGuidedProgram } from "@/services/program";
+import { physioAddExercise, physioRemoveExercise, physioReplaceProgram, startSelfGuidedProgram } from "@/services/program";
 
 describe("demo clients", () => {
   beforeEach(() => {
@@ -42,6 +42,26 @@ describe("demo clients", () => {
     const before = getData().clients.find((c) => c.id === "client-aino")!;
     completeIntake("client-aino", { ...before.intake!, painLevel: 8 });
     expect(getData().clients.find((c) => c.id === "client-aino")!.program).toEqual(before.program);
+  });
+
+  it("physio changes are stored and are what the client reads", () => {
+    physioReplaceProgram("client-aino", "ankle-sprain-acute");
+    physioAddExercise("client-aino", "heel-raise");
+    physioRemoveExercise("client-aino", "band-eversion");
+    const stored = JSON.parse(localStorage.getItem("omatahti:data")!);
+    const p = stored.clients.find((c: { id: string }) => c.id === "client-aino").program;
+    expect(p).toMatchObject({ programId: "ankle-sprain-acute", status: "active", origin: "physio" });
+    expect(p.exercises.map((e: { exerciseId: string }) => e.exerciseId)).toEqual(["ankle-flex", "heel-raise"]);
+    expect(p.physioInstructions).toMatch(/tuolin vieressä/);
+  });
+
+  it("the physio can give Mikko a program after his intake, without him starting anything", () => {
+    const aino = getData().clients.find((c) => c.id === "client-aino")!;
+    completeIntake("client-mikko", aino.intake!);
+    physioRemoveExercise("client-mikko", "heel-raise");
+    const m = getData().clients.find((c) => c.id === "client-mikko")!;
+    expect(m.program).toMatchObject({ status: "active", origin: "physio" });
+    expect(m.program!.exercises.some((e) => e.exerciseId === "heel-raise")).toBe(false);
   });
 
   it("reset restores both clients and Aino as active", () => {

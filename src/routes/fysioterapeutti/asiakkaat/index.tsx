@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PhysioClientsPage } from "@/pages/physio/PhysioClientsPage";
 
-export const Route = createFileRoute("/fysioterapeutti/asiakkaat")({
+export const Route = createFileRoute("/fysioterapeutti/asiakkaat/")({
   head: () => ({
     meta: [
       { title: "Asiakkaat – OmaTahti" },

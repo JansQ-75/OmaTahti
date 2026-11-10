@@ -38,4 +38,5 @@ use the editor.
 - Role sections are guarded by `RoleLayout`; a mismatched role redirects to `/`.
 - Feature logic lives in `src/features/<feature>` with pure rules in `*Logic.ts` (tested), and store writes in `src/services/<feature>.ts`, so UI stays thin and rules are testable.
 - Program suggestion is rule-based in `src/features/program/programLogic.ts` (stage chosen from intake, template picked by `bodyArea` + `stage` from `src/data/programs.ts`); `client.program.origin` separates rule-based from physio-set programs so intake re-saves never overwrite physio work, and physio edits always set `status: "active"` with `approvedAt`.
+- Physio client details live at `/fysioterapeutti/asiakkaat/$clientId`; list ordering and progress summaries are pure rules in `src/features/physio/physioLogic.ts`, and program edits go only through `src/services/program.ts` so client views read the same stored program.
 - Intake answers autosave to `client.intakeDraft` on every change and move to `client.intake` only on save; body-area-specific intake options live in `src/data/intake.ts`.

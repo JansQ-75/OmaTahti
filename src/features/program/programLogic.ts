@@ -208,9 +208,9 @@ export function addExercise(p: AssignedProgram, exerciseId: string, now: Date = 
   return approve({ ...p, exercises: [...p.exercises, entry] }, now);
 }
 
-/** Physio removes a single exercise. */
+/** Physio removes a single exercise; the last exercise cannot be removed (swap the program instead). */
 export function removeExercise(p: AssignedProgram, exerciseId: string, now: Date = new Date()): AssignedProgram {
-  if (!p.exercises.some((e) => e.exerciseId === exerciseId)) return p;
+  if (p.exercises.length <= 1 || !p.exercises.some((e) => e.exerciseId === exerciseId)) return p;
   return approve({ ...p, exercises: p.exercises.filter((e) => e.exerciseId !== exerciseId) }, now);
 }
 
