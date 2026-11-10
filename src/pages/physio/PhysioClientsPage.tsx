@@ -1,6 +1,7 @@
 import { PageHeader, SoftCard } from "@/components/common/Section";
 import { useAppData } from "@/hooks/useAppData";
 import { bodyAreaLabel } from "@/data/bodyAreas";
+import { getProgram } from "@/data/programs";
 import { openNotifications } from "@/utils/progress";
 
 export function PhysioClientsPage() {
@@ -13,7 +14,14 @@ export function PhysioClientsPage() {
       <div className="grid gap-4 md:grid-cols-2">
         {data.clients.map((c) => {
           const alerts = openNotifications(c, "physio").length;
-          const status = !c.program ? "Ei vielä ohjelmaa" : c.program.status === "active" ? "Käynnissä" : "Odottaa hyväksyntää";
+          const status = !c.program
+            ? "Ei vielä ohjelmaa"
+            : c.program.status === "active"
+              ? "Käynnissä"
+              : c.program.status === "self-guided"
+                ? "Itsenäinen harjoittelu (automaattinen ohjelma)"
+                : "Automaattinen ohjelma, asiakas ei ole vielä aloittanut";
+          const programName = c.program ? getProgram(c.program.programId)?.name : undefined;
           return (
             <SoftCard key={c.id}>
               <div className="flex items-start justify-between gap-3">
@@ -44,6 +52,7 @@ export function PhysioClientsPage() {
                   {status}
                 </span>
               </p>
+              {programName && <p className="mt-1 text-sm text-muted-foreground">{programName}</p>}
             </SoftCard>
           );
         })}

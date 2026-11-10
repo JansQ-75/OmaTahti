@@ -9,6 +9,8 @@ import type { Client, Role } from "@/types";
 
 function clientStatus(c: Client): string {
   if (c.program?.status === "active") return "Kuntoutus käynnissä";
+  if (c.program?.status === "self-guided") return "Itsenäinen harjoittelu käynnissä";
+  if (c.program?.status === "proposed") return "Alkukartoitus tehty · ohjelma valmis aloitettavaksi";
   if (c.intake) return "Alkukartoitus tehty";
   if (c.intakeDraft) return "Uusi asiakas · alkukartoitus kesken";
   return "Uusi asiakas · alkukartoitus tekemättä";

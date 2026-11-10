@@ -3,6 +3,7 @@ import { ClipboardList, PlayCircle, RotateCcw } from "lucide-react";
 import { PageHeader, SoftCard } from "@/components/common/Section";
 import { IntakeSummary } from "@/features/intake/IntakeSummary";
 import { IntakeWizard } from "@/features/intake/IntakeWizard";
+import { ProgramProposal } from "@/features/program/ProgramProposal";
 import { INTAKE_STEPS, answersFromIntake } from "@/features/intake/intakeLogic";
 import { useActiveClient } from "@/hooks/useAppData";
 import { discardIntakeDraft, saveIntakeDraft } from "@/services/intake";
@@ -41,6 +42,7 @@ export function ClientIntakePage() {
 
       {client.intake ? (
         <>
+          {!draft && <ProgramProposal client={client} />}
           <IntakeSummary answers={answersFromIntake(client.intake)} completedAt={client.intake.completedAt} />
           {!draft && (
             <div className="mt-6">

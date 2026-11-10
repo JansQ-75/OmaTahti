@@ -77,7 +77,7 @@ export function ProgramProposal({ client }: { client: Client }) {
         <span
           className={
             started
-              ? "inline-flex items-center gap-1 rounded-full bg-success px-2.5 py-0.5 text-xs font-semibold text-success-foreground"
+              ? "inline-flex items-center gap-1 rounded-full bg-success-soft px-2.5 py-0.5 text-xs font-semibold text-success"
               : "inline-flex rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-semibold text-accent-foreground"
           }
         >

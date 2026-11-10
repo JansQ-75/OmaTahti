@@ -111,7 +111,7 @@ export function IntakeWizard({ client }: { client: Client }) {
           <SoftCard className="space-y-4">
             <p className="text-lg">
               Kysymme muutamia asioita vammastasi, kivusta, oireista ja siitä, miten pärjäät arjessa. Vastausten
-              perusteella fysioterapeuttisi voi suunnitella sinulle sopivan kuntoutusohjelman.
+              perusteella saat sinulle sopivan harjoitusohjelman, jota fysioterapeutti voi tarvittaessa muokata.
             </p>
             <ul className="space-y-3">
               <Fact icon={<Clock className="h-5 w-5" />}>Vastaaminen vie noin 5 minuuttia, 7 lyhyttä vaihetta.</Fact>
