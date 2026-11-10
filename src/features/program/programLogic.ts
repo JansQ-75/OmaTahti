@@ -155,7 +155,9 @@ export function applyIntakeToProgram(
   if (current && current.origin !== "rule-based") return current;
   const rec = recommendProgram(intake, now);
   if (rec.kind !== "program") return undefined;
-  if (current?.status === "self-guided") return { ...rec.program, status: "self-guided", startedAt: current.startedAt };
+  if (current?.status === "self-guided") {
+    return { ...rec.program, status: "self-guided", ...(current.startedAt ? { startedAt: current.startedAt } : {}) };
+  }
   return rec.program;
 }
 
@@ -185,9 +187,9 @@ export function replaceProgram(current: AssignedProgram | undefined, programId: 
       origin: "physio",
       timesPerWeek: t.timesPerWeek,
       exercises: t.exercises.map((e) => ({ ...e })),
-      physioInstructions: current?.physioInstructions,
-      createdAt: current?.createdAt,
-      startedAt: current?.startedAt,
+      ...(current?.physioInstructions ? { physioInstructions: current.physioInstructions } : {}),
+      ...(current?.createdAt ? { createdAt: current.createdAt } : {}),
+      ...(current?.startedAt ? { startedAt: current.startedAt } : {}),
     },
     now,
   );
@@ -197,7 +199,12 @@ export function replaceProgram(current: AssignedProgram | undefined, programId: 
 export function addExercise(p: AssignedProgram, exerciseId: string, now: Date = new Date()): AssignedProgram {
   const ex = EXERCISES.find((e) => e.id === exerciseId);
   if (!ex || p.exercises.some((e) => e.exerciseId === exerciseId)) return p;
-  const entry: ProgramExercise = { exerciseId, sets: ex.sets, reps: ex.reps, holdSeconds: ex.holdSeconds };
+  const entry: ProgramExercise = {
+    exerciseId,
+    sets: ex.sets,
+    ...(ex.reps !== undefined ? { reps: ex.reps } : {}),
+    ...(ex.holdSeconds !== undefined ? { holdSeconds: ex.holdSeconds } : {}),
+  };
   return approve({ ...p, exercises: [...p.exercises, entry] }, now);
 }
 
