@@ -40,7 +40,7 @@ export function ClientHomePage() {
             {client.intakeDraft ? "Alkukartoitus on kesken" : "Tee alkukartoitus"}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Kerro vammastasi, kivusta ja toimintakyvystä, niin fysioterapeutti voi suunnitella ohjelmasi.
+            Kerro vammastasi, kivusta ja toimintakyvystä, niin saat sinulle sopivan harjoitusohjelman.
           </p>
           <Link
             to="/asiakas/alkukartoitus/kysely"
@@ -51,9 +51,27 @@ export function ClientHomePage() {
         </SoftCard>
       )}
 
-      {program && (
+      {program && client.program?.status === "proposed" && (
         <SoftCard className="bg-[image:var(--gradient-hero)]">
-          <p className="text-sm font-medium text-primary">Aktiivinen kuntoutusohjelma</p>
+          <p className="text-sm font-medium text-primary">Harjoitusohjelmasi on valmis</p>
+          <h2 className="mt-1 text-xl font-semibold">{program.name}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Ohjelma muodostettiin alkukartoituksesi perusteella. Voit aloittaa harjoittelun heti itsenäisesti.
+          </p>
+          <Link
+            to="/asiakas/alkukartoitus"
+            className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-4 text-lg font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto sm:inline-flex"
+          >
+            <Play className="h-5 w-5" /> Katso ohjelma ja aloita
+          </Link>
+        </SoftCard>
+      )}
+
+      {program && client.program?.status !== "proposed" && (
+        <SoftCard className="bg-[image:var(--gradient-hero)]">
+          <p className="text-sm font-medium text-primary">
+            {client.program?.status === "self-guided" ? "Itsenäinen harjoitusohjelma" : "Aktiivinen kuntoutusohjelma"}
+          </p>
           <h2 className="mt-1 text-xl font-semibold">{program.name}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {client.intake && `${bodyAreaLabel(client.intake.bodyArea)} (${client.intake.side}) · `}

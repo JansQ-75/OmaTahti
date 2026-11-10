@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { getData, resetDemoData, setActiveClient } from "@/services/storage";
 import { completeIntake, saveIntakeDraft } from "@/services/intake";
+import { startSelfGuidedProgram } from "@/services/program";
 
 describe("demo clients", () => {
   beforeEach(() => {
@@ -22,6 +23,25 @@ describe("demo clients", () => {
     expect(getData().activeClientId).toBe("client-mikko");
     saveIntakeDraft("client-mikko", { step: 2, answers: { age: 52 } });
     expect(JSON.stringify(getData().clients.find((c) => c.id === "client-aino"))).toBe(ainoBefore);
+  });
+
+  it("saving Mikko's intake stores a rule-based program he can start without approval", () => {
+    const aino = getData().clients.find((c) => c.id === "client-aino")!;
+    completeIntake("client-mikko", { ...aino.intake!, injuryDate: new Date().toISOString() });
+    expect(getData().clients.find((c) => c.id === "client-mikko")!.program).toMatchObject({
+      programId: "ankle-sprain-acute",
+      status: "proposed",
+      origin: "rule-based",
+    });
+    startSelfGuidedProgram("client-mikko");
+    const stored = JSON.parse(localStorage.getItem("omatahti:data")!);
+    expect(stored.clients.find((c: { id: string }) => c.id === "client-mikko").program.status).toBe("self-guided");
+  });
+
+  it("re-saving Aino's intake keeps her physio-approved program", () => {
+    const before = getData().clients.find((c) => c.id === "client-aino")!;
+    completeIntake("client-aino", { ...before.intake!, painLevel: 8 });
+    expect(getData().clients.find((c) => c.id === "client-aino")!.program).toEqual(before.program);
   });
 
   it("reset restores both clients and Aino as active", () => {
