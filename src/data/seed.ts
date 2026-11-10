@@ -1,6 +1,6 @@
 import type { AppData, Client } from "@/types";
 
-export const DATA_VERSION = 4;
+export const DATA_VERSION = 5;
 
 // Dates are relative to "today" so the demo always looks current.
 // Built lazily (never at module scope).
@@ -58,6 +58,7 @@ function buildClientA(): Client {
     program: {
       programId: "ankle-sprain-early",
       status: "active",
+      origin: "physio",
       timesPerWeek: 4,
       approvedAt: daysAgo(21, 14),
       physioInstructions: "Tee tasapainoharjoitus aluksi tuolin vieressä. Kipu saa olla korkeintaan 3/10.",

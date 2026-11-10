@@ -65,23 +65,40 @@ export interface ProgramExercise {
   note?: string;
 }
 
+/** Rehab stage: 1 = early/gentle, 2 = loading increases, 3 = strength, balance and return to activity. */
+export type ProgramStage = 1 | 2 | 3;
+
 export interface RehabProgram {
   id: string;
   name: string;
   bodyArea: BodyArea;
+  stage: ProgramStage;
   goal: string;
   phase: string;
   suitability: string;
+  timesPerWeek: number;
   exercises: ProgramExercise[];
 }
 
 export interface AssignedProgram {
   programId: string;
-  status: "proposed" | "active";
+  /**
+   * proposed    = rule-based suggestion the client has not started yet
+   * self-guided = client trains on the rule-based program without physio approval
+   * active      = set or approved by the physio (approval happens at the moment of the change)
+   */
+  status: "proposed" | "self-guided" | "active";
+  origin: "rule-based" | "physio";
   timesPerWeek: number;
   exercises: ProgramExercise[];
   physioInstructions?: string;
   approvedAt?: string;
+  createdAt?: string;
+  startedAt?: string;
+  /** Rule-based: why this program and dosage were chosen (Finnish, shown to client and physio). */
+  reasons?: string[];
+  /** Rule-based: safety notes derived from the answers. */
+  cautions?: string[];
 }
 
 export interface ExerciseSession {

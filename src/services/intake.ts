@@ -1,5 +1,6 @@
 // Intake persistence: drafts and completed intakes live in the shared store.
 import { updateData } from "@/services/storage";
+import { applyIntakeToProgram } from "@/features/program/programLogic";
 import type { Client, Intake, IntakeDraft } from "@/types";
 
 function updateClient(clientId: string, fn: (c: Client) => Client) {
@@ -17,9 +18,11 @@ export function discardIntakeDraft(clientId: string) {
   });
 }
 
+/** Saves the intake and (re)builds the rule-based program; a physio-set program is kept as is. */
 export function completeIntake(clientId: string, intake: Intake) {
   updateClient(clientId, (c) => {
-    const { intakeDraft: _d, ...rest } = c;
-    return { ...rest, intake };
+    const { intakeDraft: _d, program: _p, ...rest } = c;
+    const program = applyIntakeToProgram(c.program, intake);
+    return program ? { ...rest, intake, program } : { ...rest, intake };
   });
 }
