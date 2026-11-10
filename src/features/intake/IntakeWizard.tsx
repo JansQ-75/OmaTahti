@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Check, Clock, ShieldCheck, Smartphone } from "lucide-react";
 import { MultiChoice, SingleChoice } from "@/components/common/ChoiceChips";
@@ -39,10 +39,12 @@ export function IntakeWizard({ client }: { client: Client }) {
   const navigate = useNavigate();
   const draft = client.intakeDraft;
   const [error, setError] = useState<string | null>(null);
+  // Set on save so the wizard does not start a fresh draft while navigating away.
+  const savedRef = useRef(false);
 
   // Start a new draft (prefilled from an earlier intake, if any) when none exists.
   useEffect(() => {
-    if (!draft) saveIntakeDraft(client.id, { step: 0, answers: answersFromIntake(client.intake) });
+    if (!draft && !savedRef.current) saveIntakeDraft(client.id, { step: 0, answers: answersFromIntake(client.intake) });
   }, [draft, client.id, client.intake]);
 
   useEffect(() => {
@@ -76,6 +78,7 @@ export function IntakeWizard({ client }: { client: Client }) {
       if (bad) goToStep(bad.id);
       return;
     }
+    savedRef.current = true;
     completeIntake(client.id, intake);
     navigate({ to: "/asiakas/alkukartoitus" });
   };
