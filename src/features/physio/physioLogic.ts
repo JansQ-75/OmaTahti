@@ -33,7 +33,11 @@ export interface ProgressSummary {
 }
 
 export function progressSummary(c: Client, days = 14, now: Date = new Date()): ProgressSummary {
-  const from = now.getTime() - days * 86_400_000;
+  // Calendar days: today and the previous days-1 days, so the result does not depend on the time of day.
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - (days - 1));
+  const from = start.getTime();
   const inPeriod = (iso: string) => new Date(iso).getTime() >= from;
   const pain = c.painLog.filter((p) => inPeriod(p.date)).sort((a, b) => a.date.localeCompare(b.date));
   const all = [...c.painLog].sort((a, b) => a.date.localeCompare(b.date));
