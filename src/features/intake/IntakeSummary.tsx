@@ -27,7 +27,9 @@ export function IntakeSummary({
   answers,
   completedAt,
   onEdit,
+  audience = "client",
 }: {
+  audience?: "client" | "physio";
   answers: IntakeAnswers;
   completedAt?: string | undefined;
   onEdit?: ((step: IntakeStepId) => void) | undefined;
@@ -40,11 +42,13 @@ export function IntakeSummary({
       {stop && (
         <div role="alert" className="rounded-2xl border-2 border-destructive/40 bg-destructive-soft p-5">
           <p className="flex items-center gap-2 text-lg font-semibold">
-            <AlertTriangle className="h-5 w-5 text-destructive" /> Hakeudu ammattilaisen arvioon
+            <AlertTriangle className="h-5 w-5 text-destructive" />{" "}
+            {audience === "physio" ? "Asiakas ilmoitti hälytysmerkkejä" : "Hakeudu ammattilaisen arvioon"}
           </p>
           <p className="mt-1 text-sm">
-            Vastauksesi perusteella nilkka kannattaa näyttää lääkärille tai fysioterapeutille ennen omatoimista
-            harjoittelua. Kiireellisessä tilanteessa soita 112.
+            {audience === "physio"
+              ? "Asiakasta on ohjattu hakeutumaan arvioon ennen omatoimista harjoittelua."
+              : "Vastauksesi perusteella nilkka kannattaa näyttää lääkärille tai fysioterapeutille ennen omatoimista harjoittelua. Kiireellisessä tilanteessa soita 112."}
           </p>
           <ul className="mt-2 list-disc pl-5 text-sm">
             {a.weightBearing === "ei pysty" && <li>En pysty varaamaan jalalle</li>}
@@ -92,7 +96,11 @@ export function IntakeSummary({
       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <SourceBadge source="client-reported" />
         {completedAt && <span>Täytetty {formatDate(completedAt)}.</span>}
-        <span>Yhteenveto perustuu omiin vastauksiisi, eikä se ole diagnoosi.</span>
+        <span>
+          {audience === "physio"
+            ? "Asiakkaan omat vastaukset, ei diagnoosi."
+            : "Yhteenveto perustuu omiin vastauksiisi, eikä se ole diagnoosi."}
+        </span>
       </div>
     </div>
   );
