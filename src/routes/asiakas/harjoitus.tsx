@@ -3,7 +3,7 @@ import { WorkoutPage } from "@/pages/client/WorkoutPage";
 
 export const Route = createFileRoute("/asiakas/harjoitus")({
   validateSearch: (s: Record<string, unknown>): { liike?: number } => {
-    const n = Number(s.liike);
+    const n = Number(s["liike"]);
     return Number.isInteger(n) && n >= 0 ? { liike: n } : {};
   },
   head: () => ({
