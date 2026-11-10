@@ -5,7 +5,7 @@
 - [x] Rule-based program selection after intake + self-guided start (phase 2 addition)
 - [ ] Baseline camera assessment (originally planned in phase 2 – waits for user decision on which phase)
 - [x] Phase 3 – Physio client list + client details (contacts, intake, program, progress/pain), switch program, add/remove exercises; client Harjoitukset page shows the current program (read-only)
-- [ ] Phase 4 – Client program + exercise instructions, start/interrupt/complete
+- [x] Phase 4 – Client program + exercise instructions, start/interrupt/complete
 - [ ] Phase 5 – Tracking, pain before/after, charts, streak
 - [ ] Phase 6 – Messaging + notifications
 - [ ] Phase 7 – Camera tracking (1–2 exercises), simulated mode

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ClipboardCheck, Play } from "lucide-react";
-import { ComingSoon, PageHeader, SoftCard } from "@/components/common/Section";
+import { PageHeader, SoftCard } from "@/components/common/Section";
 import { getProgram } from "@/data/programs";
 import { formatDate } from "@/features/intake/IntakeSummary";
 import { ProgramExerciseList } from "@/features/program/ProgramProposal";
@@ -47,19 +47,26 @@ export function ClientExercisesPage() {
             </p>
           )}
           <div className="mt-4">
-            <ProgramExerciseList exercises={p.exercises} />
+            <ProgramExerciseList
+              exercises={p.exercises}
+              action={(e) => (
+                <Link
+                  to="/asiakas/harjoitus"
+                  search={{ liike: p.exercises.indexOf(e) }}
+                  aria-label={`Aloita liikkeestä ${p.exercises.indexOf(e) + 1}`}
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-soft text-primary hover:bg-primary hover:text-primary-foreground"
+                >
+                  <Play className="h-5 w-5" />
+                </Link>
+              )}
+            />
           </div>
-          {p.status === "proposed" && (
-            <Link to="/asiakas/alkukartoitus" className={btnPrimary}>
-              <Play className="h-5 w-5" /> Aloita itsenäinen harjoittelu
-            </Link>
-          )}
+          <Link to="/asiakas/harjoitus" className={btnPrimary}>
+            <Play className="h-5 w-5" /> {p.status === "proposed" ? "Aloita itsenäinen harjoittelu" : "Aloita harjoitus"}
+          </Link>
         </SoftCard>
       )}
 
-      <ComingSoon title="Harjoituksen aloittaminen, ohjeet ja keskeyttäminen" phase={4}>
-        Pian voit aloittaa harjoituksen tästä ja kirjata sen tehdyksi tai keskeytetyksi.
-      </ComingSoon>
     </div>
   );
 }
