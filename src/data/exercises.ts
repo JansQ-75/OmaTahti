@@ -1,4 +1,10 @@
 import type { Exercise } from "@/types";
+import ankleUp from "@/assets/exercises/person_ankle_up.png.asset.json";
+import ankleFlexed from "@/assets/exercises/person_ankle_flexed.png.asset.json";
+import toGo from "@/assets/exercises/person_to_go.png.asset.json";
+import onLegUp from "@/assets/exercises/person_on_leg_up.png.asset.json";
+import stands from "@/assets/exercises/person_stands.png.asset.json";
+import onToes from "@/assets/exercises/person_on_toes.png.asset.json";
 
 // Ankle demo exercises (STADA ankle sprain guide as the basis).
 // Max 4: two with real camera tracking, two clearly simulated.
@@ -17,6 +23,7 @@ export const EXERCISES: Exercise[] = [
     reps: 15,
     targetMovement: "Nilkan koukistus noin 20–30° ja ojennus",
     tracking: "camera",
+    images: { start: ankleUp.url, end: ankleFlexed.url },
   },
   {
     id: "single-leg-balance",
@@ -32,6 +39,7 @@ export const EXERCISES: Exercise[] = [
     holdSeconds: 30,
     targetMovement: "Lantio ja hartiat vakaina yhden jalan varassa",
     tracking: "camera",
+    images: { start: toGo.url, end: onLegUp.url },
   },
   {
     id: "heel-raise",
@@ -46,6 +54,7 @@ export const EXERCISES: Exercise[] = [
     reps: 12,
     targetMovement: "Kantapäiden nousu ja hallittu lasku",
     tracking: "simulated",
+    images: { start: stands.url, end: onToes.url },
   },
   {
     id: "band-eversion",

@@ -2,9 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { WorkoutPage } from "@/pages/client/WorkoutPage";
 
 export const Route = createFileRoute("/asiakas/harjoitus")({
-  validateSearch: (s: Record<string, unknown>): { liike?: number } => {
+  validateSearch: (s: Record<string, unknown>): { liike?: number; yksittainen?: boolean } => {
     const n = Number(s["liike"]);
-    return Number.isInteger(n) && n >= 0 ? { liike: n } : {};
+    const single = s["yksittainen"] === true || s["yksittainen"] === "true";
+    return { ...(Number.isInteger(n) && n >= 0 ? { liike: n } : {}), ...(single ? { yksittainen: true } : {}) };
   },
   head: () => ({
     meta: [
@@ -20,6 +21,6 @@ export const Route = createFileRoute("/asiakas/harjoitus")({
 });
 
 function WorkoutRoute() {
-  const { liike } = Route.useSearch();
-  return <WorkoutPage startAt={liike ?? 0} />;
+  const { liike, yksittainen } = Route.useSearch();
+  return <WorkoutPage key={`${liike}-${yksittainen}`} startAt={liike ?? 0} single={!!yksittainen} />;
 }

@@ -26,7 +26,7 @@ const primary = `${btn} bg-primary text-primary-foreground hover:bg-primary/90`;
 const secondary = `${btn} border border-border bg-card hover:bg-muted`;
 
 /** Full-screen focus mode: one exercise at a time, sets/reps or hold timer, interrupt with a reason. */
-export function WorkoutPage({ startAt }: { startAt: number }) {
+export function WorkoutPage({ startAt, single = false }: { startAt: number; single?: boolean }) {
   const client = useActiveClient();
   const navigate = useNavigate();
   const exercises = client?.program?.exercises ?? [];
@@ -44,7 +44,7 @@ export function WorkoutPage({ startAt }: { startAt: number }) {
   // Hold timer
   useEffect(() => {
     if (!running) return;
-    const t = setInterval(() => setS((cur) => tick(cur, exercises)), 1000);
+    const t = setInterval(() => setS((cur) => tick(cur, exercises, single)), 1000);
     return () => clearInterval(t);
   }, [running, exercises]);
 
@@ -56,7 +56,7 @@ export function WorkoutPage({ startAt }: { startAt: number }) {
     if (s.finished && client && !saved.current) {
       saved.current = true;
       markProgramStarted(client.id);
-      saveWorkoutSession(client.id, buildSession(s, exercises, { id: `s-${Date.now()}` }));
+      saveWorkoutSession(client.id, buildSession(s, exercises, { id: `s-${Date.now()}`, single }));
     }
   }, [s, client, exercises]);
 
@@ -78,7 +78,7 @@ export function WorkoutPage({ startAt }: { startAt: number }) {
     markProgramStarted(client.id);
     saveWorkoutSession(
       client.id,
-      buildSession(s, exercises, { id: `s-${Date.now()}`, interruptReason: reason, comment: comment.trim() }),
+      buildSession(s, exercises, { id: `s-${Date.now()}`, single, interruptReason: reason, comment: comment.trim() }),
     );
     toast("Harjoitus keskeytetty", { description: "Keskeytetty kerta ei kerrytä suorituksia tai putkea." });
     navigate({ to: "/asiakas/harjoitukset" });
@@ -88,17 +88,27 @@ export function WorkoutPage({ startAt }: { startAt: number }) {
     return (
       <Overlay>
         <CheckCircle2 className="mx-auto h-16 w-16 text-primary" />
-        <h1 className="mt-4 text-2xl font-bold">Hienoa, harjoituskerta tehty!</h1>
+        <h1 className="mt-4 text-2xl font-bold">{single ? "Hienoa, liike tehty!" : "Hienoa, harjoituskerta tehty!"}</h1>
         <p className="mt-2 text-muted-foreground">
-          Teit kaikki {exercises.length} liikettä. Kerta on tallennettu ja kerryttää harjoitusputkeasi.
+          {single
+            ? `${getExercise(exercises[s.exIndex]?.exerciseId ?? "")?.name ?? "Liike"} on tallennettu ja kerryttää harjoitusputkeasi.`
+            : `Teit kaikki ${exercises.length} liikettä. Kerta on tallennettu ja kerryttää harjoitusputkeasi.`}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link to="/asiakas" className={primary}>
-            Etusivulle
-          </Link>
-          <Link to="/asiakas/harjoitukset" className={secondary}>
-            Harjoituksiin
-          </Link>
+          {single ? (
+            <Link to="/asiakas/harjoitukset" className={primary}>
+              Palaa harjoituksiin
+            </Link>
+          ) : (
+            <>
+              <Link to="/asiakas" className={primary}>
+                Etusivulle
+              </Link>
+              <Link to="/asiakas/harjoitukset" className={secondary}>
+                Harjoituksiin
+              </Link>
+            </>
+          )}
         </div>
       </Overlay>
     );
@@ -113,15 +123,16 @@ export function WorkoutPage({ startAt }: { startAt: number }) {
     <div className="fixed inset-0 z-50 overflow-y-auto bg-background">
       <div className="mx-auto flex min-h-full max-w-2xl flex-col px-5 py-5">
         <div className="flex items-center justify-between gap-3">
-          <p className="font-semibold">
-            Liike {s.exIndex + 1} / {exercises.length}
-          </p>
+          <p className="font-semibold">{single ? "Yksittäinen liike" : `Liike ${s.exIndex + 1} / ${exercises.length}`}</p>
           <button type="button" onClick={() => setInterrupting(true)} className={`${secondary} min-h-10 px-4 text-sm`}>
-            <X className="h-4 w-4" /> Keskeytä
+            <X className="h-4 w-4" /> {single ? "Keskeytä liike" : "Keskeytä"}
           </button>
         </div>
         <div className="mt-3 flex gap-1.5" aria-hidden>
-          {exerciseSegments(s, exercises.length).map((seg, i) => (
+          {(single
+            ? Array.from({ length: pe.sets }, (_, i) => (i < s.setIndex ? "done" : i === s.setIndex ? "current" : "upcoming"))
+            : exerciseSegments(s, exercises.length)
+          ).map((seg, i) => (
             <div
               key={i}
               className={cn(
@@ -140,6 +151,17 @@ export function WorkoutPage({ startAt }: { startAt: number }) {
           {dosageText(pe)} · {ex?.purpose}
         </p>
         {pe.note && <p className="mt-2 text-sm font-medium text-primary">{pe.note}</p>}
+
+        {ex?.images && (
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            {([["1. Alkuasento", ex.images.start], ["2. Loppuasento", ex.images.end]] as const).map(([label, src]) => (
+              <figure key={label} className="overflow-hidden rounded-2xl border border-border bg-card">
+                <img src={src} alt={`${ex.name}: ${label}`} className="aspect-square w-full object-cover" />
+                <figcaption className="px-3 py-2 text-sm font-semibold">{label}</figcaption>
+              </figure>
+            ))}
+          </div>
+        )}
 
         <ol className="mt-4 space-y-2 rounded-2xl bg-primary-soft p-4">
           {ex?.instructions.map((t, i) => (
@@ -170,7 +192,7 @@ export function WorkoutPage({ startAt }: { startAt: number }) {
                   {running ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                   {running ? "Tauko" : s.seconds > 0 ? "Jatka" : "Käynnistä"}
                 </button>
-                <button type="button" className={secondary} onClick={() => setS(completeSet(s, exercises))}>
+                <button type="button" className={secondary} onClick={() => setS(completeSet(s, exercises, single))}>
                   <Check className="h-5 w-5" /> Kuittaa sarja tehdyksi
                 </button>
               </div>
@@ -192,10 +214,10 @@ export function WorkoutPage({ startAt }: { startAt: number }) {
                 {s.reps} / {target} toistoa
               </p>
               <div className="mt-5 flex flex-wrap justify-center gap-3">
-                <button type="button" className={primary} onClick={() => setS(addRep(s, exercises))}>
+                <button type="button" className={primary} onClick={() => setS(addRep(s, exercises, single))}>
                   <Plus className="h-5 w-5" /> Toisto tehty
                 </button>
-                <button type="button" className={secondary} onClick={() => setS(completeSet(s, exercises))}>
+                <button type="button" className={secondary} onClick={() => setS(completeSet(s, exercises, single))}>
                   <Check className="h-5 w-5" /> Kuittaa sarja tehdyksi
                 </button>
               </div>
@@ -203,19 +225,19 @@ export function WorkoutPage({ startAt }: { startAt: number }) {
           )}
         </section>
 
-        <button
+        {!single && <button
           type="button"
           className="mt-4 self-center text-sm font-medium text-muted-foreground underline"
           onClick={() => setS(nextExercise(s, exercises))}
         >
           {s.exIndex + 1 < exercises.length ? "Siirry seuraavaan liikkeeseen" : "Lopeta viimeinen liike"}
-        </button>
+        </button>}
       </div>
 
       {interrupting && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 p-4 sm:items-center">
-          <div role="dialog" aria-label="Keskeytä harjoitus" className="w-full max-w-md rounded-2xl bg-card p-5">
-            <h2 className="text-xl font-semibold">Keskeytetäänkö harjoitus?</h2>
+          <div role="dialog" aria-label={single ? "Keskeytä liike" : "Keskeytä harjoitus"} className="w-full max-w-md rounded-2xl bg-card p-5">
+            <h2 className="text-xl font-semibold">{single ? "Keskeytetäänkö liike?" : "Keskeytetäänkö harjoitus?"}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Kerro syy. Keskeytetty kerta tallentuu, mutta ei kerrytä suorituksia eikä putkea.
             </p>
@@ -247,7 +269,7 @@ export function WorkoutPage({ startAt }: { startAt: number }) {
                 Jatka harjoitusta
               </button>
               <button type="button" className={primary} disabled={!reason} onClick={confirmInterrupt}>
-                Keskeytä harjoitus
+                {single ? "Keskeytä liike" : "Keskeytä harjoitus"}
               </button>
             </div>
           </div>

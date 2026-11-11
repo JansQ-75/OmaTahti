@@ -28,6 +28,14 @@ export function ProgramExerciseList({
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-soft font-semibold text-primary">
               {i + 1}
             </span>
+            {ex?.images && (
+              <img
+                src={ex.images.start}
+                alt={`${ex.name}: alkuasento`}
+                className="h-16 w-16 shrink-0 rounded-lg object-cover"
+                loading="lazy"
+              />
+            )}
             <div className="min-w-0 flex-1">
               <p className="font-semibold">{ex?.name ?? e.exerciseId}</p>
               <p className="text-sm text-muted-foreground">
