@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { AlertTriangle, CheckCircle2, Info, Play, Sparkles } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ChevronDown, Info, Play, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { SoftCard } from "@/components/common/Section";
 import { getExercise } from "@/data/exercises";
