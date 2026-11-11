@@ -20,12 +20,12 @@ export const initialWorkout = (startAt = 0): WorkoutState => ({
 export const isHold = (e: ProgramExercise) => !!e.holdSeconds;
 
 /** Marks the current set done; moves to the next set, the next exercise, or finishes. */
-export function completeSet(s: WorkoutState, exercises: ProgramExercise[]): WorkoutState {
+export function completeSet(s: WorkoutState, exercises: ProgramExercise[], single = false): WorkoutState {
   if (s.finished) return s;
   const ex = exercises[s.exIndex];
   if (!ex) return { ...s, finished: true };
   if (s.setIndex + 1 < ex.sets) return { ...s, setIndex: s.setIndex + 1, reps: 0, seconds: 0 };
-  return nextExercise(s, exercises);
+  return single ? { ...s, finished: true, reps: 0, seconds: 0 } : nextExercise(s, exercises);
 }
 
 export function nextExercise(s: WorkoutState, exercises: ProgramExercise[]): WorkoutState {
@@ -35,19 +35,19 @@ export function nextExercise(s: WorkoutState, exercises: ProgramExercise[]): Wor
 }
 
 /** One rep done; a full set completes automatically. */
-export function addRep(s: WorkoutState, exercises: ProgramExercise[]): WorkoutState {
+export function addRep(s: WorkoutState, exercises: ProgramExercise[], single = false): WorkoutState {
   const ex = exercises[s.exIndex];
   if (!ex || s.finished || isHold(ex)) return s;
   const reps = s.reps + 1;
-  return reps >= (ex.reps ?? 0) ? completeSet({ ...s, reps }, exercises) : { ...s, reps };
+  return reps >= (ex.reps ?? 0) ? completeSet({ ...s, reps }, exercises, single) : { ...s, reps };
 }
 
 /** One second of a hold; the set completes when the target time is reached. */
-export function tick(s: WorkoutState, exercises: ProgramExercise[]): WorkoutState {
+export function tick(s: WorkoutState, exercises: ProgramExercise[], single = false): WorkoutState {
   const ex = exercises[s.exIndex];
   if (!ex || s.finished || !isHold(ex)) return s;
   const seconds = s.seconds + 1;
-  return seconds >= (ex.holdSeconds ?? 0) ? completeSet({ ...s, seconds }, exercises) : { ...s, seconds };
+  return seconds >= (ex.holdSeconds ?? 0) ? completeSet({ ...s, seconds }, exercises, single) : { ...s, seconds };
 }
 
 /** Segment state for the top progress bar. */
@@ -64,13 +64,13 @@ export function exerciseSegments(s: WorkoutState, count: number) {
 export function buildSession(
   s: WorkoutState,
   exercises: ProgramExercise[],
-  opts: { id: string; now?: Date; interruptReason?: string; comment?: string },
+  opts: { id: string; single?: boolean; now?: Date; interruptReason?: string; comment?: string },
 ): ExerciseSession {
   const interrupted = opts.interruptReason !== undefined || !s.finished;
   const at = exercises[Math.min(s.exIndex, exercises.length - 1)];
   return {
     id: opts.id,
-    exerciseId: interrupted ? (at?.exerciseId ?? "") : (exercises[0]?.exerciseId ?? ""),
+    exerciseId: interrupted || opts.single ? (at?.exerciseId ?? "") : (exercises[0]?.exerciseId ?? ""),
     date: (opts.now ?? new Date()).toISOString(),
     status: interrupted ? "interrupted" : "completed",
     ...(interrupted ? { interruptReason: opts.interruptReason ?? "Ei syytä" } : {}),

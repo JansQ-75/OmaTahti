@@ -30,3 +30,15 @@ describe("workout", () => {
     expect(s.status).toBe("completed");
   });
 });
+
+describe("single exercise mode", () => {
+  it("finishing the exercise ends the session without moving on, and it counts as completed", () => {
+    let s = initialWorkout(0);
+    for (let i = 0; i < 6; i++) s = addRep(s, ex, true);
+    expect(s.finished).toBe(true);
+    expect(s.exIndex).toBe(0);
+    const session = buildSession(s, ex, { id: "x", single: true });
+    expect(session).toMatchObject({ status: "completed", exerciseId: "ankle-flex" });
+    expect(completedSessions([session])).toHaveLength(1);
+  });
+});

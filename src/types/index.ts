@@ -55,6 +55,8 @@ export interface Exercise {
   holdSeconds?: number;
   targetMovement: string;
   tracking: TrackingMode;
+  /** Optional start/end pose illustrations (shown side by side). */
+  images?: { start: string; end: string };
 }
 
 export interface ProgramExercise {
