@@ -41,3 +41,4 @@ use the editor.
 - Physio client details live at `/fysioterapeutti/asiakkaat/$clientId`; list ordering and progress summaries are pure rules in `src/features/physio/physioLogic.ts`, and program edits go only through `src/services/program.ts` so client views read the same stored program.
 - Intake answers autosave to `client.intakeDraft` on every change and move to `client.intake` only on save; body-area-specific intake options live in `src/data/intake.ts`.
 - A guided workout is stored as one `ExerciseSession` per training session (`src/features/workout/workoutLogic.ts`); `exerciseId` is the first exercise when completed or the exercise where it was interrupted, so weekly counts stay per session.
+- Single-exercise mode (`?yksittainen=true`) passes `single` to workoutLogic so finishing that exercise ends the session; exercise images live as asset pointers in `src/assets/exercises` referenced from `src/data/exercises.ts`.
