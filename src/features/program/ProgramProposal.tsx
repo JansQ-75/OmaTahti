@@ -20,33 +20,83 @@ export function ProgramExerciseList({
   /** Optional per-exercise control, e.g. the physio's remove button. */
   action?: (e: ProgramExercise) => ReactNode;
 }) {
+  const [openId, setOpenId] = useState<string | null>(null);
   return (
     <ol className="space-y-2">
       {exercises.map((e, i) => {
         const ex = getExercise(e.exerciseId);
+        const open = openId === e.exerciseId;
         return (
-          <li key={e.exerciseId} className="flex gap-3 rounded-xl border border-border bg-card p-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-soft font-semibold text-primary">
-              {i + 1}
-            </span>
-            {ex?.images && (
-              <img
-                src={ex.images.start}
-                alt={`${ex.name}: alkuasento`}
-                className="h-16 w-16 shrink-0 rounded-lg object-cover"
-                loading="lazy"
-              />
-            )}
-            <div className="min-w-0 flex-1">
-              <p className="font-semibold">{ex?.name ?? e.exerciseId}</p>
-              <p className="text-sm text-muted-foreground">
-                {dosageText(e)}
-                {ex && ` · ${ex.category}`}
-              </p>
-              {ex && <p className="mt-0.5 text-sm">{ex.purpose}</p>}
-              {e.note && <p className="mt-1 text-sm font-medium text-primary">{e.note}</p>}
+          <li key={e.exerciseId} className="rounded-xl border border-border bg-card p-3">
+            <div className="flex gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-soft font-semibold text-primary">
+                {i + 1}
+              </span>
+              {ex?.images && (
+                <img
+                  src={ex.images.start}
+                  alt={`${ex.name}: alkuasento`}
+                  className="h-16 w-16 shrink-0 rounded-lg object-cover"
+                  loading="lazy"
+                />
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold">{ex?.name ?? e.exerciseId}</p>
+                <p className="text-sm text-muted-foreground">
+                  {dosageText(e)}
+                  {ex && ` · ${ex.category}`}
+                </p>
+                {ex && <p className="mt-0.5 text-sm">{ex.purpose}</p>}
+                {e.note && <p className="mt-1 text-sm font-medium text-primary">{e.note}</p>}
+                {ex && (
+                  <button
+                    type="button"
+                    aria-expanded={open}
+                    onClick={() => setOpenId(open ? null : e.exerciseId)}
+                    className="mt-1.5 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                  >
+                    {open ? "Piilota ohjeet" : "Näytä suoritusohjeet"}
+                    <ChevronDown className={`h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`} />
+                  </button>
+                )}
+              </div>
+              {action && <div className="shrink-0 self-center">{action(e)}</div>}
             </div>
-            {action && <div className="shrink-0 self-center">{action(e)}</div>}
+            {ex && open && (
+              <div className="mt-3 border-t border-border pt-3">
+                {ex.images && (
+                  <div className="mb-3 grid grid-cols-2 gap-2">
+                    <figure>
+                      <img
+                        src={ex.images.start}
+                        alt={`${ex.name}: alkuasento`}
+                        className="w-full rounded-lg object-cover"
+                        loading="lazy"
+                      />
+                      <figcaption className="mt-1 text-center text-xs text-muted-foreground">1. Alkuasento</figcaption>
+                    </figure>
+                    <figure>
+                      <img
+                        src={ex.images.end}
+                        alt={`${ex.name}: loppuasento`}
+                        className="w-full rounded-lg object-cover"
+                        loading="lazy"
+                      />
+                      <figcaption className="mt-1 text-center text-xs text-muted-foreground">2. Loppuasento</figcaption>
+                    </figure>
+                  </div>
+                )}
+                <ol className="list-decimal space-y-1 pl-5 text-sm">
+                  {ex.instructions.map((step) => (
+                    <li key={step}>{step}</li>
+                  ))}
+                </ol>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Tavoiteltu liike: </span>
+                  {ex.targetMovement}
+                </p>
+              </div>
+            )}
           </li>
         );
       })}
