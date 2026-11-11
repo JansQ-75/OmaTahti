@@ -57,6 +57,8 @@ export interface Exercise {
   tracking: TrackingMode;
   /** Optional start/end pose illustrations (shown side by side). */
   images?: { start: string; end: string };
+  /** Optional guidance video (shown in the workout view instead of the image pair). */
+  videoUrl?: string;
 }
 
 export interface ProgramExercise {
