@@ -152,15 +152,31 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
         </p>
         {pe.note && <p className="mt-2 text-sm font-medium text-primary">{pe.note}</p>}
 
-        {ex?.images && (
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            {([["1. Alkuasento", ex.images.start], ["2. Loppuasento", ex.images.end]] as const).map(([label, src]) => (
-              <figure key={label} className="overflow-hidden rounded-2xl border border-border bg-card">
-                <img src={src} alt={`${ex.name}: ${label}`} className="aspect-square w-full object-cover" />
-                <figcaption className="px-3 py-2 text-sm font-semibold">{label}</figcaption>
-              </figure>
-            ))}
-          </div>
+        {ex?.videoUrl ? (
+          <figure className="mt-4 overflow-hidden rounded-2xl border border-border bg-card">
+            <video
+              src={ex.videoUrl}
+              controls
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              aria-label={`Opastusvideo: ${ex.name}`}
+              className="aspect-video w-full bg-black object-cover"
+            />
+            <figcaption className="px-3 py-2 text-sm font-semibold">Näin liike tehdään</figcaption>
+          </figure>
+        ) : (
+          ex?.images && (
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              {([["1. Alkuasento", ex.images.start], ["2. Loppuasento", ex.images.end]] as const).map(([label, src]) => (
+                <figure key={label} className="overflow-hidden rounded-2xl border border-border bg-card">
+                  <img src={src} alt={`${ex.name}: ${label}`} className="aspect-square w-full object-cover" />
+                  <figcaption className="px-3 py-2 text-sm font-semibold">{label}</figcaption>
+                </figure>
+              ))}
+            </div>
+          )
         )}
 
         <ol className="mt-4 space-y-2 rounded-2xl bg-primary-soft p-4">
