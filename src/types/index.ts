@@ -116,6 +116,12 @@ export interface ExerciseSession {
   comment?: string;
   trackedReps?: number;
   trackingSource?: TrackingMode | "none";
+  /** full = whole program session, single = one exercise via its play button. Missing = single. */
+  kind?: "full" | "single";
+  /** Exercises done in a completed session (falls back to exerciseId). */
+  exerciseIds?: string[];
+  /** Single-leg balance quality. The timer never stops on a ground touch; touches only describe stability. */
+  balance?: { steadySeconds: number; groundTouches: number; source: "camera" | "simulated" };
 }
 
 export interface PainEntry {

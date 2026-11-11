@@ -1,6 +1,6 @@
 import type { AppData, Client } from "@/types";
 
-export const DATA_VERSION = 5;
+export const DATA_VERSION = 6;
 
 // Dates are relative to "today" so the demo always looks current.
 // Built lazily (never at module scope).
@@ -22,11 +22,12 @@ function buildClientA(): Client {
     [12, "ankle-flex"],
     [10, "band-eversion"],
     [9, "single-leg-balance"],
+    [4, "single-leg-balance"],
     [3, "ankle-flex"],
     [2, "heel-raise"],
     [1, "ankle-flex"],
   ];
-  const painBy: Record<number, number> = { 20: 5, 18: 5, 16: 4, 14: 4, 12: 3, 10: 3, 9: 3, 3: 2, 2: 3, 1: 2 };
+  const painBy: Record<number, number> = { 20: 5, 18: 5, 16: 4, 14: 4, 12: 3, 10: 3, 9: 3, 4: 3, 3: 2, 2: 3, 1: 2 };
 
   return {
     id: "client-aino",
@@ -77,6 +78,11 @@ function buildClientA(): Client {
         status: "completed" as const,
         painBefore: painBy[d] ?? 0,
         painAfter: painBy[d] ?? 0,
+        kind: "single" as const,
+        exerciseIds: [ex],
+        ...(ex === "single-leg-balance"
+          ? { balance: { steadySeconds: ({ 18: 8, 9: 18, 4: 26 } as Record<number, number>)[d] ?? 0, groundTouches: ({ 18: 5, 9: 3, 4: 1 } as Record<number, number>)[d] ?? 0, source: "camera" as const } }
+          : {}),
         trackingSource: (ex === "ankle-flex" || ex === "single-leg-balance" ? "camera" : "none") as
           | "camera"
           | "none",

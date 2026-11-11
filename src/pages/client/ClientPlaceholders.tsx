@@ -1,10 +1,13 @@
 import { PageHeader, ComingSoon } from "@/components/common/Section";
+import { ProgressCharts } from "@/features/progress/ProgressCharts";
+import { useActiveClient } from "@/hooks/useAppData";
 
 export function ClientProgressPage() {
+  const client = useActiveClient();
   return (
     <div>
-      <PageHeader title="Edistyminen" subtitle="Harjoittelu, kipu ja liikkuvuus" />
-      <ComingSoon title="Graafit ja yhteenvedot" phase={5} />
+      <PageHeader title="Edistyminen" subtitle="Harjoittelu, kipu, liikkuvuus ja tasapaino" />
+      {client && <ProgressCharts client={client} />}
     </div>
   );
 }
