@@ -92,7 +92,7 @@ export function ProgressCharts({ client }: { client: Client }) {
               <LineChart data={bal} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                 <CartesianGrid stroke={grid} vertical={false} />
                 <XAxis dataKey="date" tick={axis} />
-                <YAxis domain={[0, BALANCE_TARGET_S]} unit=" s" tick={axis} />
+                <YAxis domain={[0, BALANCE_TARGET_S + 5]} ticks={[0, 10, 20, 30]} unit=" s" tick={axis} />
                 <Tooltip {...tip} formatter={(v) => [`${v} s`, "Vakaa pito"]} />
                 <ReferenceLine y={BALANCE_TARGET_S} stroke="var(--primary)" strokeDasharray="4 4" label={{ value: "Tavoite 30 s", fontSize: 12, fill: "var(--primary)", position: "insideBottomRight" }} />
                 <Line type="monotone" dataKey="sekunnit" stroke="var(--primary)" strokeWidth={3} dot={{ r: 4 }} />

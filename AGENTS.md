@@ -42,3 +42,4 @@ use the editor.
 - Intake answers autosave to `client.intakeDraft` on every change and move to `client.intake` only on save; body-area-specific intake options live in `src/data/intake.ts`.
 - A guided workout is stored as one `ExerciseSession` per training session (`src/features/workout/workoutLogic.ts`); `exerciseId` is the first exercise when completed or the exercise where it was interrupted, so weekly counts stay per session.
 - Single-exercise mode (`?yksittainen=true`) passes `single` to workoutLogic so finishing that exercise ends the session; exercise images live as asset pointers in `src/assets/exercises` referenced from `src/data/exercises.ts`.
+- Progress charts are one shared component (`src/features/progress/ProgressCharts.tsx`) with pure rules in `progressLogic.ts`, so client and physio see identical progress; pain is recorded only after a workout/interrupt and also appended to `painLog`.
