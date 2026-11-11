@@ -52,8 +52,8 @@ export function ClientExercisesPage() {
               action={(e) => (
                 <Link
                   to="/asiakas/harjoitus"
-                  search={{ liike: p.exercises.indexOf(e) }}
-                  aria-label={`Aloita liikkeestä ${p.exercises.indexOf(e) + 1}`}
+                  search={{ liike: p.exercises.indexOf(e), yksittainen: true }}
+                  aria-label={`Tee vain liike ${p.exercises.indexOf(e) + 1}`}
                   className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-soft text-primary hover:bg-primary hover:text-primary-foreground"
                 >
                   <Play className="h-5 w-5" />
