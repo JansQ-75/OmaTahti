@@ -6,6 +6,7 @@ import { getExercise } from "@/data/exercises";
 import { IntakeSummary, formatDate, timeSince } from "@/features/intake/IntakeSummary";
 import { answersFromIntake } from "@/features/intake/intakeLogic";
 import { hasContacted, progressSummary } from "@/features/physio/physioLogic";
+import { ProgressCharts } from "@/features/progress/ProgressCharts";
 import { PhysioProgramEditor } from "@/features/program/PhysioProgramEditor";
 import { useAppData } from "@/hooks/useAppData";
 import type { Client } from "@/types";
@@ -49,6 +50,10 @@ export function PhysioClientPage({ clientId }: { clientId: string }) {
       <ContactsCard client={client} />
       <PhysioProgramEditor client={client} />
       <ProgressCard client={client} />
+      <section>
+        <h2 className="mb-3 text-lg font-semibold">Edistymisen kaaviot</h2>
+        <ProgressCharts client={client} />
+      </section>
 
       <section>
         <h2 className="mb-3 text-lg font-semibold">Alkukartoitus</h2>
@@ -116,36 +121,6 @@ function ProgressCard({ client }: { client: Client }) {
             <Figure label="Viimeisin kipu" value={s.latestPain ? `${s.latestPain.level}/10` : "–"} />
           </div>
           <p className="mt-2 text-xs text-muted-foreground">Vain loppuun asti tehdyt harjoitukset lasketaan harjoituskerroiksi.</p>
-
-          {s.pain.length > 0 && (
-            <div className="mt-5">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="font-semibold">Kipu viimeiset 14 päivää</h3>
-                <SourceBadge source="client-reported" />
-              </div>
-              <div className="mt-3 flex h-28 items-end gap-2" role="img" aria-label="Kipukirjaukset viimeiset 14 päivää">
-                {s.pain.map((p) => (
-                  <div key={p.id} className="flex h-full flex-1 flex-col items-center justify-end gap-1" title={p.comment}>
-                    <span className="text-xs font-semibold">{p.level}</span>
-                    <div
-                      className={`w-full max-w-8 rounded-t-lg ${p.level >= 5 ? "bg-destructive/70" : "bg-primary/70"}`}
-                      style={{ height: `${Math.max(6, p.level * 10)}%` }}
-                    />
-                    <span className="text-xs text-muted-foreground">{formatDate(p.date).replace(/\.\d{4}$/, "")}</span>
-                  </div>
-                ))}
-              </div>
-              <ul className="mt-2 space-y-1 text-sm">
-                {s.pain
-                  .filter((p) => p.comment)
-                  .map((p) => (
-                    <li key={p.id}>
-                      <span className="text-muted-foreground">{formatDate(p.date)}:</span> ”{p.comment}”
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          )}
 
           {interrupted.length > 0 && (
             <div className="mt-5">

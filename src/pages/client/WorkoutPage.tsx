@@ -18,6 +18,7 @@ import {
 } from "@/features/workout/workoutLogic";
 import { useActiveClient } from "@/hooks/useAppData";
 import { cn } from "@/lib/utils";
+import { painAdvice } from "@/features/progress/progressLogic";
 import { markProgramStarted, saveWorkoutSession } from "@/services/workout";
 
 const btn =
@@ -36,6 +37,9 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
   const [reason, setReason] = useState<string | null>(null);
   const [comment, setComment] = useState("");
   const saved = useRef(false);
+  const [pain, setPain] = useState<number | null>(null);
+  const [interruptPain, setInterruptPain] = useState<number | null>(null);
+  const [result, setResult] = useState<ReturnType<typeof painAdvice> | null>(null);
 
   useEffect(() => {
     if (startAt >= exercises.length && exercises.length) setS(initialWorkout(0));
@@ -51,14 +55,6 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
   // Stop the timer whenever the set changes
   useEffect(() => setRunning(false), [s.exIndex, s.setIndex, s.finished]);
 
-  // Save the completed session once
-  useEffect(() => {
-    if (s.finished && client && !saved.current) {
-      saved.current = true;
-      markProgramStarted(client.id);
-      saveWorkoutSession(client.id, buildSession(s, exercises, { id: `s-${Date.now()}`, single }));
-    }
-  }, [s, client, exercises]);
 
   if (!client) return null;
   if (!client.program || exercises.length === 0) {
@@ -75,18 +71,58 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
   const confirmInterrupt = () => {
     if (!reason) return;
     saved.current = true;
+    const advice = interruptPain !== null ? painAdvice(interruptPain, client.painLog) : null;
     markProgramStarted(client.id);
     saveWorkoutSession(
       client.id,
-      buildSession(s, exercises, { id: `s-${Date.now()}`, single, interruptReason: reason, comment: comment.trim() }),
+      buildSession(s, exercises, {
+        id: `s-${Date.now()}`,
+        single,
+        interruptReason: reason,
+        comment: comment.trim(),
+        ...(interruptPain !== null ? { painAfter: interruptPain } : {}),
+      }),
     );
-    toast("Harjoitus keskeytetty", { description: "Keskeytetty kerta ei kerrytä suorituksia tai putkea." });
+    if (advice?.show) toast(CALM_TITLE, { description: CALM_TEXT, duration: 12000 });
+    else toast("Harjoitus keskeytetty", { description: "Keskeytetty kerta ei kerrytä suorituksia tai putkea." });
     navigate({ to: "/asiakas/harjoitukset" });
   };
+
+  const savePain = () => {
+    if (pain === null || saved.current) return;
+    saved.current = true;
+    setResult(painAdvice(pain, client.painLog));
+    markProgramStarted(client.id);
+    saveWorkoutSession(client.id, buildSession(s, exercises, { id: `s-${Date.now()}`, single, painAfter: pain }));
+  };
+
+  if (s.finished && !result) {
+    return (
+      <Overlay>
+        <h1 className="text-2xl font-bold">Miltä nilkka tuntuu nyt?</h1>
+        <p className="mt-2 text-muted-foreground">Arvioi kipu harjoituksen jälkeen: 0 = ei kipua, 10 = pahin mahdollinen.</p>
+        <PainPicker value={pain} onChange={setPain} />
+        <button type="button" className={`${primary} mt-6 w-full`} disabled={pain === null} onClick={savePain}>
+          Tallenna ja lopeta
+        </button>
+      </Overlay>
+    );
+  }
 
   if (s.finished) {
     return (
       <Overlay>
+        {result?.show && (
+          <div role="status" className="mb-6 rounded-2xl bg-warning-soft p-4 text-left">
+            <p className="font-semibold">{CALM_TITLE}</p>
+            <p className="mt-1 text-sm">{CALM_TEXT}</p>
+            {result.previous !== undefined && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Kipu nyt {pain}/10, edellinen merkintä {result.previous}/10{result.trend !== undefined && ` (viime merkintöjen keskiarvo ${result.trend}/10)`}.
+              </p>
+            )}
+          </div>
+        )}
         <CheckCircle2 className="mx-auto h-16 w-16 text-primary" />
         <h1 className="mt-4 text-2xl font-bold">{single ? "Hienoa, liike tehty!" : "Hienoa, harjoituskerta tehty!"}</h1>
         <p className="mt-2 text-muted-foreground">
@@ -273,6 +309,8 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
                 </button>
               ))}
             </div>
+            <p className="mt-4 text-sm font-medium">Kipu nyt (vapaaehtoinen)</p>
+            <PainPicker value={interruptPain} onChange={setInterruptPain} compact />
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -299,6 +337,32 @@ function Overlay({ children }: { children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background p-6 text-center">
       <div className="max-w-md">{children}</div>
+    </div>
+  );
+}
+
+const CALM_TITLE = "Kipu nousi – ota rauhallisesti";
+const CALM_TEXT =
+  "Kivun tilapäinen nousu harjoittelun jälkeen on tavallista. Ota lepoasento, nosta jalka koholle ja kokeile tarvittaessa kylmähoitoa 15–20 minuuttia. Jos kipu ei asetu levolla, laita viesti fysioterapeutillesi.";
+
+function PainPicker({ value, onChange, compact }: { value: number | null; onChange: (n: number) => void; compact?: boolean }) {
+  return (
+    <div className={cn("grid grid-cols-11 gap-1", compact ? "mt-2" : "mt-5")} role="radiogroup" aria-label="Kipu 0–10">
+      {Array.from({ length: 11 }, (_, n) => (
+        <button
+          key={n}
+          type="button"
+          role="radio"
+          aria-checked={value === n}
+          onClick={() => onChange(n)}
+          className={cn(
+            "rounded-lg border py-2 text-sm font-semibold",
+            value === n ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card",
+          )}
+        >
+          {n}
+        </button>
+      ))}
     </div>
   );
 }
