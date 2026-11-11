@@ -148,7 +148,7 @@ function ChartCard({ title, badge, note, children }: { title: string; badge?: Re
   );
 }
 
-function Figure({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function Figure({ label, value, sub }: { label: string; value: string; sub?: string | undefined }) {
   return (
     <div className="rounded-2xl bg-primary-soft p-4 text-center">
       <p className="text-2xl font-bold">{value}</p>
