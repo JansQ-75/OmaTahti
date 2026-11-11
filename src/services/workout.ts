@@ -7,7 +7,18 @@ import type { ExerciseSession } from "@/types";
 export function saveWorkoutSession(clientId: string, session: ExerciseSession) {
   updateData((d) => ({
     ...d,
-    clients: d.clients.map((c) => (c.id === clientId ? { ...c, sessions: [...c.sessions, session] } : c)),
+    clients: d.clients.map((c) =>
+      c.id === clientId
+        ? {
+            ...c,
+            sessions: [...c.sessions, session],
+            painLog:
+              session.painAfter !== undefined
+                ? [...c.painLog, { id: `p-${session.id}`, date: session.date, level: session.painAfter, source: "client-reported" as const }]
+                : c.painLog,
+          }
+        : c,
+    ),
   }));
 }
 

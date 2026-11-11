@@ -64,7 +64,7 @@ export function exerciseSegments(s: WorkoutState, count: number) {
 export function buildSession(
   s: WorkoutState,
   exercises: ProgramExercise[],
-  opts: { id: string; single?: boolean; now?: Date; interruptReason?: string; comment?: string },
+  opts: { id: string; single?: boolean; now?: Date; interruptReason?: string; comment?: string; painAfter?: number },
 ): ExerciseSession {
   const interrupted = opts.interruptReason !== undefined || !s.finished;
   const at = exercises[Math.min(s.exIndex, exercises.length - 1)];
@@ -76,6 +76,11 @@ export function buildSession(
     ...(interrupted ? { interruptReason: opts.interruptReason ?? "Ei syytä" } : {}),
     ...(opts.comment ? { comment: opts.comment } : {}),
     trackingSource: "none",
+    kind: opts.single ? "single" : "full",
+    ...(!interrupted
+      ? { exerciseIds: opts.single ? [at?.exerciseId ?? ""] : exercises.map((e) => e.exerciseId) }
+      : {}),
+    ...(opts.painAfter !== undefined ? { painAfter: opts.painAfter } : {}),
   };
 }
 
