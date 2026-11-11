@@ -5,6 +5,7 @@ import toGo from "@/assets/exercises/person_to_go.png.asset.json";
 import onLegUp from "@/assets/exercises/person_on_leg_up.png.asset.json";
 import stands from "@/assets/exercises/person_stands.png.asset.json";
 import onToes from "@/assets/exercises/person_on_toes.png.asset.json";
+import bandVideo from "@/assets/exercises/band_eversion_video.mp4.asset.json";
 
 // Ankle demo exercises (STADA ankle sprain guide as the basis).
 // Max 4: two with real camera tracking, two clearly simulated.
@@ -70,6 +71,8 @@ export const EXERCISES: Exercise[] = [
     reps: 12,
     targetMovement: "Jalkaterän kääntö ulospäin",
     tracking: "simulated",
+    // Väliaikainen video: vaihda tämä osoite uuteen, kun lopullinen video on valmis.
+    videoUrl: bandVideo.url,
   },
 ];
 
