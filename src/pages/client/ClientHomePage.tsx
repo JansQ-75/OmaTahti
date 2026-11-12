@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { AlertTriangle, ClipboardCheck, Flame, MessageCircle, Play, X } from "lucide-react";
+import { AlertTriangle, ClipboardCheck, Flame, Play, X } from "lucide-react";
 import { SoftCard } from "@/components/common/Section";
 import { dismissNotification } from "@/services/messages";
 import { SwitchClientButton, SwitchRoleButton } from "@/components/navigation/RoleActions";
@@ -39,19 +39,19 @@ export function ClientHomePage() {
             <li
               key={n.id}
               role="status"
-              className="relative flex gap-3 rounded-2xl border-l-4 border-warning bg-warning-soft p-4 pr-12 shadow-[var(--shadow-card)]"
+              className="relative flex gap-3 rounded-2xl border-l-4 border-warning bg-warning-soft p-4 pr-12"
             >
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warning text-foreground">
                 <AlertTriangle className="h-5 w-5" />
               </span>
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Huomio</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Ilmoitus</p>
                 <p className="mt-0.5 font-semibold">{n.text}</p>
                 <Link
                   to="/asiakas/viestit"
-                  className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                  className="mt-1 inline-block text-sm text-primary underline-offset-2 hover:underline"
                 >
-                  <MessageCircle className="h-4 w-4" /> Viesti fysioterapeutille
+                  Viesti fysioterapeutille →
                 </Link>
               </div>
               <button
