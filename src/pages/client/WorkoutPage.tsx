@@ -53,7 +53,9 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
   }, [running, exercises]);
 
   // Stop the timer whenever the set changes
-  useEffect(() => setRunning(false), [s.exIndex, s.setIndex, s.finished]);
+  useEffect(() => {
+    setRunning(false);
+  }, [s.exIndex, s.setIndex, s.finished]);
 
 
   if (!client) return null;
