@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Send } from "lucide-react";
+import { FileText, Image, Send, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { sendMessage } from "@/services/messages";
@@ -71,6 +71,17 @@ export function MessageThread({ client, role, emptyText }: { client: Client; rol
           <Send className="h-4 w-4" /> Lähetä
         </Button>
       </form>
+      <div className="-mt-2 flex gap-1" aria-label="Liitteet">
+        {[
+          { Icon: Image, label: "Liitä kuva" },
+          { Icon: Video, label: "Liitä video" },
+          { Icon: FileText, label: "Liitä tiedosto" },
+        ].map(({ Icon, label }) => (
+          <Button key={label} type="button" variant="ghost" size="icon" aria-label={label} title={label} className="rounded-full text-muted-foreground">
+            <Icon className="h-5 w-5" />
+          </Button>
+        ))}
+      </div>
       <p className="text-xs text-muted-foreground">Viestit eivät ole kiireellisiä yhteydenottoja. Äkillisessä tilanteessa ota yhteys terveydenhuoltoon.</p>
     </div>
   );
