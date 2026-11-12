@@ -47,7 +47,7 @@ export function PhysioMessagesPage({ clientId }: { clientId?: string }) {
         {selected && (
           <section aria-label={`Keskustelu: ${selected.name}`}>
             <h2 className="mb-3 text-lg font-semibold">{selected.name}</h2>
-            <MessageThread client={selected} role="physio" emptyText={`Ei viestejä. Voit aloittaa keskustelun ${selected.firstName}n kanssa.`} />
+            <MessageThread client={selected} role="physio" emptyText="Ei viestejä vielä. Voit aloittaa keskustelun." />
           </section>
         )}
       </div>
