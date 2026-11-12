@@ -14,7 +14,9 @@ function stamp(iso: string) {
 export function MessageThread({ client, role, emptyText }: { client: Client; role: Role; emptyText: string }) {
   const [text, setText] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
-  useEffect(() => endRef.current?.scrollIntoView({ block: "nearest" }), [client.messages.length]);
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ block: "nearest" });
+  }, [client.messages.length]);
 
   const submit = () => {
     if (sendMessage(client.id, role, text)) setText("");
