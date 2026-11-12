@@ -29,7 +29,7 @@ function painFace(level: number) {
 }
 
 /** Shared progress view: the client page and the physio's client page render the same charts from the same data. */
-export function ProgressCharts({ client, compact = false }: { client: Client; compact?: boolean }) {
+export function ProgressCharts({ client, compact = false, showMobilityChart = false }: { client: Client; compact?: boolean; showMobilityChart?: boolean }) {
   if (!hasProgressData(client)) {
     return <SoftCard className="text-muted-foreground">Edistymistietoja ei vielä ole. Kaaviot täyttyvät, kun harjoituksia tehdään.</SoftCard>;
   }
@@ -117,36 +117,42 @@ export function ProgressCharts({ client, compact = false }: { client: Client; co
           </>
         }
       >
-        {lsi ? (
-          <div className="mb-4">
-            <p className="text-4xl font-bold">
-              {lsi.current}
-              <span className="text-lg font-medium text-muted-foreground"> / 100</span>
-            </p>
-            <div className="mt-2 h-3 overflow-hidden rounded-full bg-muted">
-              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${lsi.current}%` }} />
-            </div>
-            <p className="mt-3 text-sm">
-              Lähtötaso: {lsi.baseline} → Kehitys: <span className="font-semibold text-success">{lsi.change >= 0 ? "+" : ""}{lsi.change} pistettä</span>
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Mitatut asteet: Kuntoutettava {lsi.kuntoutettava}° | Terve puoli {lsi.terve}° (puoliero {lsi.ero}°)
-            </p>
-          </div>
-        ) : null}
-        {mob.length ? (
-          <ResponsiveContainer width="100%" height={190}>
-            <BarChart data={mob} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
-              <CartesianGrid stroke={grid} vertical={false} />
-              <XAxis dataKey="date" tick={axis} />
-              <YAxis unit="°" tick={axis} />
-              <Tooltip {...tip} formatter={(v, n) => [`${v}°`, n === "kuntoutettava" ? "Kuntoutettava puoli" : "Terve puoli"]} />
-              <Legend formatter={(v) => (v === "kuntoutettava" ? "Kuntoutettava puoli" : "Terve puoli")} />
-              <Bar dataKey="kuntoutettava" fill="var(--primary)" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="terve" fill="var(--muted-foreground)" fillOpacity={0.35} radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        ) : <Empty text="Liikkuvuutta seurataan, kun liikekartoitus on tehty." />}
+        {mob.length === 0 ? (
+          <Empty text="Liikkuvuutta seurataan, kun liikekartoitus on tehty." />
+        ) : (
+          <>
+            {lsi ? (
+              <div className="mb-4">
+                <p className="text-4xl font-bold">
+                  {lsi.current}
+                  <span className="text-lg font-medium text-muted-foreground"> / 100</span>
+                </p>
+                <div className="mt-2 h-3 overflow-hidden rounded-full bg-muted">
+                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${lsi.current}%` }} />
+                </div>
+                <p className="mt-3 text-sm">
+                  Lähtötaso: {lsi.baseline} → Kehitys: <span className="font-semibold text-success">{lsi.change >= 0 ? "+" : ""}{lsi.change} pistettä</span>
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Mitatut asteet: Kuntoutettava {lsi.kuntoutettava}° | Terve puoli {lsi.terve}° (puoliero {lsi.ero}°)
+                </p>
+              </div>
+            ) : null}
+            {showMobilityChart && (
+              <ResponsiveContainer width="100%" height={190}>
+                <BarChart data={mob} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+                  <CartesianGrid stroke={grid} vertical={false} />
+                  <XAxis dataKey="date" tick={axis} />
+                  <YAxis unit="°" tick={axis} />
+                  <Tooltip {...tip} formatter={(v, n) => [`${v}°`, n === "kuntoutettava" ? "Kuntoutettava puoli" : "Terve puoli"]} />
+                  <Legend formatter={(v) => (v === "kuntoutettava" ? "Kuntoutettava puoli" : "Terve puoli")} />
+                  <Bar dataKey="kuntoutettava" fill="var(--primary)" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="terve" fill="var(--muted-foreground)" fillOpacity={0.35} radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </>
+        )}
       </ChartCard>
 
       <ChartCard
