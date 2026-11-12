@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, MessageCircle } from "lucide-react";
+import { ArrowLeft, ChevronDown, MessageCircle } from "lucide-react";
 import { SoftCard, SourceBadge } from "@/components/common/Section";
 import { bodyAreaLabel } from "@/data/bodyAreas";
 import { getExercise } from "@/data/exercises";
@@ -48,24 +48,35 @@ export function PhysioClientPage({ clientId }: { clientId: string }) {
       </div>
 
       <ContactsCard client={client} />
-      <PhysioProgramEditor client={client} />
       <ProgressCard client={client} />
-      <section>
-        <h2 className="mb-3 text-lg font-semibold">Edistymisen kaaviot</h2>
-        <ProgressCharts client={client} />
-      </section>
+      <ProgressCharts client={client} compact />
 
-      <section>
-        <h2 className="mb-3 text-lg font-semibold">Alkukartoitus</h2>
+      <Fold title="Harjoitusohjelma">
+        <PhysioProgramEditor client={client} bare />
+      </Fold>
+
+      <Fold title="Alkukartoitus">
         {client.intake ? (
           <IntakeSummary audience="physio" answers={answersFromIntake(client.intake)} completedAt={client.intake.completedAt} />
         ) : (
-          <SoftCard className="text-muted-foreground">
+          <p className="text-muted-foreground">
             {client.intakeDraft ? "Asiakas on aloittanut alkukartoituksen, mutta ei ole vielä tallentanut sitä." : "Asiakas ei ole vielä tehnyt alkukartoitusta."}
-          </SoftCard>
+          </p>
         )}
-      </section>
+      </Fold>
     </div>
+  );
+}
+
+function Fold({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <details className="group rounded-3xl border border-border bg-card shadow-sm">
+      <summary className="flex cursor-pointer list-none items-center justify-between p-5 text-lg font-semibold">
+        {title}
+        <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="px-5 pb-5">{children}</div>
+    </details>
   );
 }
 
@@ -114,11 +125,9 @@ function ProgressCard({ client }: { client: Client }) {
         <p className="mt-2 text-muted-foreground">Harjoittelu- ja kipukirjauksia ei vielä ole.</p>
       ) : (
         <>
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="mt-3 grid grid-cols-2 gap-3">
             <Figure label="Harjoituskerrat 14 pv" value={s.target ? `${s.completed} / ${s.target}` : String(s.completed)} />
             <Figure label="Keskeytetyt 14 pv" value={String(s.interrupted)} />
-            <Figure label="Harjoitusputki" value={`${s.streak} pv`} />
-            <Figure label="Viimeisin kipu" value={s.latestPain ? `${s.latestPain.level}/10` : "–"} />
           </div>
           <p className="mt-2 text-xs text-muted-foreground">Vain loppuun asti tehdyt harjoitukset lasketaan harjoituskerroiksi.</p>
 

@@ -1,14 +1,19 @@
-import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useState } from "react";
+import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Flame, Gauge, HelpCircle, TrendingDown, TrendingUp } from "lucide-react";
 import { SoftCard, SourceBadge } from "@/components/common/Section";
 import { getExercise } from "@/data/exercises";
 import { currentStreak } from "@/utils/progress";
 import type { Client } from "@/types";
 import {
+  BALANCE_LEVELS,
   BALANCE_TARGET_S,
+  balanceLevel,
   balanceSeries,
   hasProgressData,
   mobilitySeries,
   painSeries,
+  symmetrySummary,
   weekActivity,
   weekExerciseCounts,
 } from "./progressLogic";
@@ -17,8 +22,14 @@ const axis = { fontSize: 12, fill: "var(--muted-foreground)" };
 const grid = "var(--border)";
 const tip = { contentStyle: { borderRadius: 12, border: "1px solid var(--border)", background: "var(--card)" } };
 
+function painFace(level: number) {
+  if (level <= 2) return { emoji: "😊", text: "Lievä tai ei kipua" };
+  if (level <= 5) return { emoji: "😐", text: "Kohtalainen kipu" };
+  return { emoji: "🙁", text: "Voimakas kipu" };
+}
+
 /** Shared progress view: the client page and the physio's client page render the same charts from the same data. */
-export function ProgressCharts({ client }: { client: Client }) {
+export function ProgressCharts({ client, compact = false }: { client: Client; compact?: boolean }) {
   if (!hasProgressData(client)) {
     return <SoftCard className="text-muted-foreground">Edistymistietoja ei vielä ole. Kaaviot täyttyvät, kun harjoituksia tehdään.</SoftCard>;
   }
@@ -29,16 +40,56 @@ export function ProgressCharts({ client }: { client: Client }) {
   const counts = weekExerciseCounts(client.sessions);
   const programIds = client.program?.exercises.map((e) => e.exerciseId) ?? Object.keys(counts);
   const latestMob = mob.at(-1);
+  const firstMob = mob[0];
   const latestPain = pain.at(-1);
   const firstPain = pain[0];
+  const streak = currentStreak(client.sessions);
+  const lsi = symmetrySummary(mob);
+  const balLevels = bal.map((b) => ({ ...b, level: balanceLevel(b.sekunnit, b.kosketukset) }));
+  const balNow = balLevels.at(-1);
+  const balFirst = balLevels[0];
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <Figure label="Harjoitusputki" value={`${currentStreak(client.sessions)} pv`} />
-        <Figure label="Kipu nyt (lähtötaso)" value={latestPain ? `${latestPain.kipu}/10` : "–"} sub={firstPain ? `alussa ${firstPain.kipu}/10` : undefined} />
-        <Figure label="Nilkan koukistus" value={latestMob ? `${latestMob.kuntoutettava}°` : "–"} sub={latestMob?.terve !== undefined ? `terve puoli ${latestMob.terve}°` : undefined} />
-      </div>
+      {!compact && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <StatCard
+            icon={<Flame className="h-5 w-5" />}
+            iconClass="bg-warning-soft text-warning"
+            label="Harjoitusputki"
+            value={`${streak} pv`}
+            footer={<span className={streak > 0 ? "font-medium text-warning" : "text-muted-foreground"}>{streak > 0 ? "Aktiivinen putki" : "Aloita putki tänään!"}</span>}
+          />
+          <StatCard
+            icon={<span className="text-xl leading-none">{latestPain ? painFace(latestPain.kipu).emoji : "😊"}</span>}
+            iconClass="bg-primary-soft"
+            label="Kipu nyt"
+            value={latestPain ? `${latestPain.kipu}/10` : "–"}
+            footer={
+              latestPain && firstPain ? (
+                <>
+                  <Trend delta={latestPain.kipu - firstPain.kipu} unit=" p" goodWhenDown />
+                  <span className="text-muted-foreground">lähtötaso {firstPain.kipu}/10</span>
+                </>
+              ) : undefined
+            }
+          />
+          <StatCard
+            icon={<Gauge className="h-5 w-5" />}
+            iconClass="bg-primary-soft text-primary"
+            label="Liikkuvuus · nilkan koukistus"
+            value={latestMob ? `${latestMob.kuntoutettava}°` : "–"}
+            footer={
+              latestMob && firstMob ? (
+                <>
+                  <Trend delta={latestMob.kuntoutettava - firstMob.kuntoutettava} unit="°" />
+                  {latestMob.terve !== undefined && <span className="text-muted-foreground">terve puoli {latestMob.terve}° (ero {latestMob.terve - latestMob.kuntoutettava}°)</span>}
+                </>
+              ) : undefined
+            }
+          />
+        </div>
+      )}
 
       <ChartCard title="Kivun kehitys" badge={<SourceBadge source="client-reported" />} note="Kipu kirjataan harjoituksen jälkeen (0–10).">
         {pain.length ? (
@@ -55,61 +106,85 @@ export function ProgressCharts({ client }: { client: Client }) {
       </ChartCard>
 
       <ChartCard
-        title="Liikkuvuus ja puoliero: nilkan koukistus"
+        title="Liikkuvuuden symmetriaindeksi"
         badge={<SourceBadge source={mob.some((m) => m.source === "simulated") ? "simulated" : "camera"} />}
-        note="Kamera-arvio asteina, ei kliininen mittaus. Vertailu samalla kuvausasetelmalla."
-      >
-        {mob.length ? (
+        note="Kamera-arvio, ei kliininen mittaus. Vertailu samalla kuvausasetelmalla."
+        help={
           <>
-            <ResponsiveContainer width="100%" height={210}>
-              <BarChart data={mob} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid stroke={grid} vertical={false} />
-                <XAxis dataKey="date" tick={axis} />
-                <YAxis unit="°" tick={axis} />
-                <Tooltip {...tip} formatter={(v, n) => [`${v}°`, n === "kuntoutettava" ? "Kuntoutettava puoli" : "Terve puoli"]} />
-                <Legend formatter={(v) => (v === "kuntoutettava" ? "Kuntoutettava puoli" : "Terve puoli")} />
-                <Bar dataKey="kuntoutettava" fill="var(--primary)" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="terve" fill="var(--muted-foreground)" fillOpacity={0.35} radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-            <ul className="mt-2 flex flex-wrap gap-2 text-sm">
-              {mob.filter((m) => m.ero !== undefined).map((m) => (
-                <li key={m.date} className="rounded-full bg-muted px-3 py-1">{m.date}: puoliero {m.ero}°</li>
-              ))}
-            </ul>
+            <p>Indeksi vertaa kuntoutettavan puolen nilkan koukistusta terveeseen puoleen. Terve puoli on aina 100.</p>
+            <p className="mt-1 font-medium">Indeksi = kuntoutettava ° / terve ° × 100</p>
+            <p className="mt-1">Tavoite on 100. Yli 90 tarkoittaa hyvää toiminnallista symmetriaa.</p>
           </>
+        }
+      >
+        {lsi ? (
+          <div className="mb-4">
+            <p className="text-4xl font-bold">
+              {lsi.current}
+              <span className="text-lg font-medium text-muted-foreground"> / 100</span>
+            </p>
+            <div className="mt-2 h-3 overflow-hidden rounded-full bg-muted">
+              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${lsi.current}%` }} />
+            </div>
+            <p className="mt-3 text-sm">
+              Lähtötaso: {lsi.baseline} → Kehitys: <span className="font-semibold text-success">{lsi.change >= 0 ? "+" : ""}{lsi.change} pistettä</span>
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Mitatut asteet: Kuntoutettava {lsi.kuntoutettava}° | Terve puoli {lsi.terve}° (puoliero {lsi.ero}°)
+            </p>
+          </div>
+        ) : null}
+        {mob.length ? (
+          <ResponsiveContainer width="100%" height={190}>
+            <BarChart data={mob} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+              <CartesianGrid stroke={grid} vertical={false} />
+              <XAxis dataKey="date" tick={axis} />
+              <YAxis unit="°" tick={axis} />
+              <Tooltip {...tip} formatter={(v, n) => [`${v}°`, n === "kuntoutettava" ? "Kuntoutettava puoli" : "Terve puoli"]} />
+              <Legend formatter={(v) => (v === "kuntoutettava" ? "Kuntoutettava puoli" : "Terve puoli")} />
+              <Bar dataKey="kuntoutettava" fill="var(--primary)" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="terve" fill="var(--muted-foreground)" fillOpacity={0.35} radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         ) : <Empty text="Liikkuvuutta seurataan, kun liikekartoitus on tehty." />}
       </ChartCard>
 
       <ChartCard
-        title="Tasapaino: yhden jalan seisonta (kuntoutettava puoli)"
+        title="Tasapainon hallinta (kuntoutettava puoli)"
         badge={<SourceBadge source={bal.some((b) => b.source === "simulated") ? "simulated" : "camera"} />}
-        note="Pisin vakaa pito ilman maakosketusta. Ajastin ei pysähdy kosketuksesta – sarja tehdään aina loppuun."
+        note="Yhden jalan seisonta. Ajastin ei pysähdy maakosketuksesta – sarja tehdään aina loppuun."
+        help={
+          <ul className="space-y-1">
+            {BALANCE_LEVELS.map((l) => (
+              <li key={l.level}>
+                <span className="font-semibold">Taso {l.level}: {l.name}</span> – {l.criteria}
+              </li>
+            ))}
+          </ul>
+        }
       >
-        {bal.length ? (
+        {balNow && balFirst ? (
           <>
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={bal} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid stroke={grid} vertical={false} />
-                <XAxis dataKey="date" tick={axis} />
-                <YAxis domain={[0, BALANCE_TARGET_S + 5]} ticks={[0, 10, 20, 30]} unit=" s" tick={axis} />
-                <Tooltip {...tip} formatter={(v) => [`${v} s`, "Vakaa pito"]} />
-                <ReferenceLine y={BALANCE_TARGET_S} stroke="var(--primary)" strokeDasharray="4 4" label={{ value: "Tavoite 30 s", fontSize: 12, fill: "var(--primary)", position: "insideBottomRight" }} />
-                <Line type="monotone" dataKey="sekunnit" stroke="var(--primary)" strokeWidth={3} dot={{ r: 4 }} />
-              </LineChart>
-            </ResponsiveContainer>
-            <ul className="mt-2 flex flex-wrap gap-2 text-sm">
-              {bal.map((b) => (
-                <li key={b.date} className="rounded-full bg-muted px-3 py-1">
-                  {b.date}: {b.kosketukset === 0 ? "ei maakosketuksia" : `${b.kosketukset} maakosketusta`}
-                </li>
+            <div className="grid grid-cols-5 gap-1.5" aria-label={`Taso ${balNow.level} / 5`}>
+              {BALANCE_LEVELS.map((l) => (
+                <div key={l.level} className={`h-3 rounded-full ${l.level <= balNow.level ? "bg-primary" : "bg-muted"}`} />
               ))}
-            </ul>
+            </div>
+            <p className="mt-3 text-xl font-bold">
+              Taso {balNow.level} / 5: {BALANCE_LEVELS[balNow.level - 1]!.name}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Pitoaika {balNow.sekunnit} / {BALANCE_TARGET_S} s | {balNow.kosketukset === 0 ? "Ei maakosketuksia" : `${balNow.kosketukset} maakosketusta`}
+            </p>
+            <p className="mt-2 text-sm">
+              Alussa: Taso {balFirst.level} → Nyt: <span className="font-semibold text-primary">Taso {balNow.level}</span>
+            </p>
           </>
         ) : <Empty text="Tasapainon arvio kertyy kameraseurannasta (tulossa vaiheessa 7)." />}
       </ChartCard>
 
-      <ChartCard title="Tämän viikon harjoittelu" note="Vain loppuun asti tehdyt kerrat. Keskeytetyt eivät näy.">
+      {!compact && (
+  <ChartCard title="Tämän viikon harjoittelu" note="Vain loppuun asti tehdyt kerrat. Keskeytetyt eivät näy.">
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={week} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
             <CartesianGrid stroke={grid} vertical={false} />
@@ -131,30 +206,58 @@ export function ProgressCharts({ client }: { client: Client }) {
           ))}
         </ul>
       </ChartCard>
+      )}
     </div>
   );
 }
 
-function ChartCard({ title, badge, note, children }: { title: string; badge?: React.ReactNode; note?: string; children: React.ReactNode }) {
+function ChartCard({ title, badge, note, help, children }: { title: string; badge?: React.ReactNode; note?: string; help?: React.ReactNode; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
   return (
     <SoftCard>
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="text-lg font-semibold">{title}</h3>
+        {help && (
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            aria-label={open ? "Piilota selitys" : "Näytä selitys"}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border text-primary hover:bg-primary-soft"
+          >
+            <HelpCircle className="h-4 w-4" />
+          </button>
+        )}
         {badge}
       </div>
+      {help && open && <div className="mt-2 rounded-xl bg-primary-soft p-3 text-sm">{help}</div>}
       {note && <p className="mt-1 text-xs text-muted-foreground">{note}</p>}
       <div className="mt-3">{children}</div>
     </SoftCard>
   );
 }
 
-function Figure({ label, value, sub }: { label: string; value: string; sub?: string | undefined }) {
+function StatCard({ icon, iconClass, label, value, footer }: { icon: React.ReactNode; iconClass: string; label: string; value: string; footer?: React.ReactNode }) {
   return (
-    <div className="rounded-2xl bg-primary-soft p-4 text-center">
-      <p className="text-2xl font-bold">{value}</p>
-      <p className="text-sm text-muted-foreground">{label}</p>
-      {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+      <div className="flex items-center gap-2">
+        <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${iconClass}`}>{icon}</span>
+        <p className="text-sm font-medium text-muted-foreground">{label}</p>
+      </div>
+      <p className="mt-3 text-3xl font-bold">{value}</p>
+      {footer && <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">{footer}</div>}
     </div>
+  );
+}
+
+function Trend({ delta, unit, goodWhenDown = false }: { delta: number; unit: string; goodWhenDown?: boolean }) {
+  const good = goodWhenDown ? delta < 0 : delta > 0;
+  const Icon = delta < 0 ? TrendingDown : TrendingUp;
+  const cls = delta === 0 ? "bg-muted text-muted-foreground" : good ? "bg-success-soft text-success" : "bg-warning-soft text-warning";
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold ${cls}`}>
+      <Icon className="h-3.5 w-3.5" /> {delta > 0 ? "+" : delta < 0 ? "−" : "±"}{Math.abs(delta)}{unit}
+    </span>
   );
 }
 
