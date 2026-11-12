@@ -6,7 +6,7 @@ import { lastMessage, unreadCount } from "@/features/messages/messageLogic";
 import { useAppData } from "@/hooks/useAppData";
 import { markMessagesRead } from "@/services/messages";
 
-export function PhysioMessagesPage({ clientId }: { clientId?: string }) {
+export function PhysioMessagesPage({ clientId }: { clientId?: string | undefined }) {
   const data = useAppData();
   const clients = data?.clients ?? [];
   const selected = clients.find((c) => c.id === clientId) ?? clients.find((c) => c.messages.length > 0) ?? clients[0];

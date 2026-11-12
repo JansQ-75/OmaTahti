@@ -3,7 +3,7 @@ import { PhysioMessagesPage } from "@/pages/physio/PhysioMessagesPage";
 
 export const Route = createFileRoute("/fysioterapeutti/viestit")({
   validateSearch: (s: Record<string, unknown>): { asiakas?: string } =>
-    typeof s.asiakas === "string" ? { asiakas: s.asiakas } : {},
+    typeof s["asiakas"] === "string" ? { asiakas: s["asiakas"] } : {},
   head: () => ({
     meta: [
       { title: "Viestit – OmaTahti" },
