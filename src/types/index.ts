@@ -181,6 +181,8 @@ export interface Client {
   assessments: MovementAssessment[];
   messages: Message[];
   notifications: AppNotification[];
+  /** When each role last opened this client's messages; newer messages from the other role are unread. */
+  messagesReadAt?: Partial<Record<Role, string>>;
 }
 
 export interface AppData {

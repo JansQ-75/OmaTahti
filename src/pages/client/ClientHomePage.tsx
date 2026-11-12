@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { Bell, ChartLine, ClipboardCheck, ClipboardList, Flame, MessageCircle, Play } from "lucide-react";
-import { SoftCard, SourceBadge } from "@/components/common/Section";
+import { ClipboardCheck, Flame, Play, X } from "lucide-react";
+import { SoftCard } from "@/components/common/Section";
+import { dismissNotification } from "@/services/messages";
 import { SwitchClientButton, SwitchRoleButton } from "@/components/navigation/RoleActions";
 import { useActiveClient } from "@/hooks/useAppData";
 import { bodyAreaLabel } from "@/data/bodyAreas";
@@ -18,7 +19,6 @@ export function ClientHomePage() {
   const target = client.program?.timesPerWeek ?? 0;
   const last7 = trainedLastDays(client.sessions, 7);
   const notes = openNotifications(client, "client");
-  const unreadFromPhysio = client.messages.filter((m) => m.from === "physio").slice(-1)[0];
 
   return (
     <div className="space-y-5">
@@ -32,6 +32,27 @@ export function ClientHomePage() {
           <SwitchRoleButton />
         </div>
       </div>
+
+      {notes.length > 0 && (
+        <ul className="space-y-2" aria-label="Havainnot">
+          {notes.map((n) => (
+            <li key={n.id} className="relative rounded-2xl bg-warning-soft p-4 pr-12 text-sm">
+              <p className="font-medium">{n.text}</p>
+              <Link to="/asiakas/viestit" className="mt-1 inline-block text-primary underline-offset-2 hover:underline">
+                Kerro fysioterapeutille, miten harjoittelu sujuu →
+              </Link>
+              <button
+                type="button"
+                onClick={() => dismissNotification(client.id, n.id)}
+                aria-label="Sulje ilmoitus"
+                className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-background/60"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {(!client.intake || client.intakeDraft) && (
         <SoftCard className="bg-accent-soft">
@@ -91,51 +112,6 @@ export function ClientHomePage() {
         <WeekBarsCard week={week} weekCount={weekCount} target={target} />
       </div>
 
-      {(notes.length > 0 || unreadFromPhysio) && (
-        <SoftCard>
-          <h2 className="flex items-center gap-2 text-lg font-semibold">
-            <Bell className="h-5 w-5 text-primary" /> Ilmoitukset
-          </h2>
-          <ul className="mt-3 space-y-3">
-            {unreadFromPhysio && (
-              <li className="rounded-xl bg-primary-soft p-3 text-sm">
-                <p className="font-medium">Viesti fysioterapeutilta</p>
-                <p className="mt-0.5 text-muted-foreground">{unreadFromPhysio.text}</p>
-              </li>
-            )}
-            {notes.map((n) => (
-              <li key={n.id} className="rounded-xl bg-warning-soft p-3 text-sm">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-medium">{n.text}</p>
-                  <SourceBadge source="rule-based" />
-                </div>
-                <Link to="/asiakas/viestit" className="mt-1 inline-block text-primary underline-offset-2 hover:underline">
-                  Kerro fysioterapeutille, miten harjoittelu sujuu →
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </SoftCard>
-      )}
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {(
-          [
-            { to: "/asiakas/harjoitukset", label: "Koko harjoitusohjelma", icon: ClipboardList },
-            { to: "/asiakas/edistyminen", label: "Oma edistyminen", icon: ChartLine },
-            { to: "/asiakas/viestit", label: "Ota yhteyttä fysioterapeuttiin", icon: MessageCircle },
-            { to: "/asiakas/alkukartoitus", label: "Oma alkukartoitus", icon: ClipboardCheck },
-          ] as const
-        ).map((a) => (
-          <Link
-            key={a.to}
-            to={a.to}
-            className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 font-medium shadow-[var(--shadow-card)] transition-colors hover:bg-secondary"
-          >
-            <a.icon className="h-5 w-5 text-primary" /> {a.label}
-          </Link>
-        ))}
-      </div>
     </div>
   );
 }
