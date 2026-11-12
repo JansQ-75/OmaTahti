@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeftRight, Info, Plus, Trash2 } from "lucide-react";
+import { Info, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { SoftCard } from "@/components/common/Section";
 import {
@@ -12,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EXERCISES, getExercise } from "@/data/exercises";
 import { PROGRAMS, getProgram } from "@/data/programs";
 import { physioAddExercise, physioRemoveExercise, physioReplaceProgram } from "@/services/program";
@@ -32,7 +33,7 @@ export function programStatusText(p: AssignedProgram): string {
  * Physio's program tools: switch to another ready-made program, add or remove single
  * exercises. Every change is saved at once and is visible in the client's views.
  */
-export function PhysioProgramEditor({ client }: { client: Client }) {
+export function PhysioProgramEditor({ client, bare = false }: { client: Client; bare?: boolean }) {
   const p = client.program;
   const template = p ? getProgram(p.programId) : undefined;
   const [swapTo, setSwapTo] = useState<RehabProgram | null>(null);
@@ -49,8 +50,8 @@ export function PhysioProgramEditor({ client }: { client: Client }) {
   };
 
   return (
-    <SoftCard>
-      <h2 className="text-lg font-semibold">Harjoitusohjelma</h2>
+    <Wrapper bare={bare}>
+      {!bare && <h2 className="text-lg font-semibold">Harjoitusohjelma</h2>}
 
       {p ? (
         <>
@@ -134,21 +135,18 @@ export function PhysioProgramEditor({ client }: { client: Client }) {
       {alternatives.length > 0 && (p || client.intake) && (
         <div className="mt-5 border-t border-border pt-4">
           <h3 className="font-semibold">{p ? "Vaihda toiseen valmiiseen ohjelmaan" : "Valitse valmis ohjelma"}</h3>
-          <ul className="mt-2 grid gap-2 sm:grid-cols-2">
-            {alternatives.map((t) => (
-              <li key={t.id} className="flex flex-col justify-between gap-2 rounded-xl border border-border p-3">
-                <div>
-                  <p className="font-medium">{t.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {t.phase} · {t.exercises.length} harjoitusta
-                  </p>
-                </div>
-                <button type="button" className={btnSecondary} onClick={() => setSwapTo(t)}>
-                  <ArrowLeftRight className="h-4 w-4" /> {p ? "Vaihda tähän ohjelmaan" : "Ota käyttöön"}
-                </button>
-              </li>
-            ))}
-          </ul>
+          <Select value="" onValueChange={(id) => setSwapTo(alternatives.find((t) => t.id === id) ?? null)}>
+            <SelectTrigger className="mt-2 w-full sm:max-w-md" aria-label={p ? "Vaihda toiseen valmiiseen ohjelmaan" : "Valitse valmis ohjelma"}>
+              <SelectValue placeholder="Valitse ohjelma…" />
+            </SelectTrigger>
+            <SelectContent>
+              {alternatives.map((t) => (
+                <SelectItem key={t.id} value={t.id}>
+                  {t.name} · {t.phase} · {t.exercises.length} harjoitusta
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       )}
 
@@ -174,6 +172,10 @@ export function PhysioProgramEditor({ client }: { client: Client }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </SoftCard>
+    </Wrapper>
   );
+}
+
+function Wrapper({ bare, children }: { bare: boolean; children: React.ReactNode }) {
+  return bare ? <div>{children}</div> : <SoftCard>{children}</SoftCard>;
 }
