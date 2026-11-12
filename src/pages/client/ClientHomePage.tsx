@@ -51,7 +51,7 @@ export function ClientHomePage() {
                   to="/asiakas/viestit"
                   className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
                 >
-                  <MessageCircle className="h-4 w-4" /> Kerro fysioterapeutille, miten harjoittelu sujuu
+                  <MessageCircle className="h-4 w-4" /> Viesti fysioterapeutille
                 </Link>
               </div>
               <button
