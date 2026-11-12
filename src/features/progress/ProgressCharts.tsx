@@ -29,7 +29,7 @@ function painFace(level: number) {
 }
 
 /** Shared progress view: the client page and the physio's client page render the same charts from the same data. */
-export function ProgressCharts({ client, compact = false }: { client: Client; compact?: boolean }) {
+export function ProgressCharts({ client, compact = false, showMobilityChart = false }: { client: Client; compact?: boolean; showMobilityChart?: boolean }) {
   if (!hasProgressData(client)) {
     return <SoftCard className="text-muted-foreground">Edistymistietoja ei vielä ole. Kaaviot täyttyvät, kun harjoituksia tehdään.</SoftCard>;
   }

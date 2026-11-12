@@ -49,7 +49,7 @@ export function PhysioClientPage({ clientId }: { clientId: string }) {
 
       <ContactsCard client={client} />
       <ProgressCard client={client} />
-      <ProgressCharts client={client} compact />
+      <ProgressCharts client={client} compact showMobilityChart />
 
       <Fold title="Harjoitusohjelma">
         <PhysioProgramEditor client={client} bare />
