@@ -27,3 +27,4 @@ Fysioterapeutin etusivu `/fysioterapeutti`:
 - [x] "Asiakasta vaatii huomiota" -kortti pois
 - [x] "Käsittelemättömät ilmoitukset" -kortti pois
 - [x] "Ohjelma odottaa hyväksyntää" -ilmoitusta ei synny: fysioterapeutti hyväksyy muutoksen tekohetkellä
+- [x] Ilmoitukset: viestipallo/lukumäärä navigaatioon, suljettavat havainnot tervehdyksen alle, kotisivun alalaatikot pois, alkukartoitus Edistyminen-haitariin

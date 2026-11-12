@@ -1,6 +1,6 @@
 import type { AppData, Client } from "@/types";
 
-export const DATA_VERSION = 6;
+export const DATA_VERSION = 7;
 
 // Dates are relative to "today" so the demo always looks current.
 // Built lazily (never at module scope).
@@ -162,6 +162,7 @@ function buildClientA(): Client {
         source: "rule-based",
       },
     ],
+    messagesReadAt: { client: daysAgo(5, 9), physio: daysAgo(2, 9) },
   };
 }
 

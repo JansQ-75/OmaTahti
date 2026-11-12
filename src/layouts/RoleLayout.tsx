@@ -4,6 +4,7 @@ import { Logo } from "@/components/common/Logo";
 import { ResetDemoButton } from "@/components/navigation/RoleActions";
 import { useAppData, useRole } from "@/hooks/useAppData";
 import type { Role } from "@/types";
+import { unreadCount } from "@/features/messages/messageLogic";
 
 export interface NavItem {
   to:
@@ -32,6 +33,26 @@ export function RoleLayout({ role, items, roleLabel }: { role: Role; items: NavI
   }
   if (currentRole !== role) return <Navigate to="/" />;
 
+  const isMessages = (to: string) => to.endsWith("/viestit");
+  const active = data.clients.find((c) => c.id === data.activeClientId);
+  const unread =
+    role === "physio"
+      ? data.clients.reduce((n, c) => n + unreadCount(c, "physio"), 0)
+      : active
+        ? unreadCount(active, "client")
+        : 0;
+  const badge = (to: string) =>
+    !isMessages(to) || unread === 0 ? null : role === "physio" ? (
+      <span
+        aria-label={`${unread} uutta viestiä`}
+        className="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground"
+      >
+        {unread}
+      </span>
+    ) : (
+      <span aria-label="Uusi viesti" className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-card" />
+    );
+
   const linkCls =
     "flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent";
   const activeCls = "bg-sidebar-accent text-sidebar-accent-foreground";
@@ -50,7 +71,11 @@ export function RoleLayout({ role, items, roleLabel }: { role: Role; items: NavI
               className={linkCls}
               activeProps={{ className: activeCls, "aria-current": "page" }}
             >
-              <it.icon className="h-5 w-5" /> {it.label}
+              <span className="relative">
+                <it.icon className="h-5 w-5" />
+                {badge(it.to)}
+              </span>{" "}
+              {it.label}
             </Link>
           ))}
         </nav>
@@ -82,7 +107,10 @@ export function RoleLayout({ role, items, roleLabel }: { role: Role; items: NavI
             className="flex flex-col items-center gap-1 py-2.5 text-xs font-medium text-muted-foreground"
             activeProps={{ className: "text-primary", "aria-current": "page" }}
           >
-            <it.icon className="h-6 w-6" />
+            <span className="relative">
+              <it.icon className="h-6 w-6" />
+              {badge(it.to)}
+            </span>
             {it.label}
           </Link>
         ))}
