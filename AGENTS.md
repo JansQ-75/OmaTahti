@@ -43,3 +43,4 @@ use the editor.
 - A guided workout is stored as one `ExerciseSession` per training session (`src/features/workout/workoutLogic.ts`); `exerciseId` is the first exercise when completed or the exercise where it was interrupted, so weekly counts stay per session.
 - Single-exercise mode (`?yksittainen=true`) passes `single` to workoutLogic so finishing that exercise ends the session; exercise images live as asset pointers in `src/assets/exercises` referenced from `src/data/exercises.ts`.
 - Progress charts are one shared component (`src/features/progress/ProgressCharts.tsx`) with pure rules in `progressLogic.ts`, so client and physio see identical progress; pain is recorded only after a workout/interrupt and also appended to `painLog`.
+- Messages are one shared thread per client (`client.messages`), written only via `sendMessage` in `src/services/messages.ts`; unread = other role's messages after `messagesReadAt[role]`, so both nav badges derive from the same data.

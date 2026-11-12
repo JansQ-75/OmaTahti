@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
-import { PageHeader, ComingSoon } from "@/components/common/Section";
+import { PageHeader } from "@/components/common/Section";
+import { MessageThread } from "@/features/messages/MessageThread";
 import { IntakeSummary } from "@/features/intake/IntakeSummary";
 import { answersFromIntake } from "@/features/intake/intakeLogic";
 import { ProgressCharts } from "@/features/progress/ProgressCharts";
@@ -41,13 +42,16 @@ export function ClientProgressPage() {
 export function ClientMessagesPage() {
   const client = useActiveClient();
   const id = client?.id;
+  const count = client?.messages.length;
   useEffect(() => {
     if (id) markMessagesRead("client", id);
-  }, [id]);
+  }, [id, count]);
   return (
     <div>
       <PageHeader title="Viestit" subtitle="Yhteydenpito fysioterapeuttiin" />
-      <ComingSoon title="Viestien lähettäminen ja lukeminen" phase={6} />
+      {client && (
+        <MessageThread client={client} role="client" emptyText="Ei viestejä vielä. Voit kysyä fysioterapeutilta harjoittelusta tai kertoa kuulumisistasi." />
+      )}
     </div>
   );
 }

@@ -8,7 +8,7 @@
 - [x] Phase 4 – Client program + exercise instructions, start/interrupt/complete
 - [x] Collapsible "Näytä suoritusohjeet" per exercise card (client + physio views)
 - [x] Phase 5 – Pain after workout + calm advice, pain/mobility/balance/weekly charts (client + physio)
-- [ ] Phase 6 – Messaging + notifications
+- [x] Phase 6 – Messaging + notifications (shared thread, nav badges, physio thread list)
 - [ ] Phase 7 – Camera tracking (1–2 exercises), simulated mode
 - [ ] Phase 8 – Orange juice game
 - [ ] Phase 9 – Summaries + rule-based AI feedback

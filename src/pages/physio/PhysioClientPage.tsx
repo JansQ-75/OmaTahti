@@ -107,7 +107,13 @@ function ContactsCard({ client }: { client: Client }) {
           ))}
         </ul>
       )}
-      <p className="mt-3 text-sm text-muted-foreground">Viesteihin vastaaminen tulee vaiheessa 6.</p>
+      <Link
+        to="/fysioterapeutti/viestit"
+        search={{ asiakas: client.id }}
+        className="mt-3 inline-block text-sm font-medium text-primary hover:underline"
+      >
+        Avaa keskustelu ja vastaa →
+      </Link>
     </SoftCard>
   );
 }
