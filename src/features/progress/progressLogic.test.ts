@@ -36,3 +36,22 @@ describe("weekly activity", () => {
     expect(weekExerciseCounts(sessions, now)).toEqual({ "ankle-flex": 2, "heel-raise": 1 });
   });
 });
+
+import { balanceLevel, symmetryIndex } from "./progressLogic";
+describe("symmetry index", () => {
+  it("terve puoli is 100", () => {
+    expect(symmetryIndex(24, 24)).toBe(100);
+    expect(symmetryIndex(19, 24)).toBe(79);
+    expect(symmetryIndex(9, 24)).toBe(38);
+  });
+});
+describe("balance level", () => {
+  it("maps seconds and touches to 5 levels", () => {
+    expect(balanceLevel(8, 0)).toBe(1);
+    expect(balanceLevel(15, 0)).toBe(2);
+    expect(balanceLevel(25, 0)).toBe(3);
+    expect(balanceLevel(30, 2)).toBe(3);
+    expect(balanceLevel(30, 0)).toBe(4);
+    expect(balanceLevel(30, 0, true)).toBe(5);
+  });
+});

@@ -83,3 +83,35 @@ export function weekExerciseCounts(sessions: ExerciseSession[], now = new Date()
 export function hasProgressData(c: Client) {
   return c.sessions.length > 0 || c.painLog.length > 0 || c.assessments.length > 0;
 }
+
+/** Limb symmetry index: kuntoutettava / terve × 100 (terve puoli = 100). */
+export function symmetryIndex(kuntoutettava: number, terve: number) {
+  if (terve <= 0) return 0;
+  return Math.min(100, Math.round((kuntoutettava / terve) * 100));
+}
+
+export function symmetrySummary(series: ReturnType<typeof mobilitySeries>) {
+  const withBoth = series.filter((m) => m.terve !== undefined);
+  const first = withBoth[0];
+  const last = withBoth.at(-1);
+  if (!first || !last) return undefined;
+  const baseline = symmetryIndex(first.kuntoutettava, first.terve!);
+  const current = symmetryIndex(last.kuntoutettava, last.terve!);
+  return { baseline, current, change: current - baseline, kuntoutettava: last.kuntoutettava, terve: last.terve!, ero: last.terve! - last.kuntoutettava };
+}
+
+export const BALANCE_LEVELS = [
+  { level: 1, name: "Heikko hallinta", criteria: "Alle 10 s, vaatii tukea" },
+  { level: 2, name: "Kohtalainen hallinta", criteria: "10–20 s, selkeää huojuntaa" },
+  { level: 3, name: "Hyvä perushallinta", criteria: "20–30 s tai 30 s 1–2 maakosketuksella" },
+  { level: 4, name: "Vakaa pito", criteria: "30 s ilman maakosketuksia" },
+  { level: 5, name: "Erinomainen hallinta", criteria: "30 s vaivattomasti, ei huojuntaa (vaatii kameraseurannan)" },
+] as const;
+
+/** 1–5 balance level. Level 5 needs a sway estimate from camera tracking, so it is not reachable from seconds alone. */
+export function balanceLevel(seconds: number, touches: number, steady = false) {
+  if (seconds < 10) return 1;
+  if (seconds < 20) return 2;
+  if (seconds < BALANCE_TARGET_S || touches > 0) return 3;
+  return steady ? 5 : 4;
+}
