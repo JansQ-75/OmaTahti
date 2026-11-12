@@ -14,8 +14,10 @@ import {
   mobilitySeries,
   painSeries,
   symmetrySummary,
+  weekAchievement,
   weekActivity,
   weekExerciseCounts,
+  weekExerciseResults,
 } from "./progressLogic";
 
 const axis = { fontSize: 12, fill: "var(--muted-foreground)" };
@@ -38,6 +40,9 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
   const bal = balanceSeries(client.sessions);
   const week = weekActivity(client.sessions);
   const counts = weekExerciseCounts(client.sessions);
+  const ach = weekAchievement(client.sessions);
+  const weekData = week.map((w, i) => ({ ...w, tavoite: ach[i] }));
+  const results = weekExerciseResults(client.sessions);
   const programIds = client.program?.exercises.map((e) => e.exerciseId) ?? Object.keys(counts);
   const latestMob = mob.at(-1);
   const firstMob = mob[0];
@@ -192,11 +197,11 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
       {!compact && (
   <ChartCard title="Tämän viikon harjoittelu" note="Vain loppuun asti tehdyt kerrat. Keskeytetyt eivät näy.">
         <ResponsiveContainer width="100%" height={180}>
-          <BarChart data={week} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+          <BarChart data={weekData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
             <CartesianGrid stroke={grid} vertical={false} />
             <XAxis dataKey="day" tick={axis} />
             <YAxis allowDecimals={false} tick={axis} />
-            <Tooltip {...tip} formatter={(v, n) => [v, n === "kokonainen" ? "Koko harjoituskerta" : "Yksittäinen liike"]} />
+            <Tooltip {...tip} content={<WeekTooltip />} />
             <Legend formatter={(v) => (v === "kokonainen" ? "Koko harjoituskerta" : "Yksittäinen liike")} />
             <Bar dataKey="kokonainen" stackId="a" fill="var(--primary)" />
             <Bar dataKey="yksittainen" stackId="a" fill="var(--primary)" fillOpacity={0.4} radius={[6, 6, 0, 0]} />
@@ -205,9 +210,17 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
         <h4 className="mt-4 font-semibold">Tällä viikolla harjoitellut liikkeet</h4>
         <ul className="mt-2 divide-y divide-border">
           {programIds.map((id) => (
-            <li key={id} className="flex justify-between py-2 text-sm">
+            <li key={id} className="flex flex-wrap justify-between gap-x-3 py-2 text-sm">
               <span>{getExercise(id)?.name ?? id}</span>
-              <span className="font-semibold">{counts[id] ?? 0} krt</span>
+              <span>
+                <span className="font-semibold">{counts[id] ?? 0} krt</span>
+                {results[id] && (
+                  <span className="text-muted-foreground">
+                    {" "}• Viimeksi: {results[id].latest} / {results[id].target} {results[id].unit === "seconds" ? "s" : "toistoa"}
+                    {results[id].first !== results[id].latest && <> • Kehitys: {results[id].first} → {results[id].latest}</>}
+                  </span>
+                )}
+              </span>
             </li>
           ))}
         </ul>
@@ -269,4 +282,19 @@ function Trend({ delta, unit, goodWhenDown = false }: { delta: number; unit: str
 
 function Empty({ text = "Ei vielä merkintöjä." }: { text?: string }) {
   return <p className="text-sm text-muted-foreground">{text}</p>;
+}
+
+const FULL_DAYS: Record<string, string> = { Ma: "Maanantai", Ti: "Tiistai", Ke: "Keskiviikko", To: "Torstai", Pe: "Perjantai", La: "Lauantai", Su: "Sunnuntai" };
+
+function WeekTooltip({ active, payload }: { active?: boolean; payload?: { payload: { day: string; kokonainen: number; yksittainen: number; tavoite?: number } }[] }) {
+  const d = payload?.[0]?.payload;
+  if (!active || !d) return null;
+  return (
+    <div className="rounded-xl border border-border bg-card p-2 text-xs shadow-sm">
+      <p className="font-semibold">{FULL_DAYS[d.day] ?? d.day}</p>
+      <p>Koko harjoituskerta: {d.kokonainen}</p>
+      <p>Yksittäinen liike: {d.yksittainen}</p>
+      {d.tavoite !== undefined && <p className="font-medium text-primary">Toistotavoite saavutettu {d.tavoite} %</p>}
+    </div>
+  );
 }

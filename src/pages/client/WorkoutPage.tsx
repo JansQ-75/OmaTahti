@@ -10,6 +10,7 @@ import {
   addRep,
   buildSession,
   completeSet,
+  confirmLabel,
   exerciseSegments,
   initialWorkout,
   isHold,
@@ -247,7 +248,7 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
                   {running ? "Tauko" : s.seconds > 0 ? "Jatka" : "Käynnistä"}
                 </button>
                 <button type="button" className={secondary} onClick={() => setS(completeSet(s, exercises, single))}>
-                  <Check className="h-5 w-5" /> Kuittaa sarja tehdyksi
+                  <Check className="h-5 w-5" /> {confirmLabel(s.seconds, target, true)}
                 </button>
               </div>
             </>
@@ -272,7 +273,7 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
                   <Plus className="h-5 w-5" /> Toisto tehty
                 </button>
                 <button type="button" className={secondary} onClick={() => setS(completeSet(s, exercises, single))}>
-                  <Check className="h-5 w-5" /> Kuittaa sarja tehdyksi
+                  <Check className="h-5 w-5" /> {confirmLabel(s.reps, target, false)}
                 </button>
               </div>
             </>

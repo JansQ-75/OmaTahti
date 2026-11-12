@@ -42,3 +42,15 @@ describe("single exercise mode", () => {
     expect(completedSessions([session])).toHaveLength(1);
   });
 });
+
+describe("partial sets", () => {
+  it("records 6 of 10 reps when a set is confirmed early", async () => {
+    const { completeSet, initialWorkout, buildSession } = await import("./workoutLogic");
+    const ex = [{ exerciseId: "heel-raise", sets: 1, reps: 10 }];
+    const s = completeSet({ ...initialWorkout(), reps: 6 }, ex);
+    expect(s.finished).toBe(true);
+    const session = buildSession(s, ex, { id: "x" });
+    expect(session.status).toBe("completed");
+    expect(session.sets).toEqual([{ exerciseId: "heel-raise", done: 6, target: 10, unit: "reps" }]);
+  });
+});

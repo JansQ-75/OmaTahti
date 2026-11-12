@@ -120,8 +120,17 @@ export interface ExerciseSession {
   kind?: "full" | "single";
   /** Exercises done in a completed session (falls back to exerciseId). */
   exerciseIds?: string[];
+  /** Per-set results: what was actually done vs the target (partial sets are allowed). */
+  sets?: SetResult[];
   /** Single-leg balance quality. The timer never stops on a ground touch; touches only describe stability. */
   balance?: { steadySeconds: number; groundTouches: number; source: "camera" | "simulated" };
+}
+
+export interface SetResult {
+  exerciseId: string;
+  done: number;
+  target: number;
+  unit: "reps" | "seconds";
 }
 
 export interface PainEntry {

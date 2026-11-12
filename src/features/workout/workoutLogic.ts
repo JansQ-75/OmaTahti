@@ -1,5 +1,5 @@
 // Pure rules for one guided training session (phase 4). Deterministic and tested.
-import type { ExerciseSession, ProgramExercise } from "@/types";
+import type { ExerciseSession, ProgramExercise, SetResult } from "@/types";
 
 export interface WorkoutState {
   exIndex: number; // current exercise in the program
@@ -7,6 +7,8 @@ export interface WorkoutState {
   reps: number; // reps done in the current set
   seconds: number; // seconds held in the current set
   finished: boolean;
+  /** Results of confirmed sets, including partial ones. */
+  log: SetResult[];
 }
 
 export const initialWorkout = (startAt = 0): WorkoutState => ({
@@ -15,6 +17,7 @@ export const initialWorkout = (startAt = 0): WorkoutState => ({
   reps: 0,
   seconds: 0,
   finished: false,
+  log: [],
 });
 
 export const isHold = (e: ProgramExercise) => !!e.holdSeconds;
@@ -24,6 +27,10 @@ export function completeSet(s: WorkoutState, exercises: ProgramExercise[], singl
   if (s.finished) return s;
   const ex = exercises[s.exIndex];
   if (!ex) return { ...s, finished: true };
+  const hold = isHold(ex);
+  const target = (hold ? ex.holdSeconds : ex.reps) ?? 0;
+  const done = Math.min(target, hold ? s.seconds : s.reps);
+  s = { ...s, log: [...s.log, { exerciseId: ex.exerciseId, done, target, unit: hold ? "seconds" : "reps" }] };
   if (s.setIndex + 1 < ex.sets) return { ...s, setIndex: s.setIndex + 1, reps: 0, seconds: 0 };
   return single ? { ...s, finished: true, reps: 0, seconds: 0 } : nextExercise(s, exercises);
 }
@@ -31,7 +38,7 @@ export function completeSet(s: WorkoutState, exercises: ProgramExercise[], singl
 export function nextExercise(s: WorkoutState, exercises: ProgramExercise[]): WorkoutState {
   const exIndex = s.exIndex + 1;
   if (exIndex >= exercises.length) return { ...s, finished: true, reps: 0, seconds: 0 };
-  return { exIndex, setIndex: 0, reps: 0, seconds: 0, finished: false };
+  return { ...s, exIndex, setIndex: 0, reps: 0, seconds: 0, finished: false };
 }
 
 /** One rep done; a full set completes automatically. */
@@ -80,6 +87,7 @@ export function buildSession(
     ...(!interrupted
       ? { exerciseIds: opts.single ? [at?.exerciseId ?? ""] : exercises.map((e) => e.exerciseId) }
       : {}),
+    ...(s.log.length ? { sets: s.log } : {}),
     ...(opts.painAfter !== undefined ? { painAfter: opts.painAfter } : {}),
   };
 }
@@ -92,3 +100,8 @@ export const INTERRUPT_REASONS = [
   "Ohje oli epäselvä",
   "Muu syy",
 ];
+
+/** Label for the confirm button: shows what was actually done in this set. */
+export function confirmLabel(done: number, target: number, hold: boolean) {
+  return `Kuittaa sarja (${Math.min(done, target)} / ${target} ${hold ? "s" : "toistoa"} tehty)`;
+}

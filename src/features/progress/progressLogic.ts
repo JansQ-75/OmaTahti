@@ -115,3 +115,32 @@ export function balanceLevel(seconds: number, touches: number, steady = false) {
   if (seconds < BALANCE_TARGET_S || touches > 0) return 3;
   return steady ? 5 : 4;
 }
+
+/** Share of target achieved (0–100) over a list of set results. */
+export function achievementPct(sets: { done: number; target: number }[]) {
+  const target = sets.reduce((t, x) => t + x.target, 0);
+  return target ? Math.round((sets.reduce((t, x) => t + x.done, 0) / target) * 100) : undefined;
+}
+
+/** Per day this week: achievement % of all recorded sets (undefined when no set data). */
+export function weekAchievement(sessions: ExerciseSession[], now = new Date()) {
+  const rows = DAYS.map(() => [] as { done: number; target: number }[]);
+  for (const s of thisWeek(sessions, now)) rows[(new Date(s.date).getDay() + 6) % 7]!.push(...(s.sets ?? []));
+  return rows.map(achievementPct);
+}
+
+/** Per exercise this week: latest per-set average and first → latest development. */
+export function weekExerciseResults(sessions: ExerciseSession[], now = new Date()) {
+  const out: Record<string, { first: number; latest: number; target: number; unit: "reps" | "seconds" }> = {};
+  const sorted = [...thisWeek(sessions, now)].sort((a, b) => a.date.localeCompare(b.date));
+  for (const s of sorted) {
+    const byEx: Record<string, NonNullable<ExerciseSession["sets"]>> = {};
+    for (const r of s.sets ?? []) (byEx[r.exerciseId] ??= []).push(r);
+    for (const [id, rs] of Object.entries(byEx)) {
+      const avg = Math.round(rs.reduce((t, r) => t + r.done, 0) / rs.length);
+      const cur = out[id];
+      out[id] = { first: cur?.first ?? avg, latest: avg, target: rs[0]!.target, unit: rs[0]!.unit };
+    }
+  }
+  return out;
+}
