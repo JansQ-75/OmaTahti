@@ -12,6 +12,7 @@ import {
   completeSet,
   confirmLabel,
   exerciseSegments,
+  hasStarted,
   initialWorkout,
   isHold,
   nextExercise,
@@ -78,6 +79,10 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
     return () => clearTimeout(t);
   }, [rest]);
 
+
+  // Before the set has started there is nothing to interrupt: leaving saves no session.
+  const setStarted = hasStarted(s);
+  const exitWorkout = () => navigate({ to: "/asiakas/harjoitukset" });
 
   if (!client) return null;
   if (!client.program || exercises.length === 0) {
@@ -192,15 +197,21 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
         set={s.setIndex} sets={pe.sets} done={hold?s.seconds:s.reps} target={target} suspended={interrupting || !!rest}
         onRep={() => setS(cur => ({...cur,reps:Math.min(target,cur.reps+1)}))}
         onTick={() => setS(cur => ({...cur,seconds:Math.min(target,cur.seconds+1)}))}
-        onComplete={cameraComplete} onFallback={() => {setCameraOff(true);setRunning(false);}} onInterrupt={() => setInterrupting(true)}
+        onComplete={cameraComplete} onFallback={() => {setCameraOff(true);setRunning(false);}} onInterrupt={() => setInterrupting(true)} onExit={exitWorkout}
       /> : <>
 
       <div className="mx-auto flex min-h-full max-w-2xl flex-col px-5 py-5">
         <div className="flex items-center justify-between gap-3">
           <p className="font-semibold">{single ? "Yksittäinen liike" : `Liike ${s.exIndex + 1} / ${exercises.length}`}</p>
-          <button type="button" onClick={() => setInterrupting(true)} className={`${secondary} min-h-10 px-4 text-sm`}>
-            <X className="h-4 w-4" /> {single ? "Keskeytä liike" : "Keskeytä"}
-          </button>
+          {setStarted ? (
+            <button type="button" onClick={() => setInterrupting(true)} className={`${secondary} min-h-10 px-4 text-sm`}>
+              <X className="h-4 w-4" /> {single ? "Keskeytä liike" : "Keskeytä"}
+            </button>
+          ) : (
+            <button type="button" onClick={exitWorkout} className={`${secondary} min-h-10 px-4 text-sm`}>
+              Poistu
+            </button>
+          )}
         </div>
         <div className="mt-3 flex gap-1.5" aria-hidden>
           {(single
