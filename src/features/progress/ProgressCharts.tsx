@@ -15,7 +15,7 @@ import {
   painSeries,
   symmetrySummary,
   weekAchievement,
-  weekActivity,
+  weekDots,
   weekExerciseCounts,
   weekExerciseResults,
 } from "./progressLogic";
@@ -38,12 +38,11 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
   const pain = painSeries(client.painLog);
   const mob = mobilitySeries(client.assessments);
   const bal = balanceSeries(client.sessions);
-  const week = weekActivity(client.sessions);
   const counts = weekExerciseCounts(client.sessions);
   const ach = weekAchievement(client.sessions);
-  const weekData = week.map((w, i) => ({ ...w, tavoite: ach[i] }));
   const results = weekExerciseResults(client.sessions);
   const programIds = client.program?.exercises.map((e) => e.exerciseId) ?? Object.keys(counts);
+  const dots = weekDots(client.sessions, programIds).map((d, i) => ({ ...d, tavoite: ach[i] }));
   const latestMob = mob.at(-1);
   const firstMob = mob[0];
   const latestPain = pain.at(-1);
@@ -195,18 +194,8 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
       </ChartCard>
 
       {!compact && (
-  <ChartCard title="Tämän viikon harjoittelu" note="Vain loppuun asti tehdyt kerrat. Keskeytetyt eivät näy.">
-        <ResponsiveContainer width="100%" height={180}>
-          <BarChart data={weekData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
-            <CartesianGrid stroke={grid} vertical={false} />
-            <XAxis dataKey="day" tick={axis} />
-            <YAxis allowDecimals={false} tick={axis} />
-            <Tooltip {...tip} content={<WeekTooltip />} />
-            <Legend formatter={(v) => (v === "kokonainen" ? "Koko harjoituskerta" : "Yksittäinen liike")} />
-            <Bar dataKey="kokonainen" stackId="a" fill="var(--primary)" />
-            <Bar dataKey="yksittainen" stackId="a" fill="var(--primary)" fillOpacity={0.4} radius={[6, 6, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+  <ChartCard title="Tämän viikon harjoittelu" note="Yksi pallo = yksi tehty liike. Vihreä päivä = kaikki ohjelman eri liikkeet tehty. Keskeytetyt eivät näy.">
+        <DotWeek rows={dots} />
         <h4 className="mt-4 font-semibold">Tällä viikolla harjoitellut liikkeet</h4>
         <ul className="mt-2 divide-y divide-border">
           {programIds.map((id) => (
@@ -285,6 +274,33 @@ function Empty({ text = "Ei vielä merkintöjä." }: { text?: string }) {
 }
 
 const FULL_DAYS: Record<string, string> = { Ma: "Maanantai", Ti: "Tiistai", Ke: "Keskiviikko", To: "Torstai", Pe: "Perjantai", La: "Lauantai", Su: "Sunnuntai" };
+
+function DotWeek({ rows }: { rows: { day: string; dots: number; done: number; total: number; complete: boolean; tavoite?: number }[] }) {
+  const max = Math.max(3, ...rows.map((r) => r.dots));
+  return (
+    <div>
+      <div className="grid grid-cols-7 gap-1">
+        {rows.map((r) => {
+          const tip = `${FULL_DAYS[r.day] ?? r.day}: ${r.dots} liikettä tehty` + (r.complete ? " – kaikki ohjelman eri liikkeet suoritettu! 🎉" : r.total ? ` (${r.done} / ${r.total} eri liikettä)` : "") + (r.tavoite !== undefined ? ` · toistotavoite ${r.tavoite} %` : "");
+          return (
+            <div key={r.day} className="flex flex-col items-center" title={tip} aria-label={tip}>
+              <div className="flex flex-col-reverse items-center gap-1" style={{ height: max * 22 }}>
+                {Array.from({ length: r.dots }, (_, k) => (
+                  <span key={k} className={`h-[18px] w-[18px] rounded-full ${r.complete ? "bg-success" : "bg-primary"}`} />
+                ))}
+              </div>
+              <span className="mt-2 text-xs text-muted-foreground">{r.day}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-success" /> Koko ohjelma suoritettu</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-primary" /> Osittainen harjoittelu</span>
+      </div>
+    </div>
+  );
+}
 
 function WeekTooltip({ active, payload }: { active?: boolean; payload?: { payload: { day: string; kokonainen: number; yksittainen: number; tavoite?: number } }[] }) {
   const d = payload?.[0]?.payload;
