@@ -34,7 +34,7 @@ export function CameraWorkout(props: Props) {
   if(mode==="setup")return;
   let disposed=false, stream: MediaStream|undefined, model: Awaited<ReturnType<typeof createPose>>|undefined;
   let timer: ReturnType<typeof setInterval>|undefined;
-  let start:number|null=null, calibrationStart=0, activeStart=0, last=0, second=0, previousCountdown:number|null=null, previousCenter:number|undefined;
+  let start:number|null=null, calibrationStart=0, announceUntil=0, activeStart=0, last=0, second=0, previousCountdown:number|null=null, previousCenter:number|undefined;
   let min=Infinity,max=-Infinity, reliableMs=0,totalMs=0, touches=0,touchSince=0, wasTouching=false, centerMin=Infinity,centerMax=-Infinity;
   let rep:RepTracker|null=null, stage:"waiting"|"calibrating"|"active"="waiting", lastVideoTime=-1;
   setPhase("waiting");setCountdown(null);
@@ -70,7 +70,7 @@ export function CameraWorkout(props: Props) {
       try {obs=observe(model.detectForVideo(v,now).landmarks[0]??[],p.exercise,p.side,v.videoWidth,v.videoHeight);}catch{setError("Liikkeentunnistus ei onnistunut. Voit jatkaa ilman kameraa.");return;}
      }
      setOk(obs.reliable);setDots(mode==="camera"?(obs.dots??[]):[]);
-     setWord(obs.reliable?"HYVÄ ASENTO":(obs.hint??"ASETU KUVAAN"));
+     setWord(!obs.reliable?(obs.hint??"ASETU KUVAAN"):stage==="calibrating"?"LIIKUTA NILKKAA":now<announceUntil?"ALOITA TOISTOT":"HYVÄ ASENTO");
      const dt=Math.min(250,last?now-last:0);last=now;
      if(stage==="waiting"){
       const stationary = obs.center !== undefined && (previousCenter === undefined || Math.abs(obs.center-previousCenter)<.02);
@@ -81,12 +81,13 @@ export function CameraWorkout(props: Props) {
       return;
      }
      if(stage==="calibrating"){
-      if(!obs.reliable){start=null;stage="waiting";min=Infinity;max=-Infinity;setPhase("waiting");return;}
+      if(!obs.reliable){start=null;stage="waiting";setCountdown(null);min=Infinity;max=-Infinity;setPhase("waiting");return;}
       if(obs.angle!==undefined){min=Math.min(min,obs.angle);max=Math.max(max,obs.angle);}
+      setCountdown(Math.max(1,Math.ceil((6000-(now-calibrationStart))/1000)));
       if(now-calibrationStart>=15000 && !calibrated(min,max)){setError("Pientä liikettä ei voida erottaa luotettavasti. Kuittaa toistot itse tai jatka ilman kameraa.");return;}
       if(now-calibrationStart>=6000){
        if(!calibrated(min,max)){setError("Pientä liikettä ei voida erottaa luotettavasti. Voit kuitata toistot itse tai jatkaa ilman kameraa.");return;}
-       rep={min,max,smooth:obs.angle??min,phase:"low",lastRep:now};stage="active";setPhase("active");activeStart=now;second=now;beep(880);
+       setCountdown(null);announceUntil=now+2000;rep={min,max,smooth:obs.angle??min,phase:"low",lastRep:now};stage="active";setPhase("active");activeStart=now;second=now;beep(880);
       }return;
      }
      totalMs+=dt;if(obs.reliable)reliableMs+=dt;
@@ -123,8 +124,8 @@ export function CameraWorkout(props: Props) {
     {mode==="setup" ? <><Camera className="h-12 w-12"/><h2 className="text-2xl font-bold">Valmista kamera</h2><p className="max-w-lg text-lg">{hold?"Aseta laite tukevasti noin 2–3 metrin päähän, kuva edestä. Koko vartalon ja molempien jalkojen tulee näkyä. Seiso tukevan tuolin vieressä.":"Aseta laite sivullesi nilkan korkeudelle. Istu tuolilla: polven, nilkan ja koko jalkaterän tulee näkyä sivulta."}</p><p className="max-w-lg">Hyvä valaistus ja paljas jalkaterä helpottavat tunnistusta. Kamera ei arvioi, teetkö liikkeen oikein.</p><div className="flex flex-wrap justify-center gap-3"><Button size="lg" onClick={()=>enable("camera")}><Camera/> Käytä kameraa</Button><Button variant="secondary" onClick={()=>enable("simulated")}>Simuloitu tila</Button></div></> : <>
      {mode==="simulated"&&<p className="rounded-lg bg-warning-soft px-4 py-2 text-warning">Simuloitu tila – ei oikeaa mittausta</p>}
      {error?<p className="camera-status" role="alert">{error}</p>:<p className={`camera-word ${ok?"is-ok":"is-wait"}`} role="status">{word}</p>}
-     {countdown!==null?<p className="camera-count">{countdown}</p>:<p className="camera-count">{props.done}<span className="text-3xl"> / {props.target}{hold?" s":""}</span></p>}
-     {phase==="calibrating"&&<p className="text-lg">Sovitusliikkeitä ei lasketa toistoiksi. Älä suurenna liikettä kivun läpi.</p>}
+     {countdown!==null?<p className="camera-count">{countdown}{phase==="calibrating"&&<span className="text-3xl"> s</span>}</p>:<p className="camera-count">{props.done}<span className="text-3xl"> / {props.target}{hold?" s":""}</span></p>}
+     {phase==="calibrating"&&<p className="camera-status">Sovitusliikkeitä ei lasketa toistoiksi. Älä suurenna liikettä kivun läpi.</p>}
      <div className={`camera-guide ${ok?"is-ok":"is-wait"}`} aria-hidden />
     </>}
    </main>

@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { calibrated, observe, readyElapsed, trackRep, validEstimate } from "./cameraLogic";
 describe("camera safety", () => {
- it("only starts after one second steady and a five second countdown", () => {
-  expect(readyElapsed(100,1099,true).countdown).toBeNull();
-  expect(readyElapsed(100,1100,true).countdown).toBe(5);
-  expect(readyElapsed(100,5100,true).countdown).toBe(1);
-  expect(readyElapsed(100,6099,true).ready).toBe(false);
-  expect(readyElapsed(100,6100,true).ready).toBe(true);
+ it("only starts after two seconds steady and a five second countdown", () => {
+  expect(readyElapsed(100,2099,true).countdown).toBeNull();
+  expect(readyElapsed(100,2100,true).countdown).toBe(5);
+  expect(readyElapsed(100,6100,true).countdown).toBe(1);
+  expect(readyElapsed(100,7099,true).ready).toBe(false);
+  expect(readyElapsed(100,7100,true).ready).toBe(true);
  });
  it("losing visibility resets the countdown", () => { expect(readyElapsed(100,4000,false)).toEqual({start:null,countdown:null,ready:false}); });
  it("missing landmarks cannot produce feedback or counts", () => { expect(observe([],"ankle-flex","vasen",640,480)).toEqual({reliable:false}); });
