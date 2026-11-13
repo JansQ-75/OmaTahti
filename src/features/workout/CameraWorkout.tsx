@@ -17,6 +17,9 @@ export function CameraWorkout(props: Props) {
  const [phase,setPhase] = useState<"waiting"|"calibrating"|"active">("waiting");
  const [countdown,setCountdown] = useState<number|null>(null);
  const [muted,setMuted] = useState(false);
+ const [word,setWord] = useState("ASETU KUVAAN");
+ const [ok,setOk] = useState(false);
+ const [dots,setDots] = useState<{x:number;y:number}[]>([]);
  const finish = useRef<() => void>(() => {});
  const beep = (frequency=660) => {
   const ctx=audio.current; if(!ctx || !sound.current || ctx.state!=="running")return;
@@ -70,7 +73,7 @@ export function CameraWorkout(props: Props) {
      if(stage==="waiting"){
       const stationary = obs.center !== undefined && (previousCenter === undefined || Math.abs(obs.center-previousCenter)<.02);
       previousCenter=obs.center;
-      const ready=readyElapsed(start,now,stationary && obs.reliable && (p.exercise==="ankle-flex"||obs.lifted===true));start=ready.start;setCountdown(ready.countdown);
+      const ready=readyElapsed(start,now,stationary && obs.reliable);start=ready.start;setCountdown(ready.countdown);
       setStatus(obs.reliable ? (p.exercise==="single-leg-balance"&&!obs.lifted ? "Nosta terve jalka. Ota tarvittaessa tukea." : "Asetu näkyviin ja pysy hetki paikallasi. Harjoitus alkaa automaattisesti.") : "Kehonosa ei näy selkeästi. Tarkista kameran suunta ja valaistus.");
       if(ready.countdown!==previousCountdown&&ready.countdown!==null)beep();previousCountdown=ready.countdown;
       if(ready.ready){setCountdown(null);beep(880);stage=p.exercise==="ankle-flex"?"calibrating":"active";setPhase(stage);calibrationStart=now;activeStart=now;second=now;}
@@ -87,7 +90,7 @@ export function CameraWorkout(props: Props) {
       }return;
      }
      totalMs+=dt;if(obs.reliable)reliableMs+=dt;
-     setStatus(obs.reliable ? "Harjoitus käynnissä – liiku omalla kivuttomalla liikealueellasi." : "Kehonosa ei näy selkeästi. Toistoja ja hallintaa ei arvioida nyt.");
+     setStatus(obs.reliable ? (p.exercise==="single-leg-balance"&&now-activeStart<3000?"Nosta terve jalka nyt.":"") : "Toistoja ja hallintaa ei arvioida nyt.");
      if(p.exercise==="ankle-flex" && obs.reliable && obs.angle!==undefined && rep){
       min=Math.min(min,obs.angle);max=Math.max(max,obs.angle);
       const r=trackRep(rep,obs.angle,now);rep=r.state;if(r.rep){beep(880);if(p.done+1>=p.target){p.onRep();complete();}else p.onRep();}
@@ -114,6 +117,7 @@ export function CameraWorkout(props: Props) {
  const hold=props.exercise==="single-leg-balance";
  return <section className="camera-workout" aria-label="Kameraharjoittelu">
   {mode!=="setup" && <video ref={video} muted playsInline className="camera-feed" aria-label="Oma kamerakuva" />}
+   {mode==="camera" && <svg className="camera-dots" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden>{dots.map((d,i)=><circle key={i} cx={d.x} cy={d.y} r=".012" />)}</svg>}
   <div className="camera-ui">
    <header className="flex flex-wrap items-center justify-between gap-3"><div><p className="font-semibold">{props.name}</p><p className="text-sm">Sarja {props.set+1} / {props.sets} · {props.side} kuntoutettava puoli</p></div><div className="flex gap-2"><Button variant="secondary" size="icon" aria-label={muted?"Äänimerkit päälle":"Äänimerkit pois"} title={muted?"Äänimerkit päälle":"Äänimerkit pois"} onClick={()=>{sound.current=muted;setMuted(!muted);}}>{muted?<VolumeX/>:<Volume2/>}</Button><Button variant="secondary" onClick={props.onInterrupt}><X/> Keskeytä</Button></div></header>
    <main className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
@@ -122,7 +126,7 @@ export function CameraWorkout(props: Props) {
      <p className="camera-status" role="status">{error||status}</p>
      {countdown!==null?<p className="camera-count">{countdown}</p>:<p className="camera-count">{props.done}<span className="text-3xl"> / {props.target}{hold?" s":""}</span></p>}
      {phase==="calibrating"&&<p className="text-lg">Sovitusliikkeitä ei lasketa toistoiksi. Älä suurenna liikettä kivun läpi.</p>}
-     <div className="camera-guide" aria-hidden />
+     <div className={`camera-guide ${ok?"is-ok":"is-wait"}`} aria-hidden />
     </>}
    </main>
    <footer className="space-y-3 text-center">
