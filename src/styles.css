@@ -157,4 +157,5 @@
 .camera-word.is-wait { color: var(--warning); }
 .camera-word.is-ok { color: var(--success); }
 .camera-dots { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; fill: var(--success); }
+.camera-dots line { stroke: var(--success); stroke-width:5; stroke-linecap:round; opacity:.85; filter: drop-shadow(0 0 4px var(--success)); }
 @media(max-width:600px) { .camera-count {font-size:4rem;} .camera-status {font-size:1.125rem;} .camera-ui {gap:.5rem;} .camera-ui main {gap:.75rem;padding:1rem 0;} }
