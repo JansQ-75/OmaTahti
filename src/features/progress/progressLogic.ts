@@ -144,3 +144,20 @@ export function weekExerciseResults(sessions: ExerciseSession[], now = new Date(
   }
   return out;
 }
+
+/** Mon–Sun dot stack: one dot per exercise done that day; a day is complete when every distinct program exercise was done (repeats of one exercise never complete it). */
+export function weekDots(sessions: ExerciseSession[], programIds: string[], now = new Date()) {
+  const rows = DAYS.map((day) => ({ day, dots: 0, distinct: new Set<string>() }));
+  for (const s of thisWeek(sessions, now)) {
+    const r = rows[(new Date(s.date).getDay() + 6) % 7]!;
+    for (const id of s.exerciseIds ?? [s.exerciseId]) {
+      r.dots += 1;
+      r.distinct.add(id);
+    }
+  }
+  const need = new Set(programIds);
+  return rows.map((r) => {
+    const done = [...need].filter((id) => r.distinct.has(id)).length;
+    return { day: r.day, dots: r.dots, done, total: need.size, complete: need.size > 0 && done === need.size };
+  });
+}
