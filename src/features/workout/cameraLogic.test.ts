@@ -1,13 +1,22 @@
 import { describe, expect, it } from "vitest";
 import { calibrated, observe, readyElapsed, trackRep, validEstimate } from "./cameraLogic";
 describe("camera safety", () => {
- it("only starts after two seconds visible and a three second countdown", () => {
-  expect(readyElapsed(100,2099,true).countdown).toBeNull();
-  expect(readyElapsed(100,2100,true).countdown).toBe(3);
-  expect(readyElapsed(100,5100,true).ready).toBe(true);
+ it("only starts after one second steady and a three second countdown", () => {
+  expect(readyElapsed(100,1099,true).countdown).toBeNull();
+  expect(readyElapsed(100,1100,true).countdown).toBe(3);
+  expect(readyElapsed(100,4099,true).ready).toBe(false);
+  expect(readyElapsed(100,4100,true).ready).toBe(true);
  });
  it("losing visibility resets the countdown", () => { expect(readyElapsed(100,4000,false)).toEqual({start:null,countdown:null,ready:false}); });
  it("missing landmarks cannot produce feedback or counts", () => { expect(observe([],"ankle-flex","vasen",640,480)).toEqual({reliable:false}); });
+ it("asks to step back when a needed point is cut off at the edge", () => {
+  const pts=Array.from({length:33},()=>({x:.5,y:.5,visibility:.9})); pts[31]={x:.5,y:.995,visibility:.9};
+  expect(observe(pts,"ankle-flex","vasen",640,480).hint).toBe("KAUEMMAS");
+ });
+ it("asks for more light when points are in frame but faint", () => {
+  const pts=Array.from({length:33},(_,i)=>({x:.3+i*.01,y:.2+i*.02,visibility:.5}));
+  expect(observe(pts,"ankle-flex","vasen",640,480).hint).toBe("LISÄÄ VALOA");
+ });
  it("accepts a small personal range instead of requiring 20–30 degrees", () => { expect(calibrated(90,96)).toBe(true); expect(calibrated(90,92)).toBe(false); });
  it("counts a full out and back movement within a personal six degree range", () => {
   let s = {min:90,max:96,smooth:90,phase:"low" as "low"|"high",lastRep:0}; let reps=0;
