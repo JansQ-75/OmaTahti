@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { completedSessions } from "@/utils/progress";
-import { addRep, buildSession, completeSet, initialWorkout, tick } from "./workoutLogic";
+import { addRep, buildSession, completeSet, hasStarted, initialWorkout, tick } from "./workoutLogic";
 
 const ex = [
   { exerciseId: "ankle-flex", sets: 2, reps: 3 },
@@ -52,5 +52,16 @@ describe("partial sets", () => {
     const session = buildSession(s, ex, { id: "x" });
     expect(session.status).toBe("completed");
     expect(session.sets).toEqual([{ exerciseId: "heel-raise", done: 6, target: 10, unit: "reps" }]);
+  });
+});
+
+describe("exit vs interrupt", () => {
+  it("the set has not started before any rep, held second or logged set", () => {
+    expect(hasStarted(initialWorkout())).toBe(false);
+  });
+  it("the first rep, held second or completed set starts the set", () => {
+    expect(hasStarted(addRep(initialWorkout(), ex))).toBe(true);
+    expect(hasStarted(tick({ ...initialWorkout(), exIndex: 1 }, ex))).toBe(true);
+    expect(hasStarted(completeSet(initialWorkout(), ex))).toBe(true);
   });
 });

@@ -20,6 +20,9 @@ export const initialWorkout = (startAt = 0): WorkoutState => ({
   log: [],
 });
 
+/** True once the current set has actually begun: a rep done, a second held, or a set logged. */
+export const hasStarted = (s: WorkoutState) => s.log.length > 0 || s.reps > 0 || s.seconds > 0;
+
 export const isHold = (e: ProgramExercise) => !!e.holdSeconds;
 
 /** Marks the current set done; moves to the next set, the next exercise, or finishes. */
