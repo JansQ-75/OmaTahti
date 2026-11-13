@@ -117,7 +117,7 @@ export function CameraWorkout(props: Props) {
  const hold=props.exercise==="single-leg-balance";
  return <section className="camera-workout" aria-label="Kameraharjoittelu">
   {mode!=="setup" && <video ref={video} muted playsInline className="camera-feed" aria-label="Oma kamerakuva" />}
-   {mode==="camera" && <svg className="camera-dots" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden>{dots.map((d,i)=><circle key={i} cx={d.x} cy={d.y} r=".012" />)}</svg>}
+   {mode==="camera" && <svg className="camera-dots" viewBox={`0 0 ${video.current?.videoWidth||640} ${video.current?.videoHeight||480}`} preserveAspectRatio="xMidYMid meet" aria-hidden>{dots.map((d,i)=><circle key={i} cx={d.x*(video.current?.videoWidth||640)} cy={d.y*(video.current?.videoHeight||480)} r="9" />)}</svg>}
   <div className="camera-ui">
    <header className="flex flex-wrap items-center justify-between gap-3"><div><p className="font-semibold">{props.name}</p><p className="text-sm">Sarja {props.set+1} / {props.sets} · {props.side} kuntoutettava puoli</p></div><div className="flex gap-2"><Button variant="secondary" size="icon" aria-label={muted?"Äänimerkit päälle":"Äänimerkit pois"} title={muted?"Äänimerkit päälle":"Äänimerkit pois"} onClick={()=>{sound.current=muted;setMuted(!muted);}}>{muted?<VolumeX/>:<Volume2/>}</Button><Button variant="secondary" onClick={props.onInterrupt}><X/> Keskeytä</Button></div></header>
    <main className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
