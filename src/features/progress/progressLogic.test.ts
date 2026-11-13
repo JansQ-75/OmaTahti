@@ -55,3 +55,19 @@ describe("balance level", () => {
     expect(balanceLevel(30, 0, true)).toBe(5);
   });
 });
+
+import { weekDots as _weekDots } from "./progressLogic";
+describe("weekDots", () => {
+  const now = new Date(2026, 10, 11, 12); // Wed
+  const at = new Date(2026, 10, 11, 9).toISOString();
+  const s = (id: string) => ({ id: id + Math.random(), exerciseId: id, date: at, status: "completed" as const, kind: "single" as const });
+  it("4x same exercise does not complete a 4-exercise program", () => {
+    const d = _weekDots([s("a"), s("a"), s("a"), s("a")], ["a", "b", "c", "d"], now)[2]!;
+    expect(d.dots).toBe(4);
+    expect(d.complete).toBe(false);
+  });
+  it("all distinct exercises separately completes the day", () => {
+    const d = _weekDots([s("a"), s("b"), s("c"), s("d")], ["a", "b", "c", "d"], now)[2]!;
+    expect(d.complete).toBe(true);
+  });
+});
