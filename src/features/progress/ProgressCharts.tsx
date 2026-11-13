@@ -275,7 +275,7 @@ function Empty({ text = "Ei vielä merkintöjä." }: { text?: string }) {
 
 const FULL_DAYS: Record<string, string> = { Ma: "Maanantai", Ti: "Tiistai", Ke: "Keskiviikko", To: "Torstai", Pe: "Perjantai", La: "Lauantai", Su: "Sunnuntai" };
 
-function DotWeek({ rows }: { rows: { day: string; dots: number; done: number; total: number; complete: boolean; tavoite?: number }[] }) {
+function DotWeek({ rows }: { rows: { day: string; dots: number; done: number; total: number; complete: boolean; tavoite?: number | undefined }[] }) {
   const max = Math.max(3, ...rows.map((r) => r.dots));
   return (
     <div>
