@@ -276,27 +276,73 @@ function Empty({ text = "Ei vielä merkintöjä." }: { text?: string }) {
 const FULL_DAYS: Record<string, string> = { Ma: "Maanantai", Ti: "Tiistai", Ke: "Keskiviikko", To: "Torstai", Pe: "Perjantai", La: "Lauantai", Su: "Sunnuntai" };
 
 function DotWeek({ rows }: { rows: { day: string; dots: number; done: number; total: number; complete: boolean; tavoite?: number | undefined }[] }) {
+  const [sel, setSel] = useState<string | null>(null);
+  const D = 18, STEP = 13, GAP = 10;
+  const split = (r: (typeof rows)[number]) => {
+    const green = r.complete ? Math.min(r.total, r.dots) : 0;
+    return { green, blue: r.dots - green };
+  };
+  const heightOf = (r: (typeof rows)[number]) => {
+    const { green, blue } = split(r);
+    const h = (n: number) => (n ? D + (n - 1) * STEP : 0);
+    return h(green) + h(blue) + (green && blue ? GAP : 0);
+  };
   const max = Math.max(3, ...rows.map((r) => r.dots));
+  const chartH = Math.max(D + (max - 1) * STEP + GAP, ...rows.map(heightOf));
+  const levelY = (n: number) => D / 2 + (n - 1) * STEP;
+  const tipOf = (r: (typeof rows)[number]) => {
+    const { green, blue } = split(r);
+    return `${FULL_DAYS[r.day] ?? r.day}: ${r.dots} liikettä tehty` +
+      (r.complete ? (blue ? ` (koko ohjelma ${green} + ${blue} ylimääräistä) 🎉` : " – kaikki ohjelman eri liikkeet suoritettu! 🎉") : r.total ? ` (${r.done} / ${r.total} eri liikettä)` : "") +
+      (r.tavoite !== undefined ? ` · toistotavoite ${r.tavoite} %` : "");
+  };
+  const active = rows.find((r) => r.day === sel);
+  const stack = (n: number, cls: string) => (
+    <div className="flex flex-col-reverse items-center">
+      {Array.from({ length: n }, (_, k) => (
+        <span key={k} className={`rounded-full ring-2 ring-card ${cls}`} style={{ width: D, height: D, marginTop: k === n - 1 ? 0 : -(D - STEP) }} />
+      ))}
+    </div>
+  );
   return (
     <div>
-      <div className="grid grid-cols-7 gap-1">
-        {rows.map((r) => {
-          const tip = `${FULL_DAYS[r.day] ?? r.day}: ${r.dots} liikettä tehty` + (r.complete ? " – kaikki ohjelman eri liikkeet suoritettu! 🎉" : r.total ? ` (${r.done} / ${r.total} eri liikettä)` : "") + (r.tavoite !== undefined ? ` · toistotavoite ${r.tavoite} %` : "");
-          return (
-            <div key={r.day} className="flex flex-col items-center" title={tip} aria-label={tip}>
-              <div className="flex flex-col-reverse items-center gap-1" style={{ height: max * 22 }}>
-                {Array.from({ length: r.dots }, (_, k) => (
-                  <span key={k} className={`h-[18px] w-[18px] rounded-full ${r.complete ? "bg-success" : "bg-primary"}`} />
-                ))}
-              </div>
-              <span className="mt-2 text-xs text-muted-foreground">{r.day}</span>
-            </div>
-          );
-        })}
+      <div className="flex gap-2">
+        <div className="relative w-5 shrink-0 text-right text-[10px] text-muted-foreground" style={{ height: chartH }} aria-hidden>
+          {Array.from({ length: max }, (_, i) => (
+            <span key={i} className="absolute right-0 -translate-y-1/2" style={{ bottom: levelY(i + 1) }}>{i + 1}</span>
+          ))}
+        </div>
+        <div className="relative flex-1">
+          {Array.from({ length: max }, (_, i) => (
+            <div key={i} className="pointer-events-none absolute inset-x-0 border-t border-dashed border-border/60" style={{ bottom: levelY(i + 1) }} />
+          ))}
+          <div className="relative grid grid-cols-7 gap-1">
+            {rows.map((r) => {
+              const { green, blue } = split(r);
+              const tip = tipOf(r);
+              const on = sel === r.day;
+              return (
+                <button type="button" key={r.day} title={tip} aria-label={tip} aria-pressed={on}
+                  onClick={() => setSel(on ? null : r.day)}
+                  className={`flex flex-col items-center rounded-lg pt-1 transition-colors ${on ? "bg-muted" : "hover:bg-muted/50"}`}>
+                  <div className="flex flex-col-reverse items-center justify-start" style={{ height: chartH }}>
+                    {green > 0 && stack(green, "bg-success")}
+                    {green > 0 && blue > 0 && <div style={{ height: GAP }} />}
+                    {blue > 0 && stack(blue, "bg-primary")}
+                  </div>
+                  <span className="mt-2 text-xs text-muted-foreground">{r.day}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
+      {active && (
+        <div role="status" className="mt-3 rounded-xl bg-muted p-3 text-sm">{tipOf(active)}</div>
+      )}
       <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-success" /> Koko ohjelma suoritettu</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-primary" /> Osittainen harjoittelu</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-primary" /> Yksittäinen harjoittelu</span>
       </div>
     </div>
   );
