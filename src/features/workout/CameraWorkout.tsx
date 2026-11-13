@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Camera, Check, Plus, Volume2, VolumeX, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { calibrated, observe, readyElapsed, trackRep, validEstimate } from "./cameraLogic";
+import { BONES, calibrated, observe, readyElapsed, trackRep, validEstimate } from "./cameraLogic";
 import type { CameraExercise, RepTracker, TrackingEstimate } from "./cameraLogic";
 import type { createPose } from "./pose";
 
@@ -19,7 +19,7 @@ export function CameraWorkout(props: Props) {
  const [muted,setMuted] = useState(false);
  const [word,setWord] = useState("ASETU KUVAAN");
  const [ok,setOk] = useState(false);
- const [dots,setDots] = useState<{x:number;y:number}[]>([]);
+ const [dots,setDots] = useState<{x:number;y:number;i?:number}[]>([]);
  const finish = useRef<() => void>(() => {});
  const beep = (frequency=660) => {
   const ctx=audio.current; if(!ctx || !sound.current || ctx.state!=="running")return;
@@ -69,18 +69,18 @@ export function CameraWorkout(props: Props) {
       lastVideoTime=v.currentTime;
       try {obs=observe(model.detectForVideo(v,now).landmarks[0]??[],p.exercise,p.side,v.videoWidth,v.videoHeight);}catch{setError("Liikkeentunnistus ei onnistunut. Voit jatkaa ilman kameraa.");return;}
      }
+     setOk(obs.reliable);setDots(mode==="camera"?(obs.dots??[]):[]);
+     setWord(obs.reliable?"HYVÄ ASENTO":(obs.hint??"ASETU KUVAAN"));
      const dt=Math.min(250,last?now-last:0);last=now;
      if(stage==="waiting"){
       const stationary = obs.center !== undefined && (previousCenter === undefined || Math.abs(obs.center-previousCenter)<.02);
       previousCenter=obs.center;
       const ready=readyElapsed(start,now,stationary && obs.reliable);start=ready.start;setCountdown(ready.countdown);
-      setStatus(obs.reliable ? (p.exercise==="single-leg-balance"&&!obs.lifted ? "Nosta terve jalka. Ota tarvittaessa tukea." : "Asetu näkyviin ja pysy hetki paikallasi. Harjoitus alkaa automaattisesti.") : "Kehonosa ei näy selkeästi. Tarkista kameran suunta ja valaistus.");
       if(ready.countdown!==previousCountdown&&ready.countdown!==null)beep();previousCountdown=ready.countdown;
       if(ready.ready){setCountdown(null);beep(880);stage=p.exercise==="ankle-flex"?"calibrating":"active";setPhase(stage);calibrationStart=now;activeStart=now;second=now;}
       return;
      }
      if(stage==="calibrating"){
-      setStatus("Liikuta nilkkaa rauhallisesti kivuttomalla liikealueellasi. Sovitetaan laskuri sinulle.");
       if(!obs.reliable){start=null;stage="waiting";min=Infinity;max=-Infinity;setPhase("waiting");return;}
       if(obs.angle!==undefined){min=Math.min(min,obs.angle);max=Math.max(max,obs.angle);}
       if(now-calibrationStart>=15000 && !calibrated(min,max)){setError("Pientä liikettä ei voida erottaa luotettavasti. Kuittaa toistot itse tai jatka ilman kameraa.");return;}
@@ -90,7 +90,6 @@ export function CameraWorkout(props: Props) {
       }return;
      }
      totalMs+=dt;if(obs.reliable)reliableMs+=dt;
-     setStatus(obs.reliable ? (p.exercise==="single-leg-balance"&&now-activeStart<3000?"Nosta terve jalka nyt.":"") : "Toistoja ja hallintaa ei arvioida nyt.");
      if(p.exercise==="ankle-flex" && obs.reliable && obs.angle!==undefined && rep){
       min=Math.min(min,obs.angle);max=Math.max(max,obs.angle);
       const r=trackRep(rep,obs.angle,now);rep=r.state;if(r.rep){beep(880);if(p.done+1>=p.target){p.onRep();complete();}else p.onRep();}
@@ -117,13 +116,13 @@ export function CameraWorkout(props: Props) {
  const hold=props.exercise==="single-leg-balance";
  return <section className="camera-workout" aria-label="Kameraharjoittelu">
   {mode!=="setup" && <video ref={video} muted playsInline className="camera-feed" aria-label="Oma kamerakuva" />}
-   {mode==="camera" && <svg className="camera-dots" viewBox={`0 0 ${video.current?.videoWidth||640} ${video.current?.videoHeight||480}`} preserveAspectRatio="xMidYMid meet" aria-hidden>{dots.map((d,i)=><circle key={i} cx={d.x*(video.current?.videoWidth||640)} cy={d.y*(video.current?.videoHeight||480)} r="9" />)}</svg>}
+   {mode==="camera" && <svg className="camera-dots" viewBox={`0 0 ${video.current?.videoWidth||640} ${video.current?.videoHeight||480}`} preserveAspectRatio="xMidYMid meet" aria-hidden>{BONES[props.exercise].map(([a,b])=>{const A=dots.find(d=>d.i===a),B=dots.find(d=>d.i===b);return A&&B?<line key={`${a}-${b}`} x1={A.x*(video.current?.videoWidth||640)} y1={A.y*(video.current?.videoHeight||480)} x2={B.x*(video.current?.videoWidth||640)} y2={B.y*(video.current?.videoHeight||480)} />:null;})}{dots.map((d,i)=><circle key={i} cx={d.x*(video.current?.videoWidth||640)} cy={d.y*(video.current?.videoHeight||480)} r="9" />)}</svg>}
   <div className="camera-ui">
    <header className="flex flex-wrap items-center justify-between gap-3"><div><p className="font-semibold">{props.name}</p><p className="text-sm">Sarja {props.set+1} / {props.sets} · {props.side} kuntoutettava puoli</p></div><div className="flex gap-2"><Button variant="secondary" size="icon" aria-label={muted?"Äänimerkit päälle":"Äänimerkit pois"} title={muted?"Äänimerkit päälle":"Äänimerkit pois"} onClick={()=>{sound.current=muted;setMuted(!muted);}}>{muted?<VolumeX/>:<Volume2/>}</Button><Button variant="secondary" onClick={props.onInterrupt}><X/> Keskeytä</Button></div></header>
    <main className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
     {mode==="setup" ? <><Camera className="h-12 w-12"/><h2 className="text-2xl font-bold">Valmista kamera</h2><p className="max-w-lg text-lg">{hold?"Aseta laite tukevasti noin 2–3 metrin päähän, kuva edestä. Koko vartalon ja molempien jalkojen tulee näkyä. Seiso tukevan tuolin vieressä.":"Aseta laite sivullesi nilkan korkeudelle. Istu tuolilla: polven, nilkan ja koko jalkaterän tulee näkyä sivulta."}</p><p className="max-w-lg">Hyvä valaistus ja paljas jalkaterä helpottavat tunnistusta. Kamera ei arvioi, teetkö liikkeen oikein.</p><div className="flex flex-wrap justify-center gap-3"><Button size="lg" onClick={()=>enable("camera")}><Camera/> Käytä kameraa</Button><Button variant="secondary" onClick={()=>enable("simulated")}>Simuloitu tila</Button></div></> : <>
      {mode==="simulated"&&<p className="rounded-lg bg-warning-soft px-4 py-2 text-warning">Simuloitu tila – ei oikeaa mittausta</p>}
-     <p className="camera-status" role="status">{error||status}</p>
+     {error?<p className="camera-status" role="alert">{error}</p>:<p className={`camera-word ${ok?"is-ok":"is-wait"}`} role="status">{word}</p>}
      {countdown!==null?<p className="camera-count">{countdown}</p>:<p className="camera-count">{props.done}<span className="text-3xl"> / {props.target}{hold?" s":""}</span></p>}
      {phase==="calibrating"&&<p className="text-lg">Sovitusliikkeitä ei lasketa toistoiksi. Älä suurenna liikettä kivun läpi.</p>}
      <div className={`camera-guide ${ok?"is-ok":"is-wait"}`} aria-hidden />

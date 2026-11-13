@@ -1,13 +1,13 @@
 // Browser-independent estimates. Thresholds are technical noise filters, not rehab targets.
 export type CameraExercise = "ankle-flex" | "single-leg-balance";
-export interface Point { x: number; y: number; visibility?: number }
+export interface Point { x: number; y: number; visibility?: number; i?: number }
 export type CameraHint = "ASETU KUVAAN" | "KAUEMMAS" | "LÄHEMMÄS" | "LISÄÄ VALOA";
 export interface Observation { reliable: boolean; hint?: CameraHint; dots?: Point[]; angle?: number; lifted?: boolean; center?: number; touching?: boolean }
 export function observe(points: Point[], exercise: CameraExercise, side: "vasen" | "oikea", width: number, height: number): Observation {
   const left = side === "vasen";
-  const ids = exercise === "ankle-flex" ? (left ? [25,27,29,31] : [26,28,30,32]) : [11,12,23,24,25,26,27,28,29,30,31,32];
+  const ids = exercise === "ankle-flex" ? (left ? [25,27,29,31] : [26,28,30,32]) : [11,12,23,24,25,26,27,28];
   if (!points.length) return { reliable: false };
-  const found = ids.map(i => points[i]).filter((q): q is Point => !!q);
+  const found = ids.map(i => points[i] ? { ...points[i], i } : undefined).filter((q): q is Point => !!q);
   const inside = (q: Point) => q.x > .02 && q.x < .98 && q.y > .02 && q.y < .98;
   const dots = found.filter(q => (q.visibility ?? 0) >= .75 && inside(q));
   if (found.length < ids.length) return { reliable: false, hint: "ASETU KUVAAN", dots };
@@ -42,7 +42,7 @@ export function readyElapsed(start: number | null, now: number, reliable: boolea
   if (!reliable) return { start: null, countdown: null, ready: false };
   const since = start ?? now;
   const elapsed = now-since;
-  return { start: since, countdown: elapsed >= 1000 ? Math.max(1, 3-Math.floor((elapsed-1000)/1000)) : null, ready: elapsed >= 4000 };
+  return { start: since, countdown: elapsed >= 1000 ? Math.max(1, 5-Math.floor((elapsed-1000)/1000)) : null, ready: elapsed >= 6000 };
 }
 export interface TrackingEstimate {
   source: "camera" | "simulated";
@@ -54,3 +54,8 @@ export interface TrackingEstimate {
   sway?: number; // horizontal torso range relative to frame width; not a clinical score
 }
 export function validEstimate(reliableMs: number, totalMs: number) { return totalMs >= 3000 && reliableMs/totalMs >= .8; }
+// Skeleton lines drawn between visible joints (MediaPipe indices).
+export const BONES: Record<CameraExercise, [number, number][]> = {
+  "ankle-flex": [[25,27],[27,29],[29,31],[27,31],[26,28],[28,30],[30,32],[28,32]],
+  "single-leg-balance": [[11,12],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28]],
+};
