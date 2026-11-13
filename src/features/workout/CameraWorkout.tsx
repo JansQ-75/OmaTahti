@@ -12,7 +12,7 @@ export function CameraWorkout(props: Props) {
  const audio = useRef<AudioContext | null>(null);
  const sound = useRef(true);
  const [mode,setMode] = useState<"setup"|"camera"|"simulated">("setup");
- const [status,setStatus] = useState("Aseta laite tukevasti ennen aloittamista.");
+
  const [error,setError] = useState("");
  const [phase,setPhase] = useState<"waiting"|"calibrating"|"active">("waiting");
  const [countdown,setCountdown] = useState<number|null>(null);
@@ -85,7 +85,7 @@ export function CameraWorkout(props: Props) {
       if(obs.angle!==undefined){min=Math.min(min,obs.angle);max=Math.max(max,obs.angle);}
       if(now-calibrationStart>=15000 && !calibrated(min,max)){setError("Pientä liikettä ei voida erottaa luotettavasti. Kuittaa toistot itse tai jatka ilman kameraa.");return;}
       if(now-calibrationStart>=6000){
-       if(!calibrated(min,max)){setStatus("Pientä liikettä ei voida erottaa luotettavasti. Voit kuitata toistot itse tai jatkaa ilman kameraa.");return;}
+       if(!calibrated(min,max)){setError("Pientä liikettä ei voida erottaa luotettavasti. Voit kuitata toistot itse tai jatkaa ilman kameraa.");return;}
        rep={min,max,smooth:obs.angle??min,phase:"low",lastRep:now};stage="active";setPhase("active");activeStart=now;second=now;beep(880);
       }return;
      }
@@ -110,7 +110,7 @@ export function CameraWorkout(props: Props) {
     if(!disposed)setError(e instanceof DOMException && e.name==="NotAllowedError" ? "Kameran käyttöä ei sallittu. Voit jatkaa ilman kameraa." : "Kameraa tai liikkeentunnistusta ei saatu käynnistettyä. Voit jatkaa ilman kameraa.");
    }
   }
-  setStatus("Kamera ja liikkeentunnistus käynnistyvät…");void begin();
+  void begin();
   return ()=>{disposed=true;if(timer)clearInterval(timer);stream?.getTracks().forEach(t=>t.stop());model?.close();};
  },[mode,props.exercise,props.set,props.side]);
  const hold=props.exercise==="single-leg-balance";
