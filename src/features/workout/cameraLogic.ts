@@ -12,7 +12,7 @@ export function observe(points: Point[], exercise: CameraExercise, side: "vasen"
     const ux = (k.x-a.x)*width, uy = (k.y-a.y)*height, vx = (t.x-h.x)*width, vy = (t.y-h.y)*height;
     const len = Math.hypot(ux,uy)*Math.hypot(vx,vy);
     if (len < 150) return { reliable: false };
-    return { reliable: true, angle: Math.acos(Math.max(-1,Math.min(1,(ux*vx+uy*vy)/len)))*180/Math.PI };
+    return { reliable: true, center: a.x, angle: Math.acos(Math.max(-1,Math.min(1,(ux*vx+uy*vy)/len)))*180/Math.PI };
   }
   const support = p(left ? 27 : 28), free = p(left ? 28 : 27);
   const torso = Math.abs((p(23).y+p(24).y-p(11).y-p(12).y)/2);
@@ -25,7 +25,7 @@ export function calibrated(min: number, max: number): boolean { return max-min >
 export function trackRep(s: RepTracker, angle: number, now: number) {
   const smooth = s.smooth*.65+angle*.35;
   const span = s.max-s.min;
-  const low = s.min+span*.3, high = s.max-span*.7;
+  const low = s.min+span*.3, high = s.min+span*.7;
   let phase = s.phase; let rep = false;
   if (smooth >= high) phase = "high";
   if (smooth <= low && phase === "high" && now-s.lastRep >= 700) { phase = "low"; rep = true; }

@@ -37,6 +37,7 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
   }
   const pain = painSeries(client.painLog);
   const mob = mobilitySeries(client.assessments);
+  const cameraRange = mobilitySeries(client.assessments, "nilkan liikealue");
   const bal = balanceSeries(client.sessions);
   const counts = weekExerciseCounts(client.sessions);
   const ach = weekAchievement(client.sessions);
@@ -49,7 +50,7 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
   const firstPain = pain[0];
   const streak = currentStreak(client.sessions);
   const lsi = symmetrySummary(mob);
-  const balLevels = bal.map((b) => ({ ...b, level: balanceLevel(b.sekunnit, b.kosketukset) }));
+  const balLevels = bal.map((b) => ({ ...b, level: balanceLevel(b.sekunnit, b.kosketukset, b.source === "camera" && b.confidence !== undefined && b.confidence >= .9 && b.sway !== undefined && b.sway < .015) }));
   const balNow = balLevels.at(-1);
   const balFirst = balLevels[0];
 
@@ -117,7 +118,7 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
           <>
             <p>Indeksi vertaa kuntoutettavan puolen nilkan koukistusta terveeseen puoleen. Terve puoli on aina 100.</p>
             <p className="mt-1 font-medium">Indeksi = kuntoutettava ° / terve ° × 100</p>
-            <p className="mt-1">Tavoite on 100. Yli 90 tarkoittaa hyvää toiminnallista symmetriaa.</p>
+            <p className="mt-1">Indeksin vertailuarvo on 100. Kamera-arvio ei osoita paranemista tai harjoittelun turvallisuutta.</p>
           </>
         }
       >
@@ -159,10 +160,14 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
         )}
       </ChartCard>
 
+      {cameraRange.length > 0 && <ChartCard title="Nilkan liikealue harjoittelussa" badge={<SourceBadge source={cameraRange.at(-1)?.source ?? "camera"} />} note="Sivukuvan 2D-kulman vaihtelu, ei kliininen mittaus. Ei ole sama kuin koukistuskulma tai symmetriaindeksi. Vertaa vain samaa puolta samalla kameran suunnalla ja etäisyydellä.">
+        <p className="text-3xl font-bold">{cameraRange.at(-1)?.kuntoutettava}°</p>
+        <ResponsiveContainer width="100%" height={180}><LineChart data={cameraRange} margin={{top:12,right:12,left:-20,bottom:0}}><XAxis dataKey="date" tick={axis}/><YAxis tick={axis}/><Tooltip {...tip} formatter={v => [`${v}°`, "Liikealue"]}/><Line dataKey="kuntoutettava" stroke="var(--primary)" strokeWidth={3}/></LineChart></ResponsiveContainer>
+      </ChartCard>}
       <ChartCard
         title="Tasapainon hallinta (kuntoutettava puoli)"
         badge={<SourceBadge source={bal.some((b) => b.source === "simulated") ? "simulated" : "camera"} />}
-        note="Yhden jalan seisonta. Ajastin ei pysähdy maakosketuksesta – sarja tehdään aina loppuun."
+        note="Yhden jalan seisonta. Ajastin ei pysähdy maakosketuksesta. Huojunta ja kosketukset ovat kamera-arvioita, eivät kliinisiä mittauksia."
         help={
           <ul className="space-y-1">
             {BALANCE_LEVELS.map((l) => (
@@ -186,11 +191,12 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
             <p className="text-sm text-muted-foreground">
               Pitoaika {balNow.sekunnit} / {BALANCE_TARGET_S} s | {balNow.kosketukset === 0 ? "Ei maakosketuksia" : `${balNow.kosketukset} maakosketusta`}
             </p>
+            {balNow.sway !== undefined && <p className="text-sm text-muted-foreground">Huojunta-arvio: vartalon sivuttaisvaihtelu {Math.round(balNow.sway*1000)/10} % kuvan leveydestä.</p>}
             <p className="mt-2 text-sm">
               Alussa: Taso {balFirst.level} → Nyt: <span className="font-semibold text-primary">Taso {balNow.level}</span>
             </p>
           </>
-        ) : <Empty text="Tasapainon arvio kertyy kameraseurannasta (tulossa vaiheessa 7)." />}
+        ) : <Empty text="Tasapainon arvio kertyy luotettavasta kameraseurannasta." />}
       </ChartCard>
 
       {!compact && (

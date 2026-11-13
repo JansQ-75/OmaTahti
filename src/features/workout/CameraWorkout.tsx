@@ -23,15 +23,15 @@ export function CameraWorkout(props: Props) {
   const osc=ctx.createOscillator(), gain=ctx.createGain();osc.frequency.value=frequency;gain.gain.setValueAtTime(.06,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.16);osc.connect(gain);gain.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+.17);
  };
  const enable = (next: "camera"|"simulated") => {
-  if(!audio.current) audio.current=new AudioContext();
-  void audio.current.resume().catch(()=>{});setError("");setMode(next);
+  try { if(!audio.current) audio.current=new AudioContext(); void audio.current.resume().catch(()=>{}); } catch { sound.current=false;setMuted(true); }
+  setError("");setMode(next);
  };
  useEffect(()=>()=>{ void audio.current?.close(); },[]);
  useEffect(()=>{
   if(mode==="setup")return;
   let disposed=false, stream: MediaStream|undefined, model: Awaited<ReturnType<typeof createPose>>|undefined;
   let timer: ReturnType<typeof setInterval>|undefined;
-  let start:number|null=null, calibrationStart=0, activeStart=0, last=0, second=0, previousCountdown:number|null=null;
+  let start:number|null=null, calibrationStart=0, activeStart=0, last=0, second=0, previousCountdown:number|null=null, previousCenter:number|undefined;
   let min=Infinity,max=-Infinity, reliableMs=0,totalMs=0, touches=0,touchSince=0, wasTouching=false, centerMin=Infinity,centerMax=-Infinity;
   let rep:RepTracker|null=null, stage:"waiting"|"calibrating"|"active"="waiting", lastVideoTime=-1;
   setPhase("waiting");setCountdown(null);
@@ -40,7 +40,7 @@ export function CameraWorkout(props: Props) {
    const valid=validEstimate(reliableMs,totalMs);
    const estimate:TrackingEstimate|undefined = valid ? {source:mode,confidence:Math.round(reliableMs/totalMs*100)/100,view:p.exercise==="ankle-flex"?"sivulta":"edestä",side:p.side,
     ...(p.exercise==="ankle-flex" && Number.isFinite(min) && max-min>=3 ? {rangeDegrees:Math.round(max-min)} : {}),
-    ...(p.exercise==="single-leg-balance" ? {groundTouches:touches,sway:Math.round((centerMax-centerMin)*1000)/1000} : {}),
+    ...(p.exercise==="single-leg-balance" && Number.isFinite(centerMin) ? {groundTouches:touches,sway:Math.round((centerMax-centerMin)*1000)/1000} : {}),
    } : undefined;
    stage="waiting";beep(880);p.onComplete(estimate);
   };
@@ -68,8 +68,10 @@ export function CameraWorkout(props: Props) {
      }
      const dt=Math.min(250,last?now-last:0);last=now;
      if(stage==="waiting"){
-      const ready=readyElapsed(start,now,obs.reliable && (p.exercise==="ankle-flex"||obs.lifted===true));start=ready.start;setCountdown(ready.countdown);
-      setStatus(obs.reliable ? (p.exercise==="single-leg-balance"&&!obs.lifted ? "Nosta terve jalka. Ota tarvittaessa tukea." : "Asetu näkyviin ja pysy hetki paikallasi.") : "Kehonosa ei näy selkeästi. Tarkista kameran suunta ja valaistus.");
+      const stationary = obs.center !== undefined && (previousCenter === undefined || Math.abs(obs.center-previousCenter)<.02);
+      previousCenter=obs.center;
+      const ready=readyElapsed(start,now,stationary && obs.reliable && (p.exercise==="ankle-flex"||obs.lifted===true));start=ready.start;setCountdown(ready.countdown);
+      setStatus(obs.reliable ? (p.exercise==="single-leg-balance"&&!obs.lifted ? "Nosta terve jalka. Ota tarvittaessa tukea." : "Asetu näkyviin ja pysy hetki paikallasi. Harjoitus alkaa automaattisesti.") : "Kehonosa ei näy selkeästi. Tarkista kameran suunta ja valaistus.");
       if(ready.countdown!==previousCountdown&&ready.countdown!==null)beep();previousCountdown=ready.countdown;
       if(ready.ready){setCountdown(null);beep(880);stage=p.exercise==="ankle-flex"?"calibrating":"active";setPhase(stage);calibrationStart=now;activeStart=now;second=now;}
       return;
@@ -78,6 +80,7 @@ export function CameraWorkout(props: Props) {
       setStatus("Liikuta nilkkaa rauhallisesti kivuttomalla liikealueellasi. Sovitetaan laskuri sinulle.");
       if(!obs.reliable){start=null;stage="waiting";min=Infinity;max=-Infinity;setPhase("waiting");return;}
       if(obs.angle!==undefined){min=Math.min(min,obs.angle);max=Math.max(max,obs.angle);}
+      if(now-calibrationStart>=15000 && !calibrated(min,max)){setError("Pientä liikettä ei voida erottaa luotettavasti. Kuittaa toistot itse tai jatka ilman kameraa.");return;}
       if(now-calibrationStart>=6000){
        if(!calibrated(min,max)){setStatus("Pientä liikettä ei voida erottaa luotettavasti. Voit kuitata toistot itse tai jatkaa ilman kameraa.");return;}
        rep={min,max,smooth:obs.angle??min,phase:"low",lastRep:now};stage="active";setPhase("active");activeStart=now;second=now;beep(880);

@@ -6,9 +6,11 @@ export const Route = createFileRoute("/fysioterapeutti/viestit")({
     typeof s["asiakas"] === "string" ? { asiakas: s["asiakas"] } : {},
   head: () => ({
     meta: [
-      { title: "Viestit – OmaTahti" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { title: "Asiakkaiden viestit – OmaTahti" },
       { name: "description", content: "Asiakkaiden viestit." },
-      { property: "og:title", content: "Viestit – OmaTahti" },
+      { property: "og:title", content: "Asiakkaiden viestit – OmaTahti" },
       { property: "og:description", content: "Asiakkaiden viestit." },
     ],
   }),

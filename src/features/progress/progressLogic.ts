@@ -40,7 +40,7 @@ export function balanceSeries(sessions: ExerciseSession[]) {
   return sessions
     .filter((s) => s.status === "completed" && s.balance)
     .sort((a, b) => a.date.localeCompare(b.date))
-    .map((s) => ({ date: short(s.date), sekunnit: s.balance!.steadySeconds, kosketukset: s.balance!.groundTouches, source: s.balance!.source }));
+    .map((s) => ({ date: short(s.date), sekunnit: s.balance!.steadySeconds, kosketukset: s.balance!.groundTouches, source: s.balance!.source, sway:s.balance!.sway, confidence:s.balance!.confidence }));
 }
 
 function weekStart(now: Date) {

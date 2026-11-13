@@ -7,7 +7,7 @@ import type { ExerciseSession, MovementAssessment } from "@/types";
 export function saveWorkoutSession(clientId: string, session: ExerciseSession) {
   const assessments: MovementAssessment[] = (session.sets ?? []).flatMap((r, i) => r.tracking?.rangeDegrees !== undefined ? [{
     id: `${session.id}-camera-${i}`, date: session.date, movement: "nilkan liikealue", kind: "follow-up", side: r.tracking.side, valueDegrees: r.tracking.rangeDegrees,
-    setup: {view:r.tracking.view, distanceMeters:0, lighting:"kohtalainen"}, confidence:r.tracking.confidence, source:r.tracking.source,
+    setup: {view:r.tracking.view}, confidence:r.tracking.confidence, source:r.tracking.source,
   }] : []);
   updateData((d) => ({
     ...d,

@@ -4,6 +4,8 @@ import { ClientMessagesPage } from "@/pages/client/ClientPlaceholders";
 export const Route = createFileRoute("/asiakas/viestit")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Viestit – OmaTahti" },
       { name: "description", content: "Viestit fysioterapeutin kanssa." },
       { property: "og:title", content: "Viestit – OmaTahti" },

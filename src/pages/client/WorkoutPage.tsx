@@ -171,7 +171,7 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-background">
       {camera && (ex?.id === "ankle-flex" || ex?.id === "single-leg-balance") ? <CameraWorkout
-        key={`${s.exIndex}-${s.setIndex}`} exercise={ex.id} name={ex.name} side={client.intake?.side ?? "vasen"}
+        key={s.exIndex} exercise={ex.id} name={ex.name} side={client.intake?.side ?? "vasen"}
         set={s.setIndex} sets={pe.sets} done={hold?s.seconds:s.reps} target={target} suspended={interrupting}
         onRep={() => setS(cur => ({...cur,reps:Math.min(target,cur.reps+1)}))}
         onTick={() => setS(cur => ({...cur,seconds:Math.min(target,cur.seconds+1)}))}

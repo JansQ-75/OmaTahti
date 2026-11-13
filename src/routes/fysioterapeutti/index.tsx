@@ -4,6 +4,8 @@ import { PhysioHomePage } from "@/pages/physio/PhysioHomePage";
 export const Route = createFileRoute("/fysioterapeutti/")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Fysioterapeutin etusivu – OmaTahti" },
       { name: "description", content: "Uudet viestit, ilmoitukset ja huomiota vaativat asiakkaat." },
       { property: "og:title", content: "Fysioterapeutin etusivu – OmaTahti" },

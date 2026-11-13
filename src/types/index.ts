@@ -144,8 +144,8 @@ export interface PainEntry {
 
 export interface CameraSetup {
   view: "sivulta" | "edestä";
-  distanceMeters: number;
-  lighting: "hyvä" | "kohtalainen" | "heikko";
+  distanceMeters?: number;
+  lighting?: "hyvä" | "kohtalainen" | "heikko";
 }
 
 export interface MovementAssessment {
