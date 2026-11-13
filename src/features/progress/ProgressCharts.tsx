@@ -289,7 +289,6 @@ function DotWeek({ rows }: { rows: { day: string; dots: number; done: number; to
   };
   const max = Math.max(3, ...rows.map((r) => r.dots));
   const chartH = Math.max(D + (max - 1) * STEP + GAP, ...rows.map(heightOf));
-  const levelY = (n: number) => D / 2 + (n - 1) * STEP;
   const tipOf = (r: (typeof rows)[number]) => {
     const { green, blue } = split(r);
     return `${FULL_DAYS[r.day] ?? r.day}: ${r.dots} liikettä tehty` +
@@ -306,16 +305,8 @@ function DotWeek({ rows }: { rows: { day: string; dots: number; done: number; to
   );
   return (
     <div>
-      <div className="flex gap-2">
-        <div className="relative w-5 shrink-0 text-right text-[10px] text-muted-foreground" style={{ height: chartH }} aria-hidden>
-          {Array.from({ length: max }, (_, i) => (
-            <span key={i} className="absolute right-0 -translate-y-1/2" style={{ bottom: levelY(i + 1) }}>{i + 1}</span>
-          ))}
-        </div>
-        <div className="relative flex-1">
-          {Array.from({ length: max }, (_, i) => (
-            <div key={i} className="pointer-events-none absolute inset-x-0 border-t border-dashed border-border/60" style={{ bottom: levelY(i + 1) }} />
-          ))}
+      <div>
+        <div>
           <div className="relative grid grid-cols-7 gap-1">
             {rows.map((r) => {
               const { green, blue } = split(r);
