@@ -9,7 +9,7 @@
 - [x] Collapsible "Näytä suoritusohjeet" per exercise card (client + physio views)
 - [x] Phase 5 – Pain after workout + calm advice, pain/mobility/balance/weekly charts (client + physio)
 - [x] Phase 6 – Messaging + notifications (shared thread, nav badges, physio thread list)
-- [ ] Phase 7 – Camera tracking (1–2 exercises), simulated mode
+- [ ] Phase 7 – Camera tracking for ankle-flex + single-leg-balance, automatic start, fullscreen/mobile fallback, per-set estimates and simulated mode (verification in progress)
 - [ ] Phase 8 – Orange juice game
 - [ ] Phase 9 – Summaries + rule-based AI feedback
 - [ ] Phase 10 – End-to-end polish

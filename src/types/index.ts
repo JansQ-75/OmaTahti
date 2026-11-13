@@ -123,7 +123,7 @@ export interface ExerciseSession {
   /** Per-set results: what was actually done vs the target (partial sets are allowed). */
   sets?: SetResult[];
   /** Single-leg balance quality. The timer never stops on a ground touch; touches only describe stability. */
-  balance?: { steadySeconds: number; groundTouches: number; source: "camera" | "simulated" };
+  balance?: { steadySeconds: number; groundTouches: number; source: "camera" | "simulated"; sway?: number; confidence?: number };
 }
 
 export interface SetResult {
@@ -131,6 +131,7 @@ export interface SetResult {
   done: number;
   target: number;
   unit: "reps" | "seconds";
+  tracking?: import("@/features/workout/cameraLogic").TrackingEstimate;
 }
 
 export interface PainEntry {

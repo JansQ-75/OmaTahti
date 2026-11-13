@@ -20,6 +20,8 @@ import {
 import { useActiveClient } from "@/hooks/useAppData";
 import { cn } from "@/lib/utils";
 import { painAdvice } from "@/features/progress/progressLogic";
+import { CameraWorkout } from "@/features/workout/CameraWorkout";
+import type { TrackingEstimate } from "@/features/workout/cameraLogic";
 import { markProgramStarted, saveWorkoutSession } from "@/services/workout";
 
 const btn =
@@ -33,6 +35,7 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
   const navigate = useNavigate();
   const exercises = client?.program?.exercises ?? [];
   const [s, setS] = useState(() => initialWorkout(startAt));
+  const [cameraOff, setCameraOff] = useState(false);
   const [running, setRunning] = useState(false);
   const [interrupting, setInterrupting] = useState(false);
   const [reason, setReason] = useState<string | null>(null);
@@ -51,7 +54,7 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
     if (!running) return;
     const t = setInterval(() => setS((cur) => tick(cur, exercises, single)), 1000);
     return () => clearInterval(t);
-  }, [running, exercises]);
+  }, [running, exercises, single]);
 
   // Stop the timer whenever the set changes
   useEffect(() => {
@@ -153,13 +156,28 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
     );
   }
 
-  const pe = exercises[s.exIndex]!;
+  const pe = exercises[s.exIndex];
+  if (!pe) return null;
   const ex = getExercise(pe.exerciseId);
   const hold = isHold(pe);
   const target = hold ? (pe.holdSeconds ?? 0) : (pe.reps ?? 0);
 
+  const camera = !cameraOff && (ex?.id === "ankle-flex" || ex?.id === "single-leg-balance");
+  const cameraComplete = (estimate?: TrackingEstimate) => setS(cur => {
+    const next = completeSet(cur, exercises, single);
+    if (!estimate) return next;
+    return {...next, log: next.log.map((r,i) => i === next.log.length-1 ? {...r, tracking:estimate} : r)};
+  });
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-background">
+      {camera && (ex?.id === "ankle-flex" || ex?.id === "single-leg-balance") ? <CameraWorkout
+        key={`${s.exIndex}-${s.setIndex}`} exercise={ex.id} name={ex.name} side={client.intake?.side ?? "vasen"}
+        set={s.setIndex} sets={pe.sets} done={hold?s.seconds:s.reps} target={target} suspended={interrupting}
+        onRep={() => setS(cur => ({...cur,reps:Math.min(target,cur.reps+1)}))}
+        onTick={() => setS(cur => ({...cur,seconds:Math.min(target,cur.seconds+1)}))}
+        onComplete={cameraComplete} onFallback={() => {setCameraOff(true);setRunning(false);}} onInterrupt={() => setInterrupting(true)}
+      /> : <>
+
       <div className="mx-auto flex min-h-full max-w-2xl flex-col px-5 py-5">
         <div className="flex items-center justify-between gap-3">
           <p className="font-semibold">{single ? "Yksittäinen liike" : `Liike ${s.exIndex + 1} / ${exercises.length}`}</p>
@@ -288,6 +306,7 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
           {s.exIndex + 1 < exercises.length ? "Siirry seuraavaan liikkeeseen" : "Lopeta viimeinen liike"}
         </button>}
       </div>
+      </>}
 
       {interrupting && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 p-4 sm:items-center">
