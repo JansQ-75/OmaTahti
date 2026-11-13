@@ -7,7 +7,7 @@ export function observe(points: Point[], exercise: CameraExercise, side: "vasen"
   const left = side === "vasen";
   const ids = exercise === "ankle-flex" ? (left ? [25,27,29,31] : [26,28,30,32]) : [11,12,23,24,25,26,27,28];
   if (!points.length) return { reliable: false };
-  const found = ids.map(i => points[i] ? { ...points[i], i } : undefined).filter((q): q is Point => !!q);
+  const found: Point[] = ids.flatMap(i => points[i] ? [{ ...points[i], i }] : []);
   const inside = (q: Point) => q.x > .02 && q.x < .98 && q.y > .02 && q.y < .98;
   const dots = found.filter(q => (q.visibility ?? 0) >= .75 && inside(q));
   if (found.length < ids.length) return { reliable: false, hint: "ASETU KUVAAN", dots };
