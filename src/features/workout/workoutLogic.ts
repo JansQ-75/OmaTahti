@@ -99,6 +99,7 @@ export const INTERRUPT_REASONS = [
   "Väsymys",
   "Ajanpuute",
   "Ohje oli epäselvä",
+  "Tekninen ongelma",
   "Muu syy",
 ];
 

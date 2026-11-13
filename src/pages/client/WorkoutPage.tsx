@@ -61,6 +61,23 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
     setRunning(false);
   }, [s.exIndex, s.setIndex, s.finished]);
 
+  // Rest between sets (10 s) and between exercises (15 s); never after the last set.
+  const [rest, setRest] = useState<{ kind: "set" | "exercise"; left: number } | null>(null);
+  const prevPos = useRef({ ex: s.exIndex, set: s.setIndex });
+  useEffect(() => {
+    const prev = prevPos.current;
+    prevPos.current = { ex: s.exIndex, set: s.setIndex };
+    if (s.finished) return setRest(null);
+    if (s.exIndex !== prev.ex) setRest({ kind: "exercise", left: 15 });
+    else if (s.setIndex !== prev.set) setRest({ kind: "set", left: 10 });
+  }, [s.exIndex, s.setIndex, s.finished]);
+  useEffect(() => {
+    if (!rest) return;
+    if (rest.left <= 0) return setRest(null);
+    const t = setTimeout(() => setRest((r) => (r ? { ...r, left: r.left - 1 } : r)), 1000);
+    return () => clearTimeout(t);
+  }, [rest]);
+
 
   if (!client) return null;
   if (!client.program || exercises.length === 0) {
@@ -172,7 +189,7 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
     <div className="fixed inset-0 z-50 overflow-y-auto bg-background">
       {camera && (ex?.id === "ankle-flex" || ex?.id === "single-leg-balance") ? <CameraWorkout
         key={s.exIndex} exercise={ex.id} name={ex.name} side={client.intake?.side ?? "vasen"}
-        set={s.setIndex} sets={pe.sets} done={hold?s.seconds:s.reps} target={target} suspended={interrupting}
+        set={s.setIndex} sets={pe.sets} done={hold?s.seconds:s.reps} target={target} suspended={interrupting || !!rest}
         onRep={() => setS(cur => ({...cur,reps:Math.min(target,cur.reps+1)}))}
         onTick={() => setS(cur => ({...cur,seconds:Math.min(target,cur.seconds+1)}))}
         onComplete={cameraComplete} onFallback={() => {setCameraOff(true);setRunning(false);}} onInterrupt={() => setInterrupting(true)}
@@ -307,6 +324,21 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
         </button>}
       </div>
       </>}
+
+      {rest && !interrupting && (
+        <div role="dialog" aria-label="Tauko" className="rest-overlay fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 p-6 text-center">
+          <p className="text-5xl font-bold tracking-wide text-info">TAUKO</p>
+          <p className="text-8xl font-bold tabular-nums" aria-live="polite">{rest.left}<span className="text-4xl"> s</span></p>
+          {rest.kind === "exercise" ? (
+            <p className="text-xl font-semibold">Liike valmis! Seuraavaksi: {ex?.name}</p>
+          ) : (
+            <p className="text-xl font-semibold">Seuraavaksi sarja {s.setIndex + 1} / {pe.sets}</p>
+          )}
+          <button type="button" className={primary} onClick={() => setRest(null)}>
+            <Play className="h-5 w-5" /> {rest.kind === "exercise" ? "Aloita heti" : "Jatka heti"}
+          </button>
+        </div>
+      )}
 
       {interrupting && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 p-4 sm:items-center">
