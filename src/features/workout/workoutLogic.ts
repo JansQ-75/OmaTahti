@@ -82,7 +82,8 @@ export function buildSession(
     status: interrupted ? "interrupted" : "completed",
     ...(interrupted ? { interruptReason: opts.interruptReason ?? "Ei syytä" } : {}),
     ...(opts.comment ? { comment: opts.comment } : {}),
-    trackingSource: "none",
+    trackingSource: s.log.some(r => r.tracking?.source === "camera") ? "camera" : s.log.some(r => r.tracking?.source === "simulated") ? "simulated" : "none",
+    ...balanceResult(s.log),
     kind: opts.single ? "single" : "full",
     ...(!interrupted
       ? { exerciseIds: opts.single ? [at?.exerciseId ?? ""] : exercises.map((e) => e.exerciseId) }
@@ -104,4 +105,10 @@ export const INTERRUPT_REASONS = [
 /** Label for the confirm button: shows what was actually done in this set. */
 export function confirmLabel(done: number, target: number, hold: boolean) {
   return `Kuittaa sarja (${Math.min(done, target)} / ${target} ${hold ? "s" : "toistoa"} tehty)`;
+}
+
+function balanceResult(log: SetResult[]): Partial<ExerciseSession> {
+ const last = log.filter(r => r.exerciseId === "single-leg-balance" && r.tracking?.groundTouches !== undefined).at(-1);
+ if (!last?.tracking || last.tracking.groundTouches === undefined) return {};
+ return { balance: { steadySeconds: last.done, groundTouches: last.tracking.groundTouches, source: last.tracking.source, ...(last.tracking.sway !== undefined ? {sway:last.tracking.sway}:{}), confidence:last.tracking.confidence } };
 }

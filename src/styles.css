@@ -143,3 +143,13 @@
     letter-spacing: -0.01em;
   }
 }
+
+/* Full-viewport camera with readable overlays; no video capture or recording. */
+.camera-workout { position: relative; min-height: 100svh; background: var(--foreground); color: var(--primary-foreground); }
+.camera-feed { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.camera-ui { position: relative; z-index: 1; display:flex; flex-direction:column; min-height:100svh; gap:1rem; padding: max(1rem,env(safe-area-inset-top)) 1rem max(1rem,env(safe-area-inset-bottom)); background: color-mix(in oklch,var(--foreground) 35%,transparent); }
+.camera-ui header, .camera-ui footer, .camera-status { background: color-mix(in oklch,var(--foreground) 85%,transparent); border-radius: .5rem; padding: .75rem; }
+.camera-count { font-size: 6rem; line-height:1; font-weight:700; font-variant-numeric:tabular-nums; }
+.camera-status { max-width: 42rem; font-size:1.5rem; font-weight:600; }
+.camera-guide { position:absolute; inset:22% 18% 26%; border:2px dashed var(--primary-foreground); border-radius:.5rem; pointer-events:none; z-index:-1; }
+@media(max-width:600px) { .camera-count {font-size:4rem;} .camera-status {font-size:1.125rem;} .camera-ui {gap:.5rem;} .camera-ui main {gap:.75rem;padding:1rem 0;} }

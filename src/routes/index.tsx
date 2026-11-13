@@ -4,6 +4,8 @@ import { RoleSelectPage } from "@/pages/RoleSelectPage";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "OmaTahti – Kuntoutusta omaan tahtiin" },
       { name: "description", content: "Valitse rooli: jatka asiakkaana tai fysioterapeuttina OmaTahti-etäkuntoutusdemossa." },
       { property: "og:title", content: "OmaTahti – Kuntoutusta omaan tahtiin" },
