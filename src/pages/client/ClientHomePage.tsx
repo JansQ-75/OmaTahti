@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { AlertTriangle, ClipboardCheck, Flame, Play, X } from "lucide-react";
 import { SoftCard } from "@/components/common/Section";
 import { dismissNotification } from "@/services/messages";
-import { SwitchClientButton, SwitchRoleButton } from "@/components/navigation/RoleActions";
+import { SwitchRoleButton } from "@/components/navigation/RoleActions";
 import { useActiveClient } from "@/hooks/useAppData";
 import { bodyAreaLabel } from "@/data/bodyAreas";
 import { getProgram } from "@/data/programs";
@@ -28,7 +28,6 @@ export function ClientHomePage() {
           <h1 className="text-3xl font-bold">{client.firstName}</h1>
         </div>
         <div className="flex flex-wrap gap-2">
-          <SwitchClientButton />
           <SwitchRoleButton />
         </div>
       </div>
