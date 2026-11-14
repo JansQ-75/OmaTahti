@@ -28,20 +28,23 @@ export function ProgramExerciseList({
         const open = openId === e.exerciseId;
         return (
           <li key={e.exerciseId} className="rounded-xl border border-border bg-card p-3">
-            <div className="flex gap-3">
+            <div className="flex items-center gap-3">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-soft font-semibold text-primary">
                 {i + 1}
               </span>
+              <p className="min-w-0 flex-1 font-semibold">{ex?.name ?? e.exerciseId}</p>
+              {action && <div className="shrink-0">{action(e)}</div>}
+            </div>
+            <div className="mt-2 flex gap-3">
               {ex?.images && (
                 <img
                   src={ex.images.start}
                   alt={`${ex.name}: alkuasento`}
-                  className="h-16 w-16 shrink-0 rounded-lg object-cover"
+                  className="h-24 w-16 shrink-0 rounded-lg bg-muted object-contain"
                   loading="lazy"
                 />
               )}
               <div className="min-w-0 flex-1">
-                <p className="font-semibold">{ex?.name ?? e.exerciseId}</p>
                 <p className="text-sm text-muted-foreground">
                   {dosageText(e)}
                   {ex && ` · ${ex.category}`}
@@ -60,7 +63,6 @@ export function ProgramExerciseList({
                   </button>
                 )}
               </div>
-              {action && <div className="shrink-0 self-center">{action(e)}</div>}
             </div>
             {ex && open && (
               <div className="mt-3 border-t border-border pt-3">
