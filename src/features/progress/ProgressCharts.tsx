@@ -201,7 +201,7 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
 
       {!compact && (
   <ChartCard title="Tämän viikon harjoittelu" note="Yksi pallo = yksi tehty liike. Vihreä päivä = kaikki ohjelman eri liikkeet tehty. Keskeytetyt eivät näy.">
-        <DotWeek rows={dots} />
+        <DotWeek rows={dots} programIds={programIds} />
         <h4 className="mt-4 font-semibold">Tällä viikolla harjoitellut liikkeet</h4>
         <ul className="mt-2 divide-y divide-border">
           {programIds.map((id) => (
@@ -281,9 +281,11 @@ function Empty({ text = "Ei vielä merkintöjä." }: { text?: string }) {
 
 const FULL_DAYS: Record<string, string> = { Ma: "Maanantai", Ti: "Tiistai", Ke: "Keskiviikko", To: "Torstai", Pe: "Perjantai", La: "Lauantai", Su: "Sunnuntai" };
 
-function DotWeek({ rows }: { rows: { day: string; dots: number; done: number; total: number; complete: boolean; tavoite?: number | undefined }[] }) {
+function DotWeek({ rows, programIds }: { rows: { day: string; dots: number; done: number; total: number; complete: boolean; counts: Record<string, number>; tavoite?: number | undefined }[]; programIds: string[] }) {
   const [sel, setSel] = useState<string | null>(null);
   const D = 18, STEP = 13, GAP = 10;
+  const programSet = new Set(programIds);
+  const nameOf = (id: string) => getExercise(id)?.name ?? id;
   const split = (r: (typeof rows)[number]) => {
     const green = r.complete ? Math.min(r.total, r.dots) : 0;
     return { green, blue: r.dots - green };
@@ -295,13 +297,19 @@ function DotWeek({ rows }: { rows: { day: string; dots: number; done: number; to
   };
   const max = Math.max(3, ...rows.map((r) => r.dots));
   const chartH = Math.max(D + (max - 1) * STEP + GAP, ...rows.map(heightOf));
+  const extrasOf = (r: (typeof rows)[number]) =>
+    Object.entries(r.counts).filter(([id]) => !programSet.has(id)).map(([id, n]) => `${nameOf(id)} ${n} krt`);
   const tipOf = (r: (typeof rows)[number]) => {
-    const { green, blue } = split(r);
-    return `${FULL_DAYS[r.day] ?? r.day}: ${r.dots} liikettä tehty` +
-      (r.complete ? (blue ? ` (koko ohjelma ${green} + ${blue} ylimääräistä) 🎉` : " – kaikki ohjelman eri liikkeet suoritettu! 🎉") : r.total ? ` (${r.done} / ${r.total} eri liikettä)` : "") +
+    const extras = extrasOf(r);
+    const base = r.complete
+      ? `${FULL_DAYS[r.day] ?? r.day}: Koko ohjelma suoritettu (${r.done} liikettä) 🎉`
+      : `${FULL_DAYS[r.day] ?? r.day}: ${r.done} / ${r.total} ohjelman liikettä tehty`;
+    return base +
+      (extras.length ? ` · Lisäksi tehty: ${extras.join(", ")}` : "") +
       (r.tavoite !== undefined ? ` · toistotavoite ${r.tavoite} %` : "");
   };
   const active = rows.find((r) => r.day === sel);
+  const activeEntries = active ? Object.entries(active.counts) : [];
   const stack = (n: number, cls: string) => (
     <div className="flex flex-col-reverse items-center">
       {Array.from({ length: n }, (_, k) => (
@@ -335,7 +343,18 @@ function DotWeek({ rows }: { rows: { day: string; dots: number; done: number; to
         </div>
       </div>
       {active && (
-        <div role="status" className="mt-3 rounded-xl bg-muted p-3 text-sm">{tipOf(active)}</div>
+        <div role="status" className="mt-3 rounded-xl bg-muted p-3 text-sm">
+          <p>{tipOf(active)}</p>
+          {activeEntries.length > 0 && (
+            <ul className="mt-2 space-y-0.5">
+              {activeEntries.map(([id, n]) => (
+                <li key={id}>
+                  • {nameOf(id)} <span className="text-muted-foreground">({n} krt{programSet.has(id) ? "" : ", yksittäinen"})</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       )}
       <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-success" /> Koko ohjelma suoritettu</span>
