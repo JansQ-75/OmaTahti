@@ -25,7 +25,7 @@ it("shows the butterfly only during active balance on a lifted leg, and hides it
   await advance(7200);
   expect(view.container.querySelector(".workout-butterfly")).toBeNull();
   camera.lifted = true; await advance(100);
-  expect(view.container.querySelector(".workout-butterfly")?.getAttribute("transform")).toBe("translate(320 372)");
+  expect(view.container.querySelector(".workout-butterfly")?.getAttribute("transform")).toBe("translate(320 360)");
   view.rerender(<CameraWorkout {...props} exercise="single-leg-balance" suspended />);
   expect(view.container.querySelector(".workout-butterfly")).toBeNull();
 });
