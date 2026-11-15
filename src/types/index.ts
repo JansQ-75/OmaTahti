@@ -12,6 +12,7 @@ export type WalkingTolerance = "yli 30 min" | "10–30 min" | "alle 10 min";
 /** Client-reported intake. Everything here is "asiakkaan ilmoittama", never a diagnosis. */
 export interface Intake {
   completedAt: string;
+  questionnaireSavedAt?: string;
   age: number;
   sex: "nainen" | "mies" | "muu" | "ei halua kertoa";
   previousInjuries: string;
@@ -185,6 +186,7 @@ export interface Client {
   intake?: Intake;
   intakeDraft?: IntakeDraft;
   baselineStatus: "done" | "pending" | "skipped";
+  baselineResults?: BaselineResult[];
   program?: AssignedProgram;
   sessions: ExerciseSession[];
   painLog: PainEntry[];
@@ -193,6 +195,20 @@ export interface Client {
   notifications: AppNotification[];
   /** When each role last opened this client's messages; newer messages from the other role are unread. */
   messagesReadAt?: Partial<Record<Role, string>>;
+}
+
+export interface BaselineResult {
+  testId: string;
+  bodyArea: BodyArea;
+  side: "vasen" | "oikea";
+  date: string;
+  source: "camera";
+  confidence: number;
+  view: "sivulta" | "edestä";
+  rangeDegrees?: number;
+  durationSeconds?: number;
+  groundTouches?: number;
+  sway?: number;
 }
 
 export interface AppData {
