@@ -30,6 +30,7 @@ export function BaselineCamera({ audioContext, test, bodyArea, side, onComplete,
     let readyStart: number | null = null, active = false, done = false, last = 0, lastVideoTime = -1, previousCenter: number | undefined;
     let total = 0, reliable = 0, min = Infinity, max = -Infinity, swayMin = Infinity, swayMax = -Infinity, touches = 0, touchingMs = 0, touching = false;
     let previousCount: number | null = null;
+    let lastObservation = { reliable: false } as ReturnType<typeof observe>;
     setError("");
     setState({ word: "ASETU KUVAAN", count: null, reliable: false, active: false, dots: [], width: 640, height: 480 });
     async function start() {
@@ -48,12 +49,14 @@ export function BaselineCamera({ audioContext, test, bodyArea, side, onComplete,
           const dt = Math.min(200, last ? now - last : 0); last = now;
           const v = video.current;
           if (!v || !model) return;
-          let observation = { reliable: false } as ReturnType<typeof observe>;
+          // Keep the latest detection until the camera delivers a new frame, so dots,
+          // countdown and reliability do not reset between frames.
           if (v.readyState >= 2 && v.currentTime !== lastVideoTime) {
             lastVideoTime = v.currentTime;
-            try { observation = observe(model.detectForVideo(v, now).landmarks[0] ?? [], test.exercise, side, v.videoWidth, v.videoHeight); }
+            try { lastObservation = observe(model.detectForVideo(v, now).landmarks[0] ?? [], test.exercise, side, v.videoWidth, v.videoHeight); }
             catch { done = true; setError("Liikkeentunnistus ei onnistunut. Kokeile uudelleen tai jatka myöhemmin."); return; }
           }
+          const observation = lastObservation;
           let count: number | null = null;
           let word = observation.reliable ? "HYVÄ ASENTO" : observation.hint ?? "ASETU KUVAAN";
           if (!active) {
