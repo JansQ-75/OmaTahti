@@ -12,7 +12,11 @@ export function observe(points: Point[], exercise: CameraExercise, side: "vasen"
   const dots = found.filter(q => (q.visibility ?? 0) >= .75 && inside(q));
   if (found.length < ids.length) return { reliable: false, hint: "ASETU KUVAAN", dots };
   if (found.some(q => !inside(q))) return { reliable: false, hint: "KAUEMMAS", dots };
-  if (found.some(q => (q.visibility ?? 0) < .75)) return { reliable: false, hint: found.every(q => (q.visibility ?? 0) < .3) ? "ASETU KUVAAN" : "LISÄÄ VALOA", dots };
+  // Single-leg balance: the lifted leg's hip/knee may be occluded at a high (e.g. 90°) knee lift,
+  // so accept MediaPipe's estimate at a lower threshold there; anchors (shoulders, support leg) stay strict.
+  const relaxed = exercise === "single-leg-balance" ? (left ? [24, 26] : [23, 25]) : [];
+  const faint = (q: Point) => (q.visibility ?? 0) < (q.i !== undefined && relaxed.includes(q.i) ? .45 : .75);
+  if (found.some(faint)) return { reliable: false, hint: found.every(faint) ? "ASETU KUVAAN" : "LISÄÄ VALOA", dots };
   const p = (i: number) => points[i] ?? { x: 0, y: 0 };
   if (exercise === "ankle-flex") {
     const k = p(left ? 25 : 26), a = p(left ? 27 : 28), h = p(left ? 29 : 30), t = p(left ? 31 : 32);
@@ -22,9 +26,11 @@ export function observe(points: Point[], exercise: CameraExercise, side: "vasen"
     return { reliable: true, dots, center: a.x, angle: Math.acos(Math.max(-1,Math.min(1,(ux*vx+uy*vy)/len)))*180/Math.PI };
   }
   const support = p(left ? 27 : 28), free = p(left ? 28 : 27);
+  const supportKnee = p(left ? 25 : 26), freeKnee = p(left ? 26 : 25);
   const torso = Math.abs((p(23).y+p(24).y-p(11).y-p(12).y)/2);
   if (torso < .12) return { reliable: false, hint: "LÄHEMMÄS", dots };
-  const lifted = support.y-free.y > torso*.12;
+  // A lift counts when the free ankle is off the ground OR the free knee is clearly raised (high knee lift).
+  const lifted = support.y-free.y > torso*.12 || supportKnee.y-freeKnee.y > torso*.15;
   return { reliable: true, dots, lifted, touching: !lifted, center: (p(11).x+p(12).x+p(23).x+p(24).x)/4 };
 }
 export interface RepTracker { min: number; max: number; smooth: number; phase: "low" | "high"; lastRep: number }
