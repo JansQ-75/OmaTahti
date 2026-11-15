@@ -1,12 +1,13 @@
-import { Link } from "@tanstack/react-router";
-import { ClipboardList, PlayCircle, RotateCcw } from "lucide-react";
+import { Link, Navigate } from "@tanstack/react-router";
+import { ClipboardList, PlayCircle } from "lucide-react";
 import { PageHeader, SoftCard } from "@/components/common/Section";
 import { IntakeSummary } from "@/features/intake/IntakeSummary";
 import { IntakeWizard } from "@/features/intake/IntakeWizard";
 import { ProgramProposal } from "@/features/program/ProgramProposal";
 import { INTAKE_STEPS, answersFromIntake } from "@/features/intake/intakeLogic";
 import { useActiveClient } from "@/hooks/useAppData";
-import { discardIntakeDraft, saveIntakeDraft } from "@/services/intake";
+import { discardIntakeDraft } from "@/services/intake";
+import { useIntakeEditWindow } from "@/features/intake/useIntakeEditWindow";
 
 const btnPrimary =
   "inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-lg font-semibold text-primary-foreground hover:bg-primary/90";
@@ -16,8 +17,9 @@ const btnSecondary =
 /** Intake summary page: the saved intake, an unfinished draft, or a start prompt. */
 export function ClientIntakePage() {
   const client = useActiveClient();
+  const editable = useIntakeEditWindow(client?.intake);
   if (!client) return null;
-  const draft = client.intakeDraft;
+  const draft = editable ? client.intakeDraft : undefined;
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -44,17 +46,6 @@ export function ClientIntakePage() {
         <>
           {!draft && <ProgramProposal client={client} />}
           <IntakeSummary answers={answersFromIntake(client.intake)} completedAt={client.intake.completedAt} />
-          {!draft && (
-            <div className="mt-6">
-              <Link
-                to="/asiakas/alkukartoitus/kysely"
-                onClick={() => saveIntakeDraft(client.id, { step: 1, answers: answersFromIntake(client.intake) })}
-                className={btnSecondary}
-              >
-                <RotateCcw className="h-5 w-5" /> Päivitä vastauksia
-              </Link>
-            </div>
-          )}
         </>
       ) : (
         !draft && (
@@ -74,6 +65,8 @@ export function ClientIntakePage() {
 
 export function ClientIntakeWizardPage() {
   const client = useActiveClient();
+  const editable = useIntakeEditWindow(client?.intake);
   if (!client) return null;
+  if (!editable) return <Navigate to="/asiakas/edistyminen" hash="oma-alkukartoitus" replace />;
   return <IntakeWizard client={client} />;
 }
