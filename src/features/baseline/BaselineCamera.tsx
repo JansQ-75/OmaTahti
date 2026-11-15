@@ -27,7 +27,7 @@ export function BaselineCamera({ audioContext, test, bodyArea, side, onComplete,
   useEffect(() => {
     let disposed = false, stream: MediaStream | undefined, model: Awaited<ReturnType<typeof createPose>> | undefined;
     let timer: ReturnType<typeof setInterval> | undefined;
-    let readyStart: number | null = null, active = false, done = false, last = 0, lastVideoTime = -1, previousCenter: number | undefined;
+    let readyStart: number | null = null, active = false, done = false, last = 0, lastVideoTime = -1, previousCenter: number | undefined, announceUntil = 0;
     let total = 0, reliable = 0, min = Infinity, max = -Infinity, swayMin = Infinity, swayMax = -Infinity, touches = 0, touchingMs = 0, touching = false;
     let previousCount: number | null = null;
     let lastObservation = { reliable: false } as ReturnType<typeof observe>;
@@ -62,9 +62,12 @@ export function BaselineCamera({ audioContext, test, bodyArea, side, onComplete,
           if (!active) {
             const stationary = observation.center !== undefined && (previousCenter === undefined || Math.abs(observation.center - previousCenter) < .02);
             previousCenter = observation.center;
-            const ready = readyElapsed(readyStart, now, stationary && observation.reliable && (test.exercise !== "single-leg-balance" || observation.lifted === true)); readyStart = ready.start; count = ready.countdown;
-            if (test.exercise === "single-leg-balance" && observation.reliable && !observation.lifted) word = "NOSTA TOINEN JALKA";
-            if (ready.ready) { active = true; last = now; beep(); }
+            const ready = readyElapsed(readyStart, now, stationary && observation.reliable); readyStart = ready.start; count = ready.countdown;
+            if (ready.ready) {
+              active = true; last = now; announceUntil = now + 2000; beep();
+              count = test.durationSeconds;
+              word = test.exercise === "single-leg-balance" ? "ALOITA · NOSTA TOINEN JALKA" : "LIIKUTA NILKKAA";
+            }
           } else {
             total += dt;
             if (observation.reliable) {
@@ -73,7 +76,7 @@ export function BaselineCamera({ audioContext, test, bodyArea, side, onComplete,
               if (observation.center !== undefined) { swayMin = Math.min(swayMin, observation.center); swayMax = Math.max(swayMax, observation.center); }
               if (observation.touching) { touchingMs += dt; if (!touching && touchingMs >= 400) { touches++; touching = true; } }
               else { touchingMs = 0; touching = false; }
-              word = test.exercise === "ankle-flex" ? "LIIKUTA NILKKAA" : "PIDÄ ASENTO";
+              word = test.exercise === "ankle-flex" ? "LIIKUTA NILKKAA" : now < announceUntil ? "ALOITA · NOSTA TOINEN JALKA" : "PIDÄ ASENTO";
             } else { touchingMs = 0; touching = false; }
             count = Math.max(0, Math.ceil(test.durationSeconds - total / 1000));
             if (total >= test.durationSeconds * 1000) {
