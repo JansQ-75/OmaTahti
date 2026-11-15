@@ -16,7 +16,7 @@
 - [x] Phase 7 – Camera tracking for ankle-flex + single-leg-balance, automatic start, fullscreen/mobile fallback and per-set estimates
   - Real-person tracking accuracy and sound on physical phones still require device trials.
 - [x] Remove simulated mode and estimates throughout the app; stack camera preparation buttons with the camera choice larger — desktop/mobile layout and manual fallback verified.
-- [ ] Phase 8 – Orange juice game
+- [x] Phase 8 – Knee-anchored butterfly in camera single-leg balance only; calm movement, brief takeoff on ground contact, no toggle or measurement changes. Pure rules and camera integration tested; desktop/mobile browser flow and saved workout checked with test-only camera input. Real-person anchoring still needs a physical-phone trial.
 - [ ] Phase 9 – Summaries + rule-based AI feedback
 - [ ] Phase 10 – End-to-end polish
 
