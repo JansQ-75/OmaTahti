@@ -4,6 +4,7 @@ import { Camera, CheckCircle2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useActiveClient } from "@/hooks/useAppData";
 import { BaselineCamera } from "@/features/baseline/BaselineCamera";
+import { BaselineIntro } from "@/features/baseline/BaselineIntro";
 import { BaselineSummary, baselineValue } from "@/features/baseline/BaselineSummary";
 import { baselineSteps, intakeComplete, validBaselineResult } from "@/features/baseline/baselineLogic";
 import { needsProfessional } from "@/features/intake/intakeLogic";
@@ -15,6 +16,7 @@ export function ClientBaselinePage() {
   const client = useActiveClient();
   const navigate = useNavigate();
   const [camera, setCamera] = useState(false);
+  const [intro, setIntro] = useState(true);
   const audio = useRef<AudioContext | null>(null);
   const [ack, setAck] = useState<BaselineResult | null>(null);
   const [error, setError] = useState("");
@@ -24,6 +26,7 @@ export function ClientBaselinePage() {
   const steps = baselineSteps(client.intake);
   const nextIndex = steps.findIndex(({ test, side }) => !client.baselineResults?.some(r => r.testId === test.id && r.side === side && r.bodyArea === client.intake?.bodyArea && validBaselineResult(r, test)));
   const next = steps[nextIndex];
+  if (intro && next) return <BaselineIntro onContinue={() => setIntro(false)} />;
   const finish = () => { if (finalizeBaseline(client.id)) void navigate({ to: "/asiakas" }); else setError("Kaikki lähtötasotestit eivät ole vielä valmiita."); };
   if (camera && next) return <BaselineCamera audioContext={audio.current} test={next.test} side={next.side} bodyArea={client.intake.bodyArea} onExit={() => { setCamera(false); void navigate({ to: "/asiakas" }); }} onComplete={result => {
     if (saveBaselineResult(client.id, result)) { setCamera(false); setAck(result); } else { setCamera(false); setError("Tulosta ei voitu tallentaa. Kokeile testiä uudelleen."); }
@@ -40,7 +43,7 @@ export function ClientBaselinePage() {
     </section> : next ? <>
       <p className="text-lg font-semibold">Testi {nextIndex + 1} / {steps.length} · {next.side} {next.side === client.intake.side ? "kuntoutettava puoli" : "puoli"}</p>
       <div className="flex items-start gap-5">{image && <img src={image} alt={`${next.test.name}: alkuasento`} className="h-48 w-32 shrink-0 object-contain" />}<div className="min-w-0 space-y-3"><h2 className="text-xl font-semibold">Valmista kamera</h2><p>{next.test.setup}</p><p>Hyvä valaistus helpottaa tunnistusta.</p></div></div>
-      <p className="text-lg">{next.test.instruction}</p><p className="text-muted-foreground">Testi kestää {next.test.durationSeconds} sekuntia. Videota ei tallenneta.</p>
+      <p className="text-lg">{next.test.instruction}</p><p className="text-muted-foreground">Testi kestää {next.test.durationSeconds} sekuntia. Videota ei tallenneta. Kamera-arvio ei ole kliininen mittaus.</p>
       {needsProfessional(client.intake) ? <p role="alert" className="border-l-4 border-destructive bg-destructive-soft p-4">Vastauksissasi on merkkejä, joiden vuoksi tarvitset ammattilaisen arvion ennen liikkumistestejä. Ota yhteyttä lääkäriin tai fysioterapeuttiin.</p> : <Button size="lg" className="min-h-16 w-full text-lg" onClick={() => {
         try { audio.current = new AudioContext(); void audio.current.resume().catch(() => {}); } catch { audio.current = null; }
         setCamera(true);

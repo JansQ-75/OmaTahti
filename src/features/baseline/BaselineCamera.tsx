@@ -124,7 +124,6 @@ export function BaselineCamera({ audioContext, test, bodyArea, side, onComplete,
           <div className={`camera-guide ${state.reliable ? "is-ok" : "is-wait"}`} aria-hidden />
         </>}
       </main>
-      <footer><p className="text-lg">{test.instruction}</p><p className="mt-2 text-sm">Videota ei tallenneta. Kamera-arvio ei ole kliininen mittaus.</p></footer>
     </div>
   </section>;
 }
