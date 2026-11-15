@@ -16,7 +16,7 @@ export function observe(points: Point[], exercise: CameraExercise, side: "vasen"
   // so accept MediaPipe's estimate at a lower threshold there; anchors (shoulders, support leg) stay strict.
   const relaxed = exercise === "single-leg-balance" ? (left ? [24, 26] : [23, 25]) : [];
   const faint = (q: Point) => (q.visibility ?? 0) < (q.i !== undefined && relaxed.includes(q.i) ? .45 : .75);
-  if (found.some(faint)) return { reliable: false, hint: found.every(faint) ? "ASETU KUVAAN" : "LISÄÄ VALOA", dots };
+  if (found.some(faint)) return { reliable: false, hint: found.every(q => (q.visibility ?? 0) < .3) ? "ASETU KUVAAN" : "LISÄÄ VALOA", dots };
   const p = (i: number) => points[i] ?? { x: 0, y: 0 };
   if (exercise === "ankle-flex") {
     const k = p(left ? 25 : 26), a = p(left ? 27 : 28), h = p(left ? 29 : 30), t = p(left ? 31 : 32);
