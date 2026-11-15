@@ -4,7 +4,7 @@ export type Role = "client" | "physio";
 
 export type BodyArea = "ankle" | "knee" | "shoulder" | "hip" | "wrist" | "back";
 
-export type DataSource = "client-reported" | "camera" | "simulated" | "rule-based" | "ai-summary";
+export type DataSource = "client-reported" | "camera" | "rule-based" | "ai-summary";
 
 export type WeightBearing = "normaalisti" | "ontuen" | "ei pysty";
 export type WalkingTolerance = "yli 30 min" | "10–30 min" | "alle 10 min";
@@ -42,7 +42,7 @@ export interface IntakeDraft {
 
 export type ExerciseCategory = "liikkuvuus" | "lihasvoima" | "tasapaino" | "liikehallinta";
 
-export type TrackingMode = "camera" | "simulated";
+export type TrackingMode = "camera" | "none";
 
 export interface Exercise {
   id: string;
@@ -123,7 +123,7 @@ export interface ExerciseSession {
   /** Per-set results: what was actually done vs the target (partial sets are allowed). */
   sets?: SetResult[];
   /** Single-leg balance quality. The timer never stops on a ground touch; touches only describe stability. */
-  balance?: { steadySeconds: number; groundTouches: number; source: "camera" | "simulated"; sway?: number; confidence?: number };
+  balance?: { steadySeconds: number; groundTouches: number; source: "camera"; sway?: number; confidence?: number };
 }
 
 export interface SetResult {
@@ -158,7 +158,7 @@ export interface MovementAssessment {
   otherSideDegrees?: number;
   setup: CameraSetup;
   confidence: number; // 0–1
-  source: "camera" | "simulated";
+  source: "camera";
 }
 
 export interface Message {

@@ -85,7 +85,7 @@ export function buildSession(
     status: interrupted ? "interrupted" : "completed",
     ...(interrupted ? { interruptReason: opts.interruptReason ?? "Ei syytä" } : {}),
     ...(opts.comment ? { comment: opts.comment } : {}),
-    trackingSource: s.log.some(r => r.tracking?.source === "camera") ? "camera" : s.log.some(r => r.tracking?.source === "simulated") ? "simulated" : "none",
+    trackingSource: s.log.some(r => r.tracking?.source === "camera") ? "camera" : "none",
     ...balanceResult(s.log),
     kind: opts.single ? "single" : "full",
     ...(!interrupted

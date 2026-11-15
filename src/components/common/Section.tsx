@@ -32,11 +32,10 @@ export function ComingSoon({ title, phase, children }: { title: string; phase: n
   );
 }
 
-export function SourceBadge({ source }: { source: "client-reported" | "camera" | "simulated" | "rule-based" | "ai-summary" }) {
+export function SourceBadge({ source }: { source: "client-reported" | "camera" | "rule-based" | "ai-summary" }) {
   const map = {
     "client-reported": ["Asiakkaan ilmoittama", "bg-secondary text-secondary-foreground"],
     camera: ["Kamera-arvio", "bg-primary-soft text-primary"],
-    simulated: ["Simuloitu", "bg-warning-soft text-accent-foreground"],
     "rule-based": ["Sääntöpohjainen havainto", "bg-muted text-muted-foreground"],
     "ai-summary": ["Tekoälyyhteenveto (demo)", "bg-accent-soft text-accent-foreground"],
   } as const;

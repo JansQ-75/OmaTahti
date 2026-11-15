@@ -10,8 +10,9 @@
 - [x] Collapsible "Näytä suoritusohjeet" per exercise card (client + physio views)
 - [x] Phase 5 – Pain after workout + calm advice, pain/mobility/balance/weekly charts (client + physio)
 - [x] Phase 6 – Messaging + notifications (shared thread, nav badges, physio thread list)
-- [x] Phase 7 – Camera tracking for ankle-flex + single-leg-balance, automatic start, fullscreen/mobile fallback, per-set estimates and simulated mode
-  - Browser/model loading, permission failure, simulated workout and shared persistence verified; real-person tracking accuracy and sound on physical phones still require device trials.
+- [x] Phase 7 – Camera tracking for ankle-flex + single-leg-balance, automatic start, fullscreen/mobile fallback and per-set estimates
+  - Real-person tracking accuracy and sound on physical phones still require device trials.
+- [x] Remove simulated mode and estimates throughout the app; stack camera preparation buttons with the camera choice larger — desktop/mobile layout and manual fallback verified.
 - [ ] Phase 8 – Orange juice game
 - [ ] Phase 9 – Summaries + rule-based AI feedback
 - [ ] Phase 10 – End-to-end polish

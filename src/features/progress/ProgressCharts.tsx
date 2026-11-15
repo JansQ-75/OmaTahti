@@ -112,7 +112,7 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
 
       <ChartCard
         title="Liikkuvuuden symmetriaindeksi"
-        badge={<SourceBadge source={mob.some((m) => m.source === "simulated") ? "simulated" : "camera"} />}
+        badge={<SourceBadge source="camera" />}
         note="Kamera-arvio, ei kliininen mittaus. Vertailu samalla kuvausasetelmalla."
         help={
           <>
@@ -166,7 +166,7 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
       </ChartCard>}
       <ChartCard
         title="Tasapainon hallinta (kuntoutettava puoli)"
-        badge={<SourceBadge source={bal.some((b) => b.source === "simulated") ? "simulated" : "camera"} />}
+        badge={<SourceBadge source="camera" />}
         note="Yhden jalan seisonta. Ajastin ei pysähdy maakosketuksesta. Huojunta ja kosketukset ovat kamera-arvioita, eivät kliinisiä mittauksia."
         help={
           <ul className="space-y-1">

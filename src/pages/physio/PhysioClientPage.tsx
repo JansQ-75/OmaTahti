@@ -161,7 +161,7 @@ function ProgressCard({ client }: { client: Client }) {
             <div className="mt-5">
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="font-semibold">Liikkuvuusarviot</h3>
-                <SourceBadge source={assessments.some((a) => a.source === "simulated") ? "simulated" : "camera"} />
+                <SourceBadge source="camera" />
               </div>
               <ul className="mt-2 divide-y divide-border text-sm">
                 {assessments.map((a) => (

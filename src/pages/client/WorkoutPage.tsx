@@ -2,7 +2,6 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Check, CheckCircle2, Pause, Play, Plus, X } from "lucide-react";
 import { toast } from "sonner";
-import { SourceBadge } from "@/components/common/Section";
 import { getExercise } from "@/data/exercises";
 import { dosageText } from "@/features/program/programLogic";
 import {
@@ -230,7 +229,6 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
 
         <div className="mt-6 flex flex-wrap items-center gap-2">
           <h1 className="text-2xl font-bold">{ex?.name}</h1>
-          {ex?.tracking === "simulated" && <SourceBadge source="simulated" />}
         </div>
         <p className="mt-1 text-muted-foreground">
           {dosageText(pe)} · {ex?.purpose}
