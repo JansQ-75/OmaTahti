@@ -45,7 +45,7 @@ export function readyElapsed(start: number | null, now: number, reliable: boolea
   return { start: since, countdown: elapsed >= 2000 ? Math.max(1, 5-Math.floor((elapsed-2000)/1000)) : null, ready: elapsed >= 7000 };
 }
 export interface TrackingEstimate {
-  source: "camera" | "simulated";
+  source: "camera";
   confidence: number;
   view: "sivulta" | "edestä";
   side: "vasen" | "oikea";

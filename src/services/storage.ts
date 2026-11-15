@@ -3,6 +3,7 @@
 // Swap this module for a real backend later without changing the UI.
 import type { AppData, Role } from "@/types";
 import { buildSeedData, DATA_VERSION } from "@/data/seed";
+import { removeSimulatedEstimates } from "./storageLogic";
 
 const DATA_KEY = "omatahti:data";
 const ROLE_KEY = "omatahti:role";
@@ -27,7 +28,8 @@ export function getData(): AppData {
     const raw = window.localStorage.getItem(DATA_KEY);
     const parsed = raw ? (JSON.parse(raw) as AppData) : null;
     if (parsed && parsed.version === DATA_VERSION) {
-      cache = parsed;
+      cache = removeSimulatedEstimates(parsed);
+      window.localStorage.setItem(DATA_KEY, JSON.stringify(cache));
       return cache;
     }
   } catch {
