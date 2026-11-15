@@ -1,4 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { canAccessProgram } from "@/features/baseline/baselineLogic";
+import { IntakePending } from "@/features/baseline/IntakePending";
 import { useEffect, useRef, useState } from "react";
 import { Check, CheckCircle2, Pause, Play, Plus, X } from "lucide-react";
 import { toast } from "sonner";
@@ -84,6 +86,7 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
   const exitWorkout = () => navigate({ to: "/asiakas/harjoitukset" });
 
   if (!client) return null;
+  if (!canAccessProgram(client)) return <Overlay><IntakePending client={client} /></Overlay>;
   if (!client.program || exercises.length === 0) {
     return (
       <Overlay>

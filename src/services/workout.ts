@@ -1,6 +1,7 @@
 // Stores a finished or interrupted training session on the client.
 // Starting a proposed rule-based program makes it self-guided (no physio approval needed).
 import { updateData } from "@/services/storage";
+import { canAccessProgram } from "@/features/baseline/baselineLogic";
 import { startSelfGuided } from "@/features/program/programLogic";
 import type { ExerciseSession, MovementAssessment } from "@/types";
 
@@ -12,7 +13,7 @@ export function saveWorkoutSession(clientId: string, session: ExerciseSession) {
   updateData((d) => ({
     ...d,
     clients: d.clients.map((c) =>
-      c.id === clientId
+      c.id === clientId && canAccessProgram(c)
         ? {
             ...c,
             sessions: [...c.sessions, session],
@@ -31,7 +32,7 @@ export function markProgramStarted(clientId: string) {
   updateData((d) => ({
     ...d,
     clients: d.clients.map((c) =>
-      c.id === clientId && c.program ? { ...c, program: startSelfGuided(c.program) } : c,
+      c.id === clientId && c.program && canAccessProgram(c) ? { ...c, program: startSelfGuided(c.program) } : c,
     ),
   }));
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { intakeComplete } from "@/features/baseline/baselineLogic";
 import { useNavigate } from "@tanstack/react-router";
 import { AlertTriangle, CheckCircle2, ChevronDown, Info, Play, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -113,6 +114,7 @@ export function ProgramExerciseList({
 export function ProgramProposal({ client }: { client: Client }) {
   const navigate = useNavigate();
   const p = client.program;
+  if (!intakeComplete(client)) return null;
 
   if (!p && client.intake && needsProfessional(client.intake)) {
     return (
