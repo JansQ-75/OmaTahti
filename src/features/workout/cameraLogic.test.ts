@@ -28,5 +28,20 @@ describe("camera safety", () => {
   const pts=Array.from({length:33},(_,i)=>({x:.5,y:.1+i*.025,visibility:.9})); [29,30,31,32].forEach(i=>pts[i]={x:.5,y:.95,visibility:.1});
   expect(observe(pts,"single-leg-balance","vasen",640,480).reliable).toBe(true);
  });
- it("withholds estimates when visibility coverage is unreliable", () => { expect(validEstimate(7000,10000)).toBe(false); expect(validEstimate(9000,10000)).toBe(true); });
+  it("withholds estimates when visibility coverage is unreliable", () => { expect(validEstimate(7000,10000)).toBe(false); expect(validEstimate(9000,10000)).toBe(true); });
+  it("stays reliable when the lifted leg's hip and knee are partly occluded", () => {
+   const pts=Array.from({length:33},(_,i)=>({x:.5,y:.1+i*.025,visibility:.9})); [24,26].forEach(i=>pts[i]={x:.5,y:.5,visibility:.5});
+   expect(observe(pts,"single-leg-balance","vasen",640,480).reliable).toBe(true);
+  });
+  it("still asks for more light when the support leg is faint", () => {
+   const pts=Array.from({length:33},(_,i)=>({x:.5,y:.1+i*.025,visibility:.9})); [23,25,27].forEach(i=>pts[i]={x:.5,y:.5,visibility:.5});
+   expect(observe(pts,"single-leg-balance","vasen",640,480).hint).toBe("LISÄÄ VALOA");
+  });
+  it("detects a high knee lift even when the free ankle is level with the support ankle", () => {
+   const pts=Array.from({length:33},(_,i)=>({x:.5,y:.1+i*.025,visibility:.9}));
+   pts[11]={x:.45,y:.2,visibility:.9};pts[12]={x:.55,y:.2,visibility:.9};pts[23]={x:.45,y:.5,visibility:.9};pts[24]={x:.55,y:.5,visibility:.9};
+   pts[25]={x:.45,y:.7,visibility:.9};pts[26]={x:.55,y:.45,visibility:.9};pts[27]={x:.45,y:.9,visibility:.9};pts[28]={x:.55,y:.9,visibility:.9};
+   const obs=observe(pts,"single-leg-balance","vasen",640,480);
+   expect(obs.reliable).toBe(true); expect(obs.lifted).toBe(true); expect(obs.touching).toBe(false);
+  });
 });
