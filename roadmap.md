@@ -12,7 +12,7 @@
 - [x] Phase 6 – Messaging + notifications (shared thread, nav badges, physio thread list)
 - [x] Phase 7 – Camera tracking for ankle-flex + single-leg-balance, automatic start, fullscreen/mobile fallback and per-set estimates
   - Real-person tracking accuracy and sound on physical phones still require device trials.
-- [ ] Remove simulated mode and estimates throughout the app; stack camera preparation buttons with the camera choice larger.
+- [x] Remove simulated mode and estimates throughout the app; stack camera preparation buttons with the camera choice larger — desktop/mobile layout and manual fallback verified.
 - [ ] Phase 8 – Orange juice game
 - [ ] Phase 9 – Summaries + rule-based AI feedback
 - [ ] Phase 10 – End-to-end polish
