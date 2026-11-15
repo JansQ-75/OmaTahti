@@ -4,7 +4,8 @@
 - [x] Phase 2 – Client onboarding + intake wizard (ankle ligament injury), local save, summary
 - [x] Rule-based program selection after intake + self-guided start (phase 2 addition)
 - [x] Intake correction window, home notice and direct progress-summary link — verified without camera, including automatic expiry and stored corrections
-- [ ] Baseline camera assessment (originally planned in phase 2 – waits for user decision on which phase)
+- [x] Baseline camera assessment — body-area rules, bilateral ankle tests, saved results and acknowledgements, program lock until complete, two-hour correction window from full completion; rules tested and questionnaire/postpone/locked navigation checked on desktop and mobile.
+  - Real-person baseline camera measurements and sounds require physical-phone trials; unavailable in the sandbox.
 - [x] Phase 3 – Physio client list + client details (contacts, intake, program, progress/pain), switch program, add/remove exercises; client Harjoitukset page shows the current program (read-only)
 - [x] Phase 4 – Client program + exercise instructions, start/interrupt/complete
 - [x] Collapsible "Näytä suoritusohjeet" per exercise card (client + physio views)

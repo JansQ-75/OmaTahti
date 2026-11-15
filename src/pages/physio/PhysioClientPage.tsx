@@ -1,4 +1,6 @@
 import { Link } from "@tanstack/react-router";
+import { BaselineSummary } from "@/features/baseline/BaselineSummary";
+import { intakeComplete } from "@/features/baseline/baselineLogic";
 import { ArrowLeft, ChevronDown, MessageCircle } from "lucide-react";
 import { SoftCard, SourceBadge } from "@/components/common/Section";
 import { bodyAreaLabel } from "@/data/bodyAreas";
@@ -56,6 +58,8 @@ export function PhysioClientPage({ clientId }: { clientId: string }) {
       </Fold>
 
       <Fold title="Alkukartoitus">
+        {client.intake && !intakeComplete(client) && <p className="mb-4 font-semibold text-primary">Alkukartoitus on kesken · kameratestit puuttuvat</p>}
+        <BaselineSummary client={client} />
         {client.intake ? (
           <IntakeSummary audience="physio" answers={answersFromIntake(client.intake)} completedAt={client.intake.completedAt} />
         ) : (

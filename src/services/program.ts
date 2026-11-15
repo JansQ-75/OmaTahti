@@ -1,6 +1,7 @@
 // Program persistence: the assigned program lives on the client in the shared store,
 // so the physio's changes show up in the client's views right away.
 import { updateData } from "@/services/storage";
+import { canAccessProgram } from "@/features/baseline/baselineLogic";
 import { addExercise, removeExercise, replaceProgram, startSelfGuided } from "@/features/program/programLogic";
 import type { AssignedProgram } from "@/types";
 
@@ -17,7 +18,7 @@ function updateProgram(clientId: string, fn: (p: AssignedProgram | undefined) =>
 
 /** Client starts self-guided training on the rule-based program (no physio approval needed). */
 export function startSelfGuidedProgram(clientId: string) {
-  updateProgram(clientId, (p) => (p ? startSelfGuided(p) : p));
+  updateData(d => ({ ...d, clients: d.clients.map(c => c.id === clientId && c.program && canAccessProgram(c) ? { ...c, program: startSelfGuided(c.program) } : c) }));
 }
 
 /** Physio switches the client to another ready-made program. */

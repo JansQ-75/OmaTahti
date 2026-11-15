@@ -48,3 +48,5 @@ use the editor.
 
 - Camera tracking is a browser-only reusable workout module with local MediaPipe model, explicit permission and cleanup; pure confidence/counting rules are tested, and only per-set estimates enter the shared store (never video).
 - Shared store reads sanitize retired synthetic estimates while retaining workout records and intake, so legacy data cannot appear as real camera measurements.
+- Baseline tests are selected from a body-area data registry; pure baseline rules validate bilateral results and store services finalize the intake atomically before program access, keeping video out of storage.
+- An unfinished saved questionnaire has an empty completedAt and a separate questionnaireSavedAt; only full baseline finalization stamps completedAt, so the shared correction deadline starts at full completion.

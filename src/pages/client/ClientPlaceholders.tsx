@@ -1,4 +1,7 @@
 import { useEffect, useRef } from "react";
+import { intakeComplete } from "@/features/baseline/baselineLogic";
+import { IntakePending } from "@/features/baseline/IntakePending";
+import { BaselineSummary } from "@/features/baseline/BaselineSummary";
 import { Link, useLocation } from "@tanstack/react-router";
 import { ChevronDown, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,7 +40,9 @@ export function ClientProgressPage() {
             {client.intake ? (
               <>
                 <IntakeSummary answers={answersFromIntake(client.intake)} completedAt={client.intake.completedAt} />
-                {editable && (
+                <BaselineSummary client={client} />
+                {!intakeComplete(client) && <IntakePending client={client} />}
+                {editable && intakeComplete(client) && (
                   <Button asChild variant="outline" className="mt-4 min-h-12 px-5 font-semibold">
                     <Link to="/asiakas/alkukartoitus/kysely" onClick={() => {
                       if (!client.intakeDraft) saveIntakeDraft(client.id, { step: 1, answers: answersFromIntake(client.intake) });

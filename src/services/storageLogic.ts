@@ -6,6 +6,7 @@ export function removeSimulatedEstimates(data: AppData): AppData {
     ...data,
     clients: data.clients.map((client) => ({
       ...client,
+      ...(client.baselineResults ? { baselineResults: client.baselineResults.filter(r => r.source === "camera") } : {}),
       assessments: client.assessments.filter((a) => a.source === "camera"),
       sessions: client.sessions.map((session) => {
         const { balance, sets, ...rest } = session;

@@ -20,6 +20,7 @@ import { Route as AsiakasViestitRouteImport } from './routes/asiakas/viestit'
 import { Route as FysioterapeuttiIndexRouteImport } from './routes/fysioterapeutti/index'
 import { Route as FysioterapeuttiViestitRouteImport } from './routes/fysioterapeutti/viestit'
 import { Route as AsiakasAlkukartoitusIndexRouteImport } from './routes/asiakas/alkukartoitus/index'
+import { Route as AsiakasAlkukartoitusKameraRouteImport } from './routes/asiakas/alkukartoitus/kamera'
 import { Route as AsiakasAlkukartoitusKyselyRouteImport } from './routes/asiakas/alkukartoitus/kysely'
 import { Route as FysioterapeuttiAsiakkaatIndexRouteImport } from './routes/fysioterapeutti/asiakkaat/index'
 import { Route as FysioterapeuttiAsiakkaatClientIdRouteImport } from './routes/fysioterapeutti/asiakkaat/$clientId'
@@ -80,6 +81,12 @@ const AsiakasAlkukartoitusIndexRoute =
     path: '/alkukartoitus/',
     getParentRoute: () => AsiakasRoute,
   } as any)
+const AsiakasAlkukartoitusKameraRoute =
+  AsiakasAlkukartoitusKameraRouteImport.update({
+    id: '/alkukartoitus/kamera',
+    path: '/alkukartoitus/kamera',
+    getParentRoute: () => AsiakasRoute,
+  } as any)
 const AsiakasAlkukartoitusKyselyRoute =
   AsiakasAlkukartoitusKyselyRouteImport.update({
     id: '/alkukartoitus/kysely',
@@ -110,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/fysioterapeutti/viestit': typeof FysioterapeuttiViestitRoute
   '/asiakas/': typeof AsiakasIndexRoute
   '/fysioterapeutti/': typeof FysioterapeuttiIndexRoute
+  '/asiakas/alkukartoitus/kamera': typeof AsiakasAlkukartoitusKameraRoute
   '/asiakas/alkukartoitus/kysely': typeof AsiakasAlkukartoitusKyselyRoute
   '/fysioterapeutti/asiakkaat/$clientId': typeof FysioterapeuttiAsiakkaatClientIdRoute
   '/asiakas/alkukartoitus/': typeof AsiakasAlkukartoitusIndexRoute
@@ -124,6 +132,7 @@ export interface FileRoutesByTo {
   '/fysioterapeutti/viestit': typeof FysioterapeuttiViestitRoute
   '/asiakas': typeof AsiakasIndexRoute
   '/fysioterapeutti': typeof FysioterapeuttiIndexRoute
+  '/asiakas/alkukartoitus/kamera': typeof AsiakasAlkukartoitusKameraRoute
   '/asiakas/alkukartoitus/kysely': typeof AsiakasAlkukartoitusKyselyRoute
   '/fysioterapeutti/asiakkaat/$clientId': typeof FysioterapeuttiAsiakkaatClientIdRoute
   '/asiakas/alkukartoitus': typeof AsiakasAlkukartoitusIndexRoute
@@ -141,6 +150,7 @@ export interface FileRoutesById {
   '/fysioterapeutti/viestit': typeof FysioterapeuttiViestitRoute
   '/asiakas/': typeof AsiakasIndexRoute
   '/fysioterapeutti/': typeof FysioterapeuttiIndexRoute
+  '/asiakas/alkukartoitus/kamera': typeof AsiakasAlkukartoitusKameraRoute
   '/asiakas/alkukartoitus/kysely': typeof AsiakasAlkukartoitusKyselyRoute
   '/fysioterapeutti/asiakkaat/$clientId': typeof FysioterapeuttiAsiakkaatClientIdRoute
   '/asiakas/alkukartoitus/': typeof AsiakasAlkukartoitusIndexRoute
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/fysioterapeutti/viestit'
     | '/asiakas/'
     | '/fysioterapeutti/'
+    | '/asiakas/alkukartoitus/kamera'
     | '/asiakas/alkukartoitus/kysely'
     | '/fysioterapeutti/asiakkaat/$clientId'
     | '/asiakas/alkukartoitus/'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/fysioterapeutti/viestit'
     | '/asiakas'
     | '/fysioterapeutti'
+    | '/asiakas/alkukartoitus/kamera'
     | '/asiakas/alkukartoitus/kysely'
     | '/fysioterapeutti/asiakkaat/$clientId'
     | '/asiakas/alkukartoitus'
@@ -189,6 +201,7 @@ export interface FileRouteTypes {
     | '/fysioterapeutti/viestit'
     | '/asiakas/'
     | '/fysioterapeutti/'
+    | '/asiakas/alkukartoitus/kamera'
     | '/asiakas/alkukartoitus/kysely'
     | '/fysioterapeutti/asiakkaat/$clientId'
     | '/asiakas/alkukartoitus/'
@@ -280,6 +293,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AsiakasAlkukartoitusIndexRouteImport
       parentRoute: typeof AsiakasRoute
     }
+    '/asiakas/alkukartoitus/kamera': {
+      id: '/asiakas/alkukartoitus/kamera'
+      path: '/alkukartoitus/kamera'
+      fullPath: '/asiakas/alkukartoitus/kamera'
+      preLoaderRoute: typeof AsiakasAlkukartoitusKameraRouteImport
+      parentRoute: typeof AsiakasRoute
+    }
     '/asiakas/alkukartoitus/kysely': {
       id: '/asiakas/alkukartoitus/kysely'
       path: '/alkukartoitus/kysely'
@@ -310,6 +330,7 @@ interface AsiakasRouteChildren {
   AsiakasHarjoitusRoute: typeof AsiakasHarjoitusRoute
   AsiakasViestitRoute: typeof AsiakasViestitRoute
   AsiakasIndexRoute: typeof AsiakasIndexRoute
+  AsiakasAlkukartoitusKameraRoute: typeof AsiakasAlkukartoitusKameraRoute
   AsiakasAlkukartoitusKyselyRoute: typeof AsiakasAlkukartoitusKyselyRoute
   AsiakasAlkukartoitusIndexRoute: typeof AsiakasAlkukartoitusIndexRoute
 }
@@ -320,6 +341,7 @@ const AsiakasRouteChildren: AsiakasRouteChildren = {
   AsiakasHarjoitusRoute: AsiakasHarjoitusRoute,
   AsiakasViestitRoute: AsiakasViestitRoute,
   AsiakasIndexRoute: AsiakasIndexRoute,
+  AsiakasAlkukartoitusKameraRoute: AsiakasAlkukartoitusKameraRoute,
   AsiakasAlkukartoitusKyselyRoute: AsiakasAlkukartoitusKyselyRoute,
   AsiakasAlkukartoitusIndexRoute: AsiakasAlkukartoitusIndexRoute,
 }

@@ -1,4 +1,6 @@
 import { Link } from "@tanstack/react-router";
+import { intakeComplete } from "@/features/baseline/baselineLogic";
+import { IntakePending } from "@/features/baseline/IntakePending";
 import { ClipboardCheck, Play } from "lucide-react";
 import { PageHeader, SoftCard } from "@/components/common/Section";
 import { getProgram } from "@/data/programs";
@@ -13,6 +15,7 @@ const btnPrimary =
 export function ClientExercisesPage() {
   const client = useActiveClient();
   if (!client) return null;
+  if (!intakeComplete(client)) return <div className="space-y-5"><PageHeader title="Harjoitukset" /><IntakePending client={client} /></div>;
   const p = client.program;
   const template = p ? getProgram(p.programId) : undefined;
 

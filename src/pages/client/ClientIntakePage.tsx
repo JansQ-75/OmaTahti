@@ -1,4 +1,7 @@
 import { Link, Navigate } from "@tanstack/react-router";
+import { intakeComplete } from "@/features/baseline/baselineLogic";
+import { IntakePending } from "@/features/baseline/IntakePending";
+import { BaselineSummary } from "@/features/baseline/BaselineSummary";
 import { ClipboardList, PlayCircle } from "lucide-react";
 import { PageHeader, SoftCard } from "@/components/common/Section";
 import { IntakeSummary } from "@/features/intake/IntakeSummary";
@@ -44,8 +47,10 @@ export function ClientIntakePage() {
 
       {client.intake ? (
         <>
+          {!intakeComplete(client) && <IntakePending client={client} />}
+          <BaselineSummary client={client} />
           {!draft && <ProgramProposal client={client} />}
-          <IntakeSummary answers={answersFromIntake(client.intake)} completedAt={client.intake.completedAt} />
+          <IntakeSummary answers={answersFromIntake(client.intake)} completedAt={client.intake.completedAt || client.intake.questionnaireSavedAt} />
         </>
       ) : (
         !draft && (

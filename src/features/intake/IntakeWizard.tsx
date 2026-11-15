@@ -81,10 +81,10 @@ export function IntakeWizard({ client }: { client: Client }) {
     }
     savedRef.current = true;
     const saved = completeIntake(client.id, intake);
-    if (!saved || client.intake) {
+    if (!saved || client.baselineStatus === "done") {
       navigate({ to: "/asiakas/edistyminen", hash: "oma-alkukartoitus" });
     } else {
-      navigate({ to: "/asiakas" });
+      navigate({ to: "/asiakas/alkukartoitus/kamera" });
     }
   };
 
@@ -332,7 +332,7 @@ export function IntakeWizard({ client }: { client: Client }) {
               onClick={save}
               className="inline-flex min-h-12 items-center gap-2 rounded-2xl bg-primary px-6 text-lg font-semibold text-primary-foreground hover:bg-primary/90"
             >
-              <Check className="h-5 w-5" /> Tallenna
+              <Check className="h-5 w-5" /> {client.baselineStatus === "done" ? "Tallenna" : "Jatka kameratestiin"}
             </Button>
           ) : (
             <button

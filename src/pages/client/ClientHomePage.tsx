@@ -1,4 +1,6 @@
 import { Link } from "@tanstack/react-router";
+import { canAccessProgram, intakeComplete } from "@/features/baseline/baselineLogic";
+import { IntakePending } from "@/features/baseline/IntakePending";
 import { AlertTriangle, ArrowRight, ClipboardCheck, Flame, Info, Play, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIntakeEditWindow } from "@/features/intake/useIntakeEditWindow";
@@ -15,7 +17,7 @@ export function ClientHomePage() {
   const editable = useIntakeEditWindow(client?.intake);
   if (!client) return null;
 
-  const program = client.program ? getProgram(client.program.programId) : undefined;
+  const program = canAccessProgram(client) && client.program ? getProgram(client.program.programId) : undefined;
   const streak = currentStreak(client.sessions);
   const week = sessionsByWeekday(client.sessions);
   const weekCount = week.reduce((a, b) => a + b, 0);
@@ -69,7 +71,8 @@ export function ClientHomePage() {
         </ul>
       )}
 
-      {(!client.intake || (client.intakeDraft && editable)) && (
+      {client.intake && !intakeComplete(client) && <IntakePending client={client} />}
+      {(!client.intake || (client.intakeDraft && editable && intakeComplete(client))) && (
         <SoftCard className="bg-accent-soft">
           <p className="text-sm font-medium text-accent-foreground">Aloita tästä</p>
           <h2 className="mt-1 text-xl font-semibold">
