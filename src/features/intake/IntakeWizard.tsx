@@ -6,6 +6,7 @@ import { PainScale } from "@/components/common/PainScale";
 import { SoftCard } from "@/components/common/Section";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import { BODY_AREAS } from "@/data/bodyAreas";
 import { getIntakeOptions } from "@/data/intake";
 import { completeIntake, saveIntakeDraft } from "@/services/intake";
@@ -79,8 +80,12 @@ export function IntakeWizard({ client }: { client: Client }) {
       return;
     }
     savedRef.current = true;
-    completeIntake(client.id, intake);
-    navigate({ to: "/asiakas/alkukartoitus" });
+    const saved = completeIntake(client.id, intake);
+    if (!saved || client.intake) {
+      navigate({ to: "/asiakas/edistyminen", hash: "oma-alkukartoitus" });
+    } else {
+      navigate({ to: "/asiakas" });
+    }
   };
 
   const opts = getIntakeOptions(a.bodyArea);
@@ -322,13 +327,13 @@ export function IntakeWizard({ client }: { client: Client }) {
             </Link>
           )}
           {step.id === "review" ? (
-            <button
+            <Button
               type="button"
               onClick={save}
               className="inline-flex min-h-12 items-center gap-2 rounded-2xl bg-primary px-6 text-lg font-semibold text-primary-foreground hover:bg-primary/90"
             >
-              <Check className="h-5 w-5" /> Tallenna alkukartoitus
-            </button>
+              <Check className="h-5 w-5" /> Tallenna
+            </Button>
           ) : (
             <button
               type="button"

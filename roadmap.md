@@ -3,6 +3,7 @@
 - [x] Phase 1 – Base structure, visual identity, role selection, navigation, role home pages, shared demo data + "Palauta demodata"
 - [x] Phase 2 – Client onboarding + intake wizard (ankle ligament injury), local save, summary
 - [x] Rule-based program selection after intake + self-guided start (phase 2 addition)
+- [ ] Intake correction window, home notice and direct progress-summary link — implementation and verification
 - [ ] Baseline camera assessment (originally planned in phase 2 – waits for user decision on which phase)
 - [x] Phase 3 – Physio client list + client details (contacts, intake, program, progress/pain), switch program, add/remove exercises; client Harjoitukset page shows the current program (read-only)
 - [x] Phase 4 – Client program + exercise instructions, start/interrupt/complete

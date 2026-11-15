@@ -1,6 +1,9 @@
-import { useEffect } from "react";
-import { Link } from "@tanstack/react-router";
-import { ChevronDown } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Link, useLocation } from "@tanstack/react-router";
+import { ChevronDown, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useIntakeEditWindow } from "@/features/intake/useIntakeEditWindow";
+import { saveIntakeDraft } from "@/services/intake";
 import { PageHeader } from "@/components/common/Section";
 import { MessageThread } from "@/features/messages/MessageThread";
 import { IntakeSummary } from "@/features/intake/IntakeSummary";
@@ -11,19 +14,39 @@ import { markMessagesRead } from "@/services/messages";
 
 export function ClientProgressPage() {
   const client = useActiveClient();
+  const editable = useIntakeEditWindow(client?.intake);
+  const hash = useLocation({ select: (location) => location.hash });
+  const intakeSection = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    if (hash === "oma-alkukartoitus" && intakeSection.current) {
+      intakeSection.current.open = true;
+      intakeSection.current.scrollIntoView({ block: "start" });
+    }
+  }, [hash, client?.id]);
   return (
     <div className="space-y-5">
       <PageHeader title="Edistyminen" subtitle="Harjoittelu, kipu, liikkuvuus ja tasapaino" />
       {client && <ProgressCharts client={client} />}
       {client && (
-        <details className="group rounded-3xl border border-border bg-card shadow-sm">
+        <details ref={intakeSection} id="oma-alkukartoitus" className="group scroll-mt-5 rounded-3xl border border-border bg-card shadow-sm">
           <summary className="flex cursor-pointer list-none items-center justify-between p-5 text-lg font-semibold">
             Oma alkukartoitus
             <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-open:rotate-180" />
           </summary>
           <div className="px-5 pb-5">
             {client.intake ? (
-              <IntakeSummary answers={answersFromIntake(client.intake)} completedAt={client.intake.completedAt} />
+              <>
+                <IntakeSummary answers={answersFromIntake(client.intake)} completedAt={client.intake.completedAt} />
+                {editable && (
+                  <Button asChild variant="outline" className="mt-4 min-h-12 px-5 font-semibold">
+                    <Link to="/asiakas/alkukartoitus/kysely" onClick={() => {
+                      if (!client.intakeDraft) saveIntakeDraft(client.id, { step: 1, answers: answersFromIntake(client.intake) });
+                    }}>
+                      <RotateCcw /> Päivitä
+                    </Link>
+                  </Button>
+                )}
+              </>
             ) : (
               <p className="text-muted-foreground">
                 Et ole vielä tehnyt alkukartoitusta.{" "}

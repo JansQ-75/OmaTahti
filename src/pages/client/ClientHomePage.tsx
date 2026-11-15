@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { AlertTriangle, ClipboardCheck, Flame, Play, X } from "lucide-react";
+import { AlertTriangle, ArrowRight, ClipboardCheck, Flame, Info, Play, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useIntakeEditWindow } from "@/features/intake/useIntakeEditWindow";
 import { SoftCard } from "@/components/common/Section";
 import { dismissNotification } from "@/services/messages";
 import { SwitchRoleButton } from "@/components/navigation/RoleActions";
@@ -10,6 +12,7 @@ import { currentStreak, openNotifications, sessionsByWeekday, trainedLastDays } 
 
 export function ClientHomePage() {
   const client = useActiveClient();
+  const editable = useIntakeEditWindow(client?.intake);
   if (!client) return null;
 
   const program = client.program ? getProgram(client.program.programId) : undefined;
@@ -66,7 +69,7 @@ export function ClientHomePage() {
         </ul>
       )}
 
-      {(!client.intake || client.intakeDraft) && (
+      {(!client.intake || (client.intakeDraft && editable)) && (
         <SoftCard className="bg-accent-soft">
           <p className="text-sm font-medium text-accent-foreground">Aloita tästä</p>
           <h2 className="mt-1 text-xl font-semibold">
@@ -84,38 +87,40 @@ export function ClientHomePage() {
         </SoftCard>
       )}
 
-      {program && client.program?.status === "proposed" && (
-        <SoftCard className="bg-[image:var(--gradient-hero)]">
-          <p className="text-sm font-medium text-primary">Harjoitusohjelmasi on valmis</p>
-          <h2 className="mt-1 text-xl font-semibold">{program.name}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Ohjelma muodostettiin alkukartoituksesi perusteella. Voit aloittaa harjoittelun heti itsenäisesti.
-          </p>
-          <Link
-            to="/asiakas/alkukartoitus"
-            className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-4 text-lg font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto sm:inline-flex"
-          >
-            <Play className="h-5 w-5" /> Katso ohjelma ja aloita
-          </Link>
-        </SoftCard>
+      {program && client.program?.origin === "rule-based" && client.intake && editable && (
+        <div role="status" className="flex items-start gap-3 border-l-4 border-primary bg-primary-soft p-4">
+          <Info className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+          <div className="min-w-0">
+            <p>Ohjelma muodostettiin alkukartoituksesi perusteella. Voit aloittaa harjoittelun heti itsenäisesti.</p>
+            <div className="mt-2 flex flex-wrap items-center gap-1">
+              <span>Voit muuttaa vastauksiasi vielä</span>
+              <Button asChild variant="ghost" size="icon" className="text-primary">
+                <Link to="/asiakas/edistyminen" hash="oma-alkukartoitus" aria-label="Siirry omaan alkukartoitukseen" title="Oma alkukartoitus">
+                  <ArrowRight />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
 
-      {program && client.program?.status !== "proposed" && (
+      {program && (
         <SoftCard className="bg-[image:var(--gradient-hero)]">
           <p className="text-sm font-medium text-primary">
-            {client.program?.status === "self-guided" ? "Itsenäinen harjoitusohjelma" : "Aktiivinen kuntoutusohjelma"}
+            {client.program?.origin === "rule-based" ? "Itsenäinen harjoitusohjelma" : "Aktiivinen kuntoutusohjelma"}
           </p>
           <h2 className="mt-1 text-xl font-semibold">{program.name}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {client.intake && `${bodyAreaLabel(client.intake.bodyArea)} (${client.intake.side}) · `}
             {program.phase}
           </p>
+          <Button asChild className="mt-5 min-h-14 w-full whitespace-normal px-6 text-lg font-semibold sm:w-auto">
           <Link
             to="/asiakas/harjoitukset"
-            className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-4 text-lg font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto sm:inline-flex"
           >
             <Play className="h-5 w-5" /> Aloita päivän harjoitukset
           </Link>
+          </Button>
         </SoftCard>
       )}
 
