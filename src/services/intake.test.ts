@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { completeIntake, saveIntakeDraft } from "./intake";
 import { getData, resetDemoData } from "./storage";
+import { completeBaselineForTest } from "@/test/baselineFixture";
 import type { Intake } from "@/types";
 
 function savedIntake(): Intake {
@@ -17,16 +18,19 @@ describe("intake store correction rules", () => {
   });
   afterEach(() => vi.useRealTimers());
 
-  it("saves a first intake and generates a program without camera data", () => {
+  it("saves questionnaire without unlocking or generating a program", () => {
     expect(completeIntake("client-mikko", savedIntake())).toBe(true);
     const client = getData().clients.find((c) => c.id === "client-mikko");
-    expect(client?.program?.origin).toBe("rule-based");
+    expect(client?.program).toBeUndefined();
+    expect(client?.intake?.completedAt).toBe("");
+    expect(client?.baselineStatus).toBe("pending");
     expect(client?.assessments).toEqual([]);
   });
 
   it("corrections preserve the first save time rather than extending the two hours", () => {
     const intake = savedIntake();
     completeIntake("client-mikko", intake);
+    completeBaselineForTest("client-mikko");
     vi.setSystemTime(new Date("2026-11-15T09:33:00.000Z"));
     expect(completeIntake("client-mikko", { ...intake, goals: "Korjattu tavoite", completedAt: new Date().toISOString() })).toBe(true);
     const client = getData().clients.find((c) => c.id === "client-mikko");
@@ -37,6 +41,7 @@ describe("intake store correction rules", () => {
   it("rejects draft writes and final saves at the deadline even if editing started earlier", () => {
     const intake = savedIntake();
     completeIntake("client-mikko", intake);
+    completeBaselineForTest("client-mikko");
     vi.setSystemTime(new Date("2026-11-15T09:33:00.000Z"));
     saveIntakeDraft("client-mikko", { step: 8, answers: { goals: "Luonnos" } });
     const before = getData().clients.find((c) => c.id === "client-mikko");

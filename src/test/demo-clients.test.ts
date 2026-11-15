@@ -1,3 +1,4 @@
+import { completeBaselineForTest } from "./baselineFixture";
 import { beforeEach, describe, expect, it } from "vitest";
 import { getData, resetDemoData, setActiveClient } from "@/services/storage";
 import { completeIntake, saveIntakeDraft } from "@/services/intake";
@@ -25,9 +26,10 @@ describe("demo clients", () => {
     expect(JSON.stringify(getData().clients.find((c) => c.id === "client-aino"))).toBe(ainoBefore);
   });
 
-  it("saving Mikko's intake stores a rule-based program he can start without approval", () => {
+  it("finishing Mikko's whole intake stores a rule-based program he can start without approval", () => {
     const aino = getData().clients.find((c) => c.id === "client-aino")!;
     completeIntake("client-mikko", { ...aino.intake!, injuryDate: new Date().toISOString() });
+    completeBaselineForTest("client-mikko");
     expect(getData().clients.find((c) => c.id === "client-mikko")!.program).toMatchObject({
       programId: "ankle-sprain-acute",
       status: "proposed",
@@ -58,6 +60,7 @@ describe("demo clients", () => {
   it("the physio can give Mikko a program after his intake, without him starting anything", () => {
     const aino = getData().clients.find((c) => c.id === "client-aino")!;
     completeIntake("client-mikko", aino.intake!);
+    completeBaselineForTest("client-mikko");
     physioRemoveExercise("client-mikko", "heel-raise");
     const m = getData().clients.find((c) => c.id === "client-mikko")!;
     expect(m.program).toMatchObject({ status: "active", origin: "physio" });
@@ -68,6 +71,7 @@ describe("demo clients", () => {
     setActiveClient("client-mikko");
     const aino = getData().clients.find((c) => c.id === "client-aino")!;
     completeIntake("client-mikko", aino.intake!);
+    completeBaselineForTest("client-mikko");
     resetDemoData();
     const d = getData();
     expect(d.activeClientId).toBe("client-aino");
