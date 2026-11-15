@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Camera, Check, Volume2, VolumeX, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BONES, calibrated, observe, readyElapsed, trackRep, validEstimate } from "./cameraLogic";
-import type { CameraExercise, RepTracker, TrackingEstimate } from "./cameraLogic";
+import type { CameraExercise, Observation, RepTracker, TrackingEstimate } from "./cameraLogic";
 import type { createPose } from "./pose";
 import { Butterfly } from "./Butterfly";
 import { liftedKneeIndex, updateButterfly } from "./butterflyLogic";
@@ -77,14 +77,15 @@ export function CameraWorkout(props: Props) {
       }
      }
       if(stage==="done"){setButterfly(null);return;}
-     let obs;
+      let obs: Observation;
       {
       const v=video.current;if(!v||!model||v.readyState<2||v.currentTime===lastVideoTime)return;
       lastVideoTime=v.currentTime;
        try {
         const points=model.detectForVideo(v,now).landmarks[0]??[];
-        obs=observe(points,p.exercise,p.side,v.videoWidth,v.videoHeight);
-        if(p.exercise==="single-leg-balance" && stage==="active")setButterfly(previous=>updateButterfly(previous,obs,points[liftedKneeIndex(p.side)],now));
+        const observation=observe(points,p.exercise,p.side,v.videoWidth,v.videoHeight);
+        obs=observation;
+        if(p.exercise==="single-leg-balance" && stage==="active")setButterfly(previous=>updateButterfly(previous,observation,points[liftedKneeIndex(p.side)],now));
         else setButterfly(null);
        }catch{setButterfly(null);setError("Liikkeentunnistus ei onnistunut. Voit jatkaa ilman kameraa.");return;}
      }
