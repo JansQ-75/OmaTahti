@@ -95,7 +95,7 @@ export function BaselineCamera({ audioContext, test, bodyArea, side, onComplete,
     void start();
     return () => { disposed = true; if (timer) clearInterval(timer); stream?.getTracks().forEach(t => t.stop()); model?.close(); };
   }, [test, bodyArea, side, attempt]);
-  useEffect(() => () => { void audio.current?.close(); }, []);
+  useEffect(() => () => { const ctx = audio.current; if (ctx && ctx.state !== "closed") void ctx.close().catch(() => {}); }, []);
   return <section className="camera-workout fixed inset-0 z-50 overflow-y-auto" aria-label="Alkukartoituksen kameratesti">
     <video ref={video} className="camera-feed" muted playsInline aria-label="Oma kamerakuva" />
     <svg className="camera-dots" viewBox={`0 0 ${state.width} ${state.height}`} preserveAspectRatio="xMidYMid meet" aria-hidden>
