@@ -59,7 +59,8 @@ export function BaselineCamera({ audioContext, test, bodyArea, side, onComplete,
           if (!active) {
             const stationary = observation.center !== undefined && (previousCenter === undefined || Math.abs(observation.center - previousCenter) < .02);
             previousCenter = observation.center;
-            const ready = readyElapsed(readyStart, now, stationary && observation.reliable); readyStart = ready.start; count = ready.countdown;
+            const ready = readyElapsed(readyStart, now, stationary && observation.reliable && (test.exercise !== "single-leg-balance" || observation.lifted === true)); readyStart = ready.start; count = ready.countdown;
+            if (test.exercise === "single-leg-balance" && observation.reliable && !observation.lifted) word = "NOSTA TOINEN JALKA";
             if (ready.ready) { active = true; last = now; beep(); }
           } else {
             total += dt;
