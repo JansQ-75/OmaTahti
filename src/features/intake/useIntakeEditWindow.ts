@@ -18,5 +18,6 @@ export function useIntakeEditWindow(intake?: Intake): boolean {
       document.removeEventListener("visibilitychange", refresh);
     };
   }, [deadline]);
-  return canEditIntake(intake, now);
+  // A just-saved intake may be newer than this hook's last render clock.
+  return canEditIntake(intake, Math.max(now, Date.now()));
 }
