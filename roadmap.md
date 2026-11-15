@@ -7,6 +7,7 @@
 - [x] Baseline camera assessment — body-area rules, bilateral ankle tests, saved results and acknowledgements, program lock until complete, two-hour correction window from full completion; rules tested and questionnaire/postpone/locked navigation checked on desktop and mobile.
   - Real-person baseline camera measurements and sounds require physical-phone trials; unavailable in the sandbox.
   - [x] Balance baseline countdown starts on two feet; lift at the start cue, with continuous measurement through ground contacts. Automated camera-flow regression tests cover startup and result delivery; physical-phone check remains necessary.
+  - [x] Add camera introduction before test instructions and remove long instructions from the live baseline camera; questionnaire entry, postponing, retained program lock and desktop/mobile layout verified. Camera regression tests pass; physical-phone trials remain necessary.
 - [x] Phase 3 – Physio client list + client details (contacts, intake, program, progress/pain), switch program, add/remove exercises; client Harjoitukset page shows the current program (read-only)
 - [x] Phase 4 – Client program + exercise instructions, start/interrupt/complete
 - [x] Collapsible "Näytä suoritusohjeet" per exercise card (client + physio views)
