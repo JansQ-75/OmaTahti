@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { BONES, calibrated, observe, readyElapsed, trackRep, validEstimate } from "./cameraLogic";
 import type { CameraExercise, RepTracker, TrackingEstimate } from "./cameraLogic";
 import type { createPose } from "./pose";
+import { Butterfly } from "./Butterfly";
+import { liftedKneeIndex, updateButterfly } from "./butterflyLogic";
+import type { ButterflyState } from "./butterflyLogic";
 
 type Props = { exercise: CameraExercise; name: string; side: "vasen"|"oikea"; set: number; sets: number; done: number; target: number; suspended: boolean; onRep: () => void; onTick: () => void; onComplete: (estimate?: TrackingEstimate) => void; onFallback: () => void; onInterrupt: () => void; onExit: () => void };
 export function CameraWorkout(props: Props) {
@@ -20,6 +23,7 @@ export function CameraWorkout(props: Props) {
  const [word,setWord] = useState("ASETU KUVAAN");
  const [ok,setOk] = useState(false);
  const [dots,setDots] = useState<{x:number;y:number;i?:number}[]>([]);
+  const [butterfly,setButterfly] = useState<ButterflyState|null>(null);
  const finish = useRef<() => void>(() => {});
  const calib = useRef<{min:number;max:number}|null>(null);
  const beep = (frequency=660) => {
@@ -38,7 +42,7 @@ export function CameraWorkout(props: Props) {
   let start:number|null=null, calibrationStart=0, announceUntil=0, activeStart=0, last=0, second=0, previousCountdown:number|null=null, previousCenter:number|undefined;
   let min=Infinity,max=-Infinity, reliableMs=0,totalMs=0, touches=0,touchSince=0, wasTouching=false, centerMin=Infinity,centerMax=-Infinity;
   let rep:RepTracker|null=null, stage:"waiting"|"calibrating"|"active"|"done"="waiting", lastVideoTime=-1, currentSet=latest.current.set;
-  setPhase("waiting");setCountdown(null);
+   setPhase("waiting");setCountdown(null);setButterfly(null);
   const complete = () => {
    const p=latest.current;
    const valid=validEstimate(reliableMs,totalMs);
@@ -62,7 +66,7 @@ export function CameraWorkout(props: Props) {
     timer=setInterval(()=>{
      if(disposed)return;
      const now=performance.now(),p=latest.current;
-     if(p.suspended || document.hidden){start=null;last=now;second=now;return;}
+      if(p.suspended || document.hidden){setButterfly(null);start=null;last=now;second=now;return;}
      if(p.set!==currentSet){
       // New set after a rest: no new calibration or settling; start straight away.
       currentSet=p.set;reliableMs=0;totalMs=0;touches=0;touchSince=0;wasTouching=false;centerMin=Infinity;centerMax=-Infinity;
@@ -72,12 +76,17 @@ export function CameraWorkout(props: Props) {
        if(p.exercise!=="ankle-flex"||c){stage="active";setPhase("active");setCountdown(null);announceUntil=now+2000;activeStart=now;second=now;last=now;beep(880);}
       }
      }
-     if(stage==="done")return;
+      if(stage==="done"){setButterfly(null);return;}
      let obs;
       {
       const v=video.current;if(!v||!model||v.readyState<2||v.currentTime===lastVideoTime)return;
       lastVideoTime=v.currentTime;
-      try {obs=observe(model.detectForVideo(v,now).landmarks[0]??[],p.exercise,p.side,v.videoWidth,v.videoHeight);}catch{setError("Liikkeentunnistus ei onnistunut. Voit jatkaa ilman kameraa.");return;}
+       try {
+        const points=model.detectForVideo(v,now).landmarks[0]??[];
+        obs=observe(points,p.exercise,p.side,v.videoWidth,v.videoHeight);
+        if(p.exercise==="single-leg-balance" && stage==="active")setButterfly(previous=>updateButterfly(previous,obs,points[liftedKneeIndex(p.side)],now));
+        else setButterfly(null);
+       }catch{setButterfly(null);setError("Liikkeentunnistus ei onnistunut. Voit jatkaa ilman kameraa.");return;}
      }
      setOk(obs.reliable);setDots(mode==="camera"?(obs.dots??[]):[]);
      setWord(!obs.reliable?(obs.hint??"ASETU KUVAAN"):stage==="calibrating"?"LIIKUTA NILKKAA":now<announceUntil?(p.exercise==="ankle-flex"?"ALOITA TOISTOT":"ALOITA"):stage==="active"?"":"HYVÄ ASENTO");
@@ -128,6 +137,7 @@ export function CameraWorkout(props: Props) {
  return <section className="camera-workout" aria-label="Kameraharjoittelu">
   {mode!=="setup" && <video ref={video} muted playsInline className="camera-feed" aria-label="Oma kamerakuva" />}
    {mode==="camera" && <svg className="camera-dots" viewBox={`0 0 ${video.current?.videoWidth||640} ${video.current?.videoHeight||480}`} preserveAspectRatio="xMidYMid meet" aria-hidden>{BONES[props.exercise].map(([a,b])=>{const A=dots.find(d=>d.i===a),B=dots.find(d=>d.i===b);return A&&B?<line key={`${a}-${b}`} x1={A.x*(video.current?.videoWidth||640)} y1={A.y*(video.current?.videoHeight||480)} x2={B.x*(video.current?.videoWidth||640)} y2={B.y*(video.current?.videoHeight||480)} />:null;})}{dots.map((d,i)=><circle key={i} cx={d.x*(video.current?.videoWidth||640)} cy={d.y*(video.current?.videoHeight||480)} r="9" />)}</svg>}
+   {mode==="camera" && hold && phase==="active" && !props.suspended && !error && butterfly && <svg className="camera-butterfly" viewBox={`0 0 ${video.current?.videoWidth||640} ${video.current?.videoHeight||480}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true"><Butterfly state={butterfly} width={video.current?.videoWidth||640} height={video.current?.videoHeight||480}/></svg>}
   <div className="camera-ui">
    <header className="flex flex-wrap items-center justify-between gap-3"><div><p className="font-semibold">{props.name}</p><p className="text-sm">Sarja {props.set+1} / {props.sets} · {props.side} kuntoutettava puoli</p></div><div className="flex gap-2"><Button variant="secondary" size="icon" className="rounded-full" aria-label={muted?"Äänimerkit päälle":"Äänimerkit pois"} title={muted?"Äänimerkit päälle":"Äänimerkit pois"} onClick={()=>{sound.current=muted;setMuted(!muted);}}>{muted?<VolumeX/>:<Volume2/>}</Button>{phase==="active"?<Button variant="destructive" size="icon" className="rounded-full" aria-label="Keskeytä" title="Keskeytä" onClick={props.onInterrupt}><X/></Button>:<Button variant="secondary" className="rounded-full px-4 text-sm" onClick={props.onExit}>Poistu</Button>}</div></header>
    <main className="flex flex-1 flex-col items-center justify-center gap-5 text-center">

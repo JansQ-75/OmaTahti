@@ -51,3 +51,4 @@ use the editor.
 - Baseline tests are selected from a body-area data registry; pure baseline rules validate bilateral results and store services finalize the intake atomically before program access, keeping video out of storage.
 - An unfinished saved questionnaire has an empty completedAt and a separate questionnaireSavedAt; only full baseline finalization stamps completedAt, so the shared correction deadline starts at full completion.
 - Baseline camera onboarding is a separate feature view shown on entry before pending test instructions; long instructions stay outside the live camera so the measurement view remains unobstructed.
+- Workout butterfly feedback is an SVG overlay in video coordinates driven by pure butterflyLogic; it never feeds measurements or storage, keeping decoration separate from rehabilitation rules.
