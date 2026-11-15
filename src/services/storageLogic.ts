@@ -7,15 +7,18 @@ export function removeSimulatedEstimates(data: AppData): AppData {
     clients: data.clients.map((client) => ({
       ...client,
       assessments: client.assessments.filter((a) => a.source === "camera"),
-      sessions: client.sessions.map((session) => ({
-        ...session,
-        trackingSource: session.trackingSource === "camera" ? "camera" : "none",
-        balance: session.balance?.source === "camera" ? session.balance : undefined,
-        sets: session.sets?.map((set) => ({
-          ...set,
-          tracking: set.tracking?.source === "camera" ? set.tracking : undefined,
-        })),
-      })),
+      sessions: client.sessions.map((session) => {
+        const { balance, sets, ...rest } = session;
+        return {
+          ...rest,
+          trackingSource: session.trackingSource === "camera" ? "camera" as const : "none" as const,
+          ...(balance?.source === "camera" ? { balance } : {}),
+          ...(sets ? { sets: sets.map((set) => {
+            const { tracking, ...result } = set;
+            return { ...result, ...(tracking?.source === "camera" ? { tracking } : {}) };
+          }) } : {}),
+        };
+      }),
     })),
   };
 }
