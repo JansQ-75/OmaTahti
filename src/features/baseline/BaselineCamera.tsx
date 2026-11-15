@@ -7,12 +7,12 @@ import type { createPose } from "@/features/workout/pose";
 import type { BaselineTest } from "@/data/baselineTests";
 import type { BaselineResult, BodyArea } from "@/types";
 
-type Props = { test: BaselineTest; bodyArea: BodyArea; side: "vasen" | "oikea"; onComplete: (result: BaselineResult) => void; onExit: () => void };
-export function BaselineCamera({ test, bodyArea, side, onComplete, onExit }: Props) {
+type Props = { audioContext: AudioContext | null; test: BaselineTest; bodyArea: BodyArea; side: "vasen" | "oikea"; onComplete: (result: BaselineResult) => void; onExit: () => void };
+export function BaselineCamera({ audioContext, test, bodyArea, side, onComplete, onExit }: Props) {
   const video = useRef<HTMLVideoElement>(null);
-  const audio = useRef<AudioContext | null>(null);
+  const audio = useRef<AudioContext | null>(audioContext);
   const mutedRef = useRef(false);
-  const [muted, setMuted] = useState(false);
+  const [muted, setMuted] = useState(!audioContext);
   const [state, setState] = useState({ word: "ASETU KUVAAN", count: null as number | null, reliable: false, active: false, dots: [] as Point[], width: 640, height: 480 });
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
@@ -31,6 +31,7 @@ export function BaselineCamera({ test, bodyArea, side, onComplete, onExit }: Pro
     let total = 0, reliable = 0, min = Infinity, max = -Infinity, swayMin = Infinity, swayMax = -Infinity, touches = 0, touchingMs = 0, touching = false;
     let previousCount: number | null = null;
     setError("");
+    setState({ word: "ASETU KUVAAN", count: null, reliable: false, active: false, dots: [], width: 640, height: 480 });
     async function start() {
       try {
         if (!navigator.mediaDevices?.getUserMedia) throw new Error("camera");

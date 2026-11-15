@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, Navigate, useNavigate } from "@tanstack/react-router";
 import { Camera, CheckCircle2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ export function ClientBaselinePage() {
   const client = useActiveClient();
   const navigate = useNavigate();
   const [camera, setCamera] = useState(false);
+  const audio = useRef<AudioContext | null>(null);
   const [ack, setAck] = useState<BaselineResult | null>(null);
   const [error, setError] = useState("");
   if (!client) return null;
@@ -24,7 +25,7 @@ export function ClientBaselinePage() {
   const nextIndex = steps.findIndex(({ test, side }) => !client.baselineResults?.some(r => r.testId === test.id && r.side === side && r.bodyArea === client.intake?.bodyArea && validBaselineResult(r, test)));
   const next = steps[nextIndex];
   const finish = () => { if (finalizeBaseline(client.id)) void navigate({ to: "/asiakas" }); else setError("Kaikki lähtötasotestit eivät ole vielä valmiita."); };
-  if (camera && next) return <BaselineCamera test={next.test} side={next.side} bodyArea={client.intake.bodyArea} onExit={() => { setCamera(false); void navigate({ to: "/asiakas" }); }} onComplete={result => {
+  if (camera && next) return <BaselineCamera audioContext={audio.current} test={next.test} side={next.side} bodyArea={client.intake.bodyArea} onExit={() => { setCamera(false); void navigate({ to: "/asiakas" }); }} onComplete={result => {
     if (saveBaselineResult(client.id, result)) { setCamera(false); setAck(result); } else { setCamera(false); setError("Tulosta ei voitu tallentaa. Kokeile testiä uudelleen."); }
   }} />;
   const image = next ? getExercise(next.test.exercise)?.images?.start : undefined;
@@ -40,7 +41,10 @@ export function ClientBaselinePage() {
       <p className="text-lg font-semibold">Testi {nextIndex + 1} / {steps.length} · {next.side} {next.side === client.intake.side ? "kuntoutettava puoli" : "puoli"}</p>
       <div className="flex items-start gap-5">{image && <img src={image} alt={`${next.test.name}: alkuasento`} className="h-48 w-32 shrink-0 object-contain" />}<div className="min-w-0 space-y-3"><h2 className="text-xl font-semibold">Valmista kamera</h2><p>{next.test.setup}</p><p>Hyvä valaistus helpottaa tunnistusta.</p></div></div>
       <p className="text-lg">{next.test.instruction}</p><p className="text-muted-foreground">Testi kestää {next.test.durationSeconds} sekuntia. Videota ei tallenneta.</p>
-      {needsProfessional(client.intake) ? <p role="alert" className="border-l-4 border-destructive bg-destructive-soft p-4">Vastauksissasi on merkkejä, joiden vuoksi tarvitset ammattilaisen arvion ennen liikkumistestejä. Ota yhteyttä lääkäriin tai fysioterapeuttiin.</p> : <Button size="lg" className="min-h-16 w-full text-lg" onClick={() => setCamera(true)}><Camera />{next.test.exercise === "single-leg-balance" ? "Olen valmis tasapainotestiin" : "Käytä kameraa"}</Button>}
+      {needsProfessional(client.intake) ? <p role="alert" className="border-l-4 border-destructive bg-destructive-soft p-4">Vastauksissasi on merkkejä, joiden vuoksi tarvitset ammattilaisen arvion ennen liikkumistestejä. Ota yhteyttä lääkäriin tai fysioterapeuttiin.</p> : <Button size="lg" className="min-h-16 w-full text-lg" onClick={() => {
+        try { audio.current = new AudioContext(); void audio.current.resume().catch(() => {}); } catch { audio.current = null; }
+        setCamera(true);
+      }}><Camera />{next.test.exercise === "single-leg-balance" ? "Olen valmis tasapainotestiin" : "Käytä kameraa"}</Button>}
     </> : steps.length ? <><BaselineSummary client={client} /><Button size="lg" className="min-h-14 w-full whitespace-normal" onClick={finish}><CheckCircle2 />Tallenna ja viimeistele alkukartoitus</Button></> : <p>Tälle kehon alueelle ei vielä ole lähtötasotestiä.</p>}
     {error && <p role="alert" className="text-destructive">{error}</p>}
     <div className="border-t border-border pt-4"><Button asChild variant="outline"><Link to="/asiakas">Jatka myöhemmin</Link></Button><p className="mt-3 text-sm text-muted-foreground">Jo tehdyt testit säilyvät. Harjoitusohjelma avautuu, kun koko alkukartoitus on valmis.</p></div>

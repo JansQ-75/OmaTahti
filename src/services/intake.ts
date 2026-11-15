@@ -26,14 +26,15 @@ export function completeIntake(clientId: string, intake: Intake) {
   updateClient(clientId, (c) => {
     if (!canEditIntake(c.intake)) return c;
     // Corrections never restart the original two-hour edit window.
-    const completed = c.baselineStatus === "done";
+    const changedSetup = c.intake && (c.intake.bodyArea !== intake.bodyArea || c.intake.side !== intake.side);
+    const completed = c.baselineStatus === "done" && !changedSetup;
     intake = { ...intake, completedAt: completed ? (c.intake?.completedAt || intake.completedAt) : "", questionnaireSavedAt: c.intake?.questionnaireSavedAt ?? new Date().toISOString() };
     const { intakeDraft: _d, program: _p, ...rest } = c;
     const program = completed ? applyIntakeToProgram(c.program, intake) : (c.program?.origin === "physio" ? c.program : undefined);
     saved = true;
-    const changedSetup = c.intake && (c.intake.bodyArea !== intake.bodyArea || c.intake.side !== intake.side);
     const baselineResults = changedSetup ? [] : c.baselineResults ?? [];
-    return program ? { ...rest, intake, program, baselineResults } : { ...rest, intake, baselineResults };
+    const baselineStatus = completed ? "done" as const : "pending" as const;
+    return program ? { ...rest, intake, program, baselineResults, baselineStatus } : { ...rest, intake, baselineResults, baselineStatus };
   });
   return saved;
 }
