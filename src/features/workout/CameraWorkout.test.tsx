@@ -38,6 +38,22 @@ it("anchors to the detected lifted knee when the rehabilitated side is right", a
   expect(view.container.querySelector(".workout-butterfly")?.getAttribute("transform")).toBe("translate(320 360)");
 });
 
+it("waits for two grounded feet and a fresh countdown before later balance sets", async () => {
+  const onTick = vi.fn();
+  const view = render(<CameraWorkout {...props} exercise="single-leg-balance" onTick={onTick} />);
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Käytä kameraa" })); });
+  await advance(7200);
+  view.rerender(<CameraWorkout {...props} exercise="single-leg-balance" set={1} onTick={onTick} />);
+  camera.lifted = true;
+  await advance(6000);
+  expect(onTick).not.toHaveBeenCalled();
+  camera.lifted = false;
+  await advance(4900);
+  expect(onTick).not.toHaveBeenCalled();
+  await advance(1200);
+  expect(onTick).toHaveBeenCalled();
+});
+
 it("does not add butterfly feedback to ankle camera exercises", async () => {
   const view = render(<CameraWorkout {...props} exercise="ankle-flex" />);
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Käytä kameraa" })); });

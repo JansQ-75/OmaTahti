@@ -9,6 +9,11 @@ describe("camera safety", () => {
   expect(readyElapsed(100,7100,true).ready).toBe(true);
  });
  it("losing visibility resets the countdown", () => { expect(readyElapsed(100,4000,false)).toEqual({start:null,countdown:null,ready:false}); });
+ it("supports a three second countdown after the two second settling period", () => {
+  expect(readyElapsed(100,2100,true,3).countdown).toBe(3);
+  expect(readyElapsed(100,5099,true,3).ready).toBe(false);
+  expect(readyElapsed(100,5100,true,3).ready).toBe(true);
+ });
  it("missing landmarks cannot produce feedback or counts", () => { expect(observe([],"ankle-flex","vasen",640,480)).toEqual({reliable:false}); });
  it("asks to step back when a needed point is cut off at the edge", () => {
   const pts=Array.from({length:33},()=>({x:.5,y:.5,visibility:.9})); pts[31]={x:.5,y:.995,visibility:.9};

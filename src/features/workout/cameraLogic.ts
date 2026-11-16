@@ -55,11 +55,11 @@ export function trackRep(s: RepTracker, angle: number, now: number) {
   if (smooth <= low && phase === "high" && now-s.lastRep >= 700) { phase = "low"; rep = true; }
   return { state: { ...s, smooth, phase, lastRep: rep ? now : s.lastRep }, rep };
 }
-export function readyElapsed(start: number | null, now: number, reliable: boolean) {
+export function readyElapsed(start: number | null, now: number, reliable: boolean, countdownSeconds = 5) {
   if (!reliable) return { start: null, countdown: null, ready: false };
   const since = start ?? now;
   const elapsed = now-since;
-  return { start: since, countdown: elapsed >= 2000 ? Math.max(1, 5-Math.floor((elapsed-2000)/1000)) : null, ready: elapsed >= 7000 };
+  return { start: since, countdown: elapsed >= 2000 ? Math.max(1, countdownSeconds-Math.floor((elapsed-2000)/1000)) : null, ready: elapsed >= 2000+countdownSeconds*1000 };
 }
 export interface TrackingEstimate {
   source: "camera";
