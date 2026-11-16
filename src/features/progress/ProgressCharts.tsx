@@ -44,11 +44,6 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
   const results = weekExerciseResults(client.sessions);
   const programIds = client.program?.exercises.map((e) => e.exerciseId) ?? Object.keys(counts);
   const dots = weekDots(client.sessions, programIds).map((d, i) => ({ ...d, tavoite: ach[i] }));
-  const latestMob = mob.at(-1);
-  const firstMob = mob[0];
-  const latestPain = pain.at(-1);
-  const firstPain = pain[0];
-  const streak = currentStreak(client.sessions);
   const lsi = symmetrySummary(mob);
   const balLevels = bal.map((b) => ({ ...b, level: balanceLevel(b.sekunnit, b.kosketukset, b.source === "camera" && b.confidence !== undefined && b.confidence >= .9 && b.sway !== undefined && b.sway < .015) }));
   const balNow = balLevels.at(-1);

@@ -1,5 +1,6 @@
-import { Activity, Flame, HeartPulse, Move } from "lucide-react";
+import { Activity, HeartPulse } from "lucide-react";
 import { SoftCard, SourceBadge } from "@/components/common/Section";
+import { ProgressStats } from "@/features/progress/ProgressCharts";
 import type { Client } from "@/types";
 import { clientWeeklySummary, physioSituationSummary } from "./summaryLogic";
 
