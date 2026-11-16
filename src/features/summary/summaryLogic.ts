@@ -136,6 +136,6 @@ export function physioSummarySentences(client: Client, now = new Date()): string
     out.push(`Viimeisen 2 viikon aikana ${s.interruptedLast14Days} ${s.interruptedLast14Days === 1 ? "harjoitus on keskeytetty" : "harjoitusta on keskeytetty"}${s.interruptionReasons[0] ? ` (syy: ${s.interruptionReasons[0].toLowerCase()})` : ""}.`);
   }
   const last = [...client.messages].reverse().find((m) => m.from === "client");
-  if (last) out.push(`Viimeisin viesti asiakkaalta ${fiDate(last.date)}: ”${last.text}”`);
+  if (last) out.push(`Viimeisin viesti asiakkaalta (${fiDate(last.date)}): ”${last.text}”`);
   return out;
 }
