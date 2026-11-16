@@ -42,7 +42,7 @@ describe("camera safety", () => {
    pts[25]={x:.45,y:.45,visibility:.9};pts[26]={x:.55,y:.7,visibility:.9};pts[27]={x:.45,y:.9,visibility:.9};pts[28]={x:.55,y:.9,visibility:.9};
    const normal=observe(pts,"single-leg-balance","oikea",640,480);
    const mirroredPoints=pts.map((point,i)=>({...point,x:1-point.x}));
-   [[23,24],[25,26],[27,28]].forEach(([a,b])=>{const point=mirroredPoints[a];mirroredPoints[a]=mirroredPoints[b];mirroredPoints[b]=point;});
+   for(const [a,b] of [[23,24],[25,26],[27,28]] as const){const point=mirroredPoints[a];mirroredPoints[a]=mirroredPoints[b];mirroredPoints[b]=point;}
    const mirrored=observe(mirroredPoints,"single-leg-balance","oikea",640,480);
    expect(normal).toMatchObject({reliable:true,lifted:true,liftedSide:"vasen",touching:false});
    expect(mirrored).toMatchObject({reliable:true,lifted:true,liftedSide:"oikea",touching:false});

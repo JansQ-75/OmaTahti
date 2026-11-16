@@ -42,7 +42,7 @@ export function observe(points: Point[], exercise: CameraExercise, side: "vasen"
   }
   const torso = Math.abs((p(23).y+p(24).y-p(11).y-p(12).y)/2);
   if (torso < .12) return { reliable: false, hint: "LÄHEMMÄS", dots };
-  return { reliable: true, dots, lifted, liftedSide, touching: !lifted, center: (p(11).x+p(12).x+p(23).x+p(24).x)/4 };
+  return { reliable: true, dots, lifted, ...(liftedSide ? { liftedSide } : {}), touching: !lifted, center: (p(11).x+p(12).x+p(23).x+p(24).x)/4 };
 }
 export interface RepTracker { min: number; max: number; smooth: number; phase: "low" | "high"; lastRep: number }
 export function calibrated(min: number, max: number): boolean { return max-min >= 3; }
