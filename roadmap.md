@@ -18,7 +18,9 @@
 - [x] Remove simulated mode and estimates throughout the app; stack camera preparation buttons with the camera choice larger — desktop/mobile layout and manual fallback verified.
 - [x] Phase 8 – Knee-anchored butterfly in camera single-leg balance only; calm movement, brief takeoff on ground contact, no toggle or measurement changes. Pure rules and camera integration tested; desktop/mobile browser flow and saved workout checked with test-only camera input. Real-person anchoring still needs a physical-phone trial.
   - [x] Detect the lifted leg from joint heights regardless of front-camera mirroring, and anchor the butterfly to that detected knee; mirrored and reversed-side regressions tested.
-  - [x] Rest the butterfly on the knee in a slightly diagonal side profile instead of a top-down pose; rendered appearance checked.
+  - [x] Restore the original open, symmetrical wing artwork and calm flapping animation; rendered appearance checked.
+  - [x] Later single-leg balance sets wait for a stable two-footed stance, then run a fresh three-second countdown before the hold timer starts; lifted-leg interruption and timer behavior tested.
+  - [x] Replace the small central camera guide with a transparent, glowing outline around only the camera area between the header and footer, in both workouts and baseline; browser geometry and appearance checked.
 - [ ] Phase 9 – Summaries + rule-based AI feedback
 - [ ] Phase 10 – End-to-end polish
 
