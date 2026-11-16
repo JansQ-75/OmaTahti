@@ -1,5 +1,6 @@
-import { Activity, Flame, HeartPulse, Move } from "lucide-react";
+import { Activity, HeartPulse } from "lucide-react";
 import { SoftCard, SourceBadge } from "@/components/common/Section";
+import { ProgressStats } from "@/features/progress/ProgressCharts";
 import type { Client } from "@/types";
 import { clientWeeklySummary, physioSituationSummary } from "./summaryLogic";
 
@@ -17,39 +18,11 @@ export function ClientWeeklySummaryCard({ client }: { client: Client }) {
   return (
     <SoftCard>
       <SummaryHeading title="Viikkokatsaus" />
-      <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
-        <ClientFigure
-          icon={<Flame className="h-5 w-5" />}
-          label="Harjoitusputki"
-          value={`${summary.streak} pv`}
-          detail={`${summary.sessionsThisWeek} tällä viikolla`}
-        />
-        <ClientFigure
-          icon={<HeartPulse className="h-5 w-5" />}
-          label="Viimeisin kipu"
-          value={summary.latestPain === null ? "–" : `${summary.latestPain}/10`}
-          detail={summary.latestPain === null ? "Ei kirjauksia" : "Asiakkaan ilmoittama"}
-        />
-        <ClientFigure
-          icon={<Move className="h-5 w-5" />}
-          label="Liikkuvuus"
-          value={summary.mobilityChange === null ? "–" : `${summary.mobilityChange > 0 ? "+" : ""}${summary.mobilityChange}°`}
-          detail={summary.mobilityLatest === null ? "Ei mittauksia" : `Viimeisin ${summary.mobilityLatest}°`}
-        />
+      <div className="mt-4">
+        <ProgressStats client={client} />
       </div>
       <p className="mt-4 text-sm leading-relaxed sm:text-base">{summary.encouragement}</p>
     </SoftCard>
-  );
-}
-
-function ClientFigure({ icon, label, value, detail }: { icon: React.ReactNode; label: string; value: string; detail: string }) {
-  return (
-    <div className="rounded-2xl bg-primary-soft p-3 text-center sm:p-4">
-      <span className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-card text-primary">{icon}</span>
-      <p className="mt-2 text-xl font-bold sm:text-2xl">{value}</p>
-      <p className="mt-0.5 text-xs font-medium sm:text-sm">{label}</p>
-      <p className="mt-1 text-[11px] leading-tight text-muted-foreground sm:text-xs">{detail}</p>
-    </div>
   );
 }
 
