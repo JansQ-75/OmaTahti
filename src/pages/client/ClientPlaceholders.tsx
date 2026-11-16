@@ -14,6 +14,7 @@ import { answersFromIntake } from "@/features/intake/intakeLogic";
 import { ProgressCharts } from "@/features/progress/ProgressCharts";
 import { useActiveClient } from "@/hooks/useAppData";
 import { markMessagesRead } from "@/services/messages";
+import { ClientWeeklySummaryCard } from "@/features/summary/SummaryCards";
 
 export function ClientProgressPage() {
   const client = useActiveClient();

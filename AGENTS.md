@@ -45,6 +45,7 @@ use the editor.
 - Single-exercise mode (`?yksittainen=true`) passes `single` to workoutLogic so finishing that exercise ends the session; exercise images live as asset pointers in `src/assets/exercises` referenced from `src/data/exercises.ts`.
 - Progress charts are one shared component (`src/features/progress/ProgressCharts.tsx`) with pure rules in `progressLogic.ts`, so client and physio see identical progress; pain is recorded only after a workout/interrupt and also appended to `painLog`.
 - Messages are one shared thread per client (`client.messages`), written only via `sendMessage` in `src/services/messages.ts`; unread = other role's messages after `messagesReadAt[role]`, so both nav badges derive from the same data.
+- Weekly and situation summaries use pure rules in `src/features/summary/summaryLogic.ts` over the shared store; physio output is factual only, never treatment or program-change advice.
 
 - Camera tracking is a browser-only reusable workout module with local MediaPipe model, explicit permission and cleanup; pure confidence/counting rules are tested, and only per-set estimates enter the shared store (never video).
 - Shared store reads sanitize retired synthetic estimates while retaining workout records and intake, so legacy data cannot appear as real camera measurements.

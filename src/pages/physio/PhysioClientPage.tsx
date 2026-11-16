@@ -12,6 +12,7 @@ import { ProgressCharts } from "@/features/progress/ProgressCharts";
 import { PhysioProgramEditor } from "@/features/program/PhysioProgramEditor";
 import { useAppData } from "@/hooks/useAppData";
 import type { Client } from "@/types";
+import { PhysioSituationSummaryCard } from "@/features/summary/SummaryCards";
 
 /** Everything about one client for the physio: contacts, program, progress and intake. */
 export function PhysioClientPage({ clientId }: { clientId: string }) {
