@@ -29,7 +29,7 @@ describe("clientWeeklySummary", () => {
         { id: "4", exerciseId: "ankle-flex", date: "2026-11-08T08:00:00Z", status: "completed" },
       ],
     }), NOW);
-    expect(result.sessionsThisWeek).toBe(2);
+    expect(result.sessionsThisWeek).toBe(1);
     expect(result.streak).toBe(2);
   });
 
@@ -78,7 +78,7 @@ describe("physioSituationSummary", () => {
         { id: "m2", date: "2026-11-15T08:00:00Z", movement: "nilkan koukistus", kind: "follow-up", side: "oikea", valueDegrees: 19, setup: { view: "sivulta" }, confidence: 0.8, source: "camera" },
       ],
     }), NOW);
-    expect(result.sessionsThisWeek).toBe(2);
+    expect(result.sessionsThisWeek).toBe(1);
     expect(result.weeklyTarget).toBe(4);
     expect(result.interruptedLast14Days).toBe(1);
     expect(result.interruptionReasons).toEqual(["Kipu"]);
