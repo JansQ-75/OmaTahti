@@ -21,7 +21,7 @@
   - [x] Restore the original open, symmetrical wing artwork and calm flapping animation; rendered appearance checked.
   - [x] Later single-leg balance sets wait for a stable two-footed stance, then run a fresh three-second countdown before the hold timer starts; lifted-leg interruption and timer behavior tested.
   - [x] Replace the small central camera guide with a transparent, glowing outline around only the camera area between the header and footer, in both workouts and baseline; browser geometry and appearance checked.
-- [ ] Phase 9 – Summaries + rule-based AI feedback
+- [x] Phase 9 – Rule-based summaries: factual physio situation overview without treatment suggestions, and a compact client weekly review with three figures and encouragement; pure rules tested.
 - [ ] Phase 10 – End-to-end polish
 
 ## Janinan kommentit (toteutettu)
