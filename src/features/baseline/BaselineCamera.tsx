@@ -66,8 +66,8 @@ export function BaselineCamera({ audioContext, test, bodyArea, side, onComplete,
             if (ready.ready) {
               active = true; last = now; announceUntil = now + 2000; beep();
               count = test.durationSeconds;
-              word = test.exercise === "single-leg-balance" ? "ALOITA · NOSTA TOINEN JALKA" : "LIIKUTA NILKKAA";
-            }
+              word = baselineStartWord(test.exercise);
+            } else if (observation.reliable) word = baselineCountdownWord(test.exercise, count);
           } else {
             total += dt;
             if (observation.reliable) {
@@ -76,7 +76,7 @@ export function BaselineCamera({ audioContext, test, bodyArea, side, onComplete,
               if (observation.center !== undefined) { swayMin = Math.min(swayMin, observation.center); swayMax = Math.max(swayMax, observation.center); }
               if (observation.touching) { touchingMs += dt; if (!touching && touchingMs >= 400) { touches++; touching = true; } }
               else { touchingMs = 0; touching = false; }
-              word = test.exercise === "ankle-flex" ? "LIIKUTA NILKKAA" : now < announceUntil ? "ALOITA · NOSTA TOINEN JALKA" : "PIDÄ ASENTO";
+              word = now < announceUntil ? baselineStartWord(test.exercise) : "";
             } else { touchingMs = 0; touching = false; }
             count = Math.max(0, Math.ceil(test.durationSeconds - total / 1000));
             if (total >= test.durationSeconds * 1000) {
@@ -117,9 +117,9 @@ export function BaselineCamera({ audioContext, test, bodyArea, side, onComplete,
         }}>{muted ? <VolumeX /> : <Volume2 />}</Button>
         <Button variant="secondary" onClick={onExit}>Jatka myöhemmin</Button>
       </div></header>
-      <main className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
+      <main className={`flex flex-1 flex-col items-center gap-5 text-center ${test.exercise === "ankle-flex" ? "justify-start" : "justify-center"}`}>
         {error ? <><p role="alert" className="camera-status">{error}</p><Button size="lg" onClick={() => setAttempt(n => n + 1)}>Kokeile uudelleen</Button></> : <>
-          <p role="status" className={`camera-word ${state.reliable ? "is-ok" : "is-wait"}`}>{state.word}</p>
+          {state.word && <p role="status" className={`camera-word ${state.reliable ? "is-ok" : "is-wait"}`}>{state.word}</p>}
           {state.count !== null && <p className="camera-count">{state.count}<span className="text-3xl">{state.active ? " s" : ""}</span></p>}
           <div className={`camera-guide ${state.reliable ? "is-ok" : "is-wait"}`} aria-hidden />
         </>}
