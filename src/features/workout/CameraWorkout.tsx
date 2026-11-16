@@ -95,7 +95,7 @@ export function CameraWorkout(props: Props) {
        }catch{setButterfly(null);setError("Liikkeentunnistus ei onnistunut. Voit jatkaa ilman kameraa.");return;}
      }
      const needsTwoFeet=p.exercise==="single-leg-balance"&&stage==="waiting"&&obs.reliable&&obs.lifted;
-     setOk(obs.reliable);setDots(mode==="camera"?(obs.dots??[]):[]);
+     setOk(obs.reliable&&!needsTwoFeet);setDots(mode==="camera"?(obs.dots??[]):[]);
      setWord(needsTwoFeet?"SEISO KAHDELLA JALALLA":!obs.reliable?(obs.hint??"ASETU KUVAAN"):stage==="calibrating"?"LIIKUTA NILKKAA":now<announceUntil?(p.exercise==="ankle-flex"?"ALOITA TOISTOT":"ALOITA"):stage==="active"?"":"HYVÄ ASENTO");
      const dt=Math.min(250,last?now-last:0);last=now;
      if(stage==="waiting"){
