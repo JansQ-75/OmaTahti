@@ -2,7 +2,7 @@
 export type CameraExercise = "ankle-flex" | "single-leg-balance";
 export interface Point { x: number; y: number; visibility?: number; i?: number }
 export type CameraHint = "ASETU KUVAAN" | "KAUEMMAS" | "LÄHEMMÄS" | "LISÄÄ VALOA";
-export interface Observation { reliable: boolean; hint?: CameraHint; dots?: Point[]; angle?: number; lifted?: boolean; center?: number; touching?: boolean }
+export interface Observation { reliable: boolean; hint?: CameraHint; dots?: Point[]; angle?: number; lifted?: boolean; liftedSide?: "vasen" | "oikea"; center?: number; touching?: boolean }
 export function observe(points: Point[], exercise: CameraExercise, side: "vasen" | "oikea", width: number, height: number): Observation {
   const left = side === "vasen";
   const ids = exercise === "ankle-flex" ? (left ? [25,27,29,31] : [26,28,30,32]) : [11,12,23,24,25,26,27,28];

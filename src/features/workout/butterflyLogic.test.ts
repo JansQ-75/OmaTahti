@@ -4,9 +4,9 @@ import { liftedKneeIndex, updateButterfly } from "./butterflyLogic";
 const obs = { reliable: true, lifted: true };
 const knee = { x: .6, y: .5, visibility: .9 };
 describe("workout butterfly", () => {
-  it("uses the free right knee when the rehabilitated left leg supports, and vice versa", () => {
-    expect(liftedKneeIndex("vasen")).toBe(26);
-    expect(liftedKneeIndex("oikea")).toBe(25);
+  it("uses the knee of the detected lifted leg, not an assumed support side", () => {
+    expect(liftedKneeIndex("vasen")).toBe(25);
+    expect(liftedKneeIndex("oikea")).toBe(26);
   });
   it("appears only when the free leg is raised with a reliable knee", () => {
     expect(updateButterfly(null, { ...obs, lifted: false }, knee, 1000)).toBeNull();

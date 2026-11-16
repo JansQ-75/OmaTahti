@@ -26,6 +26,6 @@ export function updateButterfly(previous: ButterflyState | null, observation: Ob
   };
 }
 
-export function liftedKneeIndex(supportSide: "vasen" | "oikea") {
-  return supportSide === "vasen" ? 26 : 25;
+export function liftedKneeIndex(liftedSide: "vasen" | "oikea") {
+  return liftedSide === "vasen" ? 25 : 26;
 }
