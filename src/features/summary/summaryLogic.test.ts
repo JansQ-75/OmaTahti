@@ -97,3 +97,12 @@ describe("physioSituationSummary", () => {
     expect(result.interruptedLast14Days).toBe(1);
   });
 });
+
+describe("physioSummarySentences", () => {
+  it("states facts for a new client without advice", async () => {
+    const { physioSummarySentences } = await import("./summaryLogic");
+    const lines = physioSummarySentences(client({}), new Date(NOW));
+    expect(lines[0]).toBe("Alkukartoitus on tekemättä, eikä harjoitusohjelmaa ole vielä aloitettu.");
+    expect(lines.join(" ")).not.toMatch(/harkitse|suosittel/i);
+  });
+});
