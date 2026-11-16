@@ -67,17 +67,20 @@ export function CameraWorkout(props: Props) {
      if(disposed)return;
      const now=performance.now(),p=latest.current;
       if(p.suspended || document.hidden){setButterfly(null);start=null;last=now;second=now;return;}
-     if(p.set!==currentSet){
-      // New set after a rest: no new calibration or settling; start straight away.
+      if(p.set!==currentSet){
+      // Later balance sets wait for a stable, two-footed stance and a fresh countdown.
       currentSet=p.set;reliableMs=0;totalMs=0;touches=0;touchSince=0;wasTouching=false;centerMin=Infinity;centerMax=-Infinity;
-      if(stage!=="waiting"){
+      start=null;previousCenter=undefined;previousCountdown=null;setCountdown(null);setButterfly(null);
+      if(p.exercise==="single-leg-balance"){
+       stage="waiting";setPhase("waiting");activeStart=0;second=now;last=now;
+      }else if(stage!=="waiting"){
        const c=calib.current;
        if(p.exercise==="ankle-flex"&&c){min=c.min;max=c.max;rep={min:c.min,max:c.max,smooth:c.min,phase:"low",lastRep:now};}
-       if(p.exercise!=="ankle-flex"||c){stage="active";setPhase("active");setCountdown(null);announceUntil=now+2000;activeStart=now;second=now;last=now;beep(880);}
+       if(p.exercise!=="ankle-flex"||c){stage="active";setPhase("active");announceUntil=now+2000;activeStart=now;second=now;last=now;beep(880);}
       }
      }
       if(stage==="done"){setButterfly(null);return;}
-      let obs: Observation;
+       let obs: Observation;
       {
       const v=video.current;if(!v||!model||v.readyState<2||v.currentTime===lastVideoTime)return;
       lastVideoTime=v.currentTime;
@@ -87,19 +90,21 @@ export function CameraWorkout(props: Props) {
         obs=observation;
          if(p.exercise==="single-leg-balance" && stage==="active"){
           const kneeIndex=observation.liftedSide?liftedKneeIndex(observation.liftedSide):undefined;
-          setButterfly(previous=>updateButterfly(previous,observation,kneeIndex===undefined?undefined:points[kneeIndex],now));
+           setButterfly(previous=>updateButterfly(previous,observation,kneeIndex===undefined?undefined:points[kneeIndex],now));
          }else setButterfly(null);
        }catch{setButterfly(null);setError("Liikkeentunnistus ei onnistunut. Voit jatkaa ilman kameraa.");return;}
      }
+     const needsTwoFeet=p.exercise==="single-leg-balance"&&stage==="waiting"&&obs.reliable&&obs.lifted;
      setOk(obs.reliable);setDots(mode==="camera"?(obs.dots??[]):[]);
-     setWord(!obs.reliable?(obs.hint??"ASETU KUVAAN"):stage==="calibrating"?"LIIKUTA NILKKAA":now<announceUntil?(p.exercise==="ankle-flex"?"ALOITA TOISTOT":"ALOITA"):stage==="active"?"":"HYVÄ ASENTO");
+     setWord(needsTwoFeet?"SEISO KAHDELLA JALALLA":!obs.reliable?(obs.hint??"ASETU KUVAAN"):stage==="calibrating"?"LIIKUTA NILKKAA":now<announceUntil?(p.exercise==="ankle-flex"?"ALOITA TOISTOT":"ALOITA"):stage==="active"?"":"HYVÄ ASENTO");
      const dt=Math.min(250,last?now-last:0);last=now;
      if(stage==="waiting"){
       const stationary = obs.center !== undefined && (previousCenter === undefined || Math.abs(obs.center-previousCenter)<.02);
       previousCenter=obs.center;
-      const ready=readyElapsed(start,now,stationary && obs.reliable);start=ready.start;setCountdown(ready.countdown);
+      const bothFeet=p.exercise!=="single-leg-balance"||obs.lifted===false;
+       const ready=readyElapsed(start,now,stationary && obs.reliable && bothFeet,currentSet===0?5:3);start=ready.start;setCountdown(ready.countdown);
       if(ready.countdown!==previousCountdown&&ready.countdown!==null)beep();previousCountdown=ready.countdown;
-      if(ready.ready){setCountdown(null);beep(880);stage=p.exercise==="ankle-flex"?"calibrating":"active";setPhase(stage);calibrationStart=now;activeStart=now;second=now;}
+      if(ready.ready){setCountdown(null);beep(880);stage=p.exercise==="ankle-flex"&&!calib.current?"calibrating":"active";setPhase(stage);calibrationStart=now;activeStart=now;second=now;if(stage==="active")announceUntil=now+2000;}
       return;
      }
      if(stage==="calibrating"){

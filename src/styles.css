@@ -153,8 +153,9 @@
 .camera-ui header, .camera-ui footer, .camera-status { background: color-mix(in oklch,var(--foreground) 45%,transparent); backdrop-filter: blur(6px); border-radius: .5rem; padding: .75rem; }
 .camera-count { font-size: 6rem; line-height:1; font-weight:700; font-variant-numeric:tabular-nums; }
 .camera-status { max-width: 42rem; font-size:1.5rem; font-weight:600; }
-.camera-guide { position:absolute; inset:22% 18% 26%; border:4px solid var(--warning); border-radius:1rem; pointer-events:none; z-index:-1; transition: border-color .2s, box-shadow .2s; }
-.camera-guide.is-ok { border-color: var(--success); box-shadow: 0 0 24px var(--success); }
+.camera-ui main { position:relative; }
+.camera-guide { position:absolute; inset:0; border:3px solid var(--warning); border-radius:1rem; box-shadow:0 0 16px color-mix(in oklch,var(--warning) 55%,transparent); pointer-events:none; transition:border-color .2s, box-shadow .2s; }
+.camera-guide.is-ok { border-color:var(--success); box-shadow:0 0 16px color-mix(in oklch,var(--success) 55%,transparent); }
 .camera-word { font-size: clamp(2rem,9vw,4.5rem); font-weight:800; letter-spacing:.02em; line-height:1.1; padding:.5rem 1.25rem; border-radius:1rem; background: color-mix(in oklch,var(--foreground) 45%,transparent); backdrop-filter: blur(6px); }
 .camera-word.is-wait { color: var(--warning); }
 .camera-word.is-ok { color: var(--success); }
@@ -174,13 +175,14 @@
 .butterfly-upper { fill:var(--butterfly-wing); stroke:var(--butterfly-detail); stroke-width:1.5; }
 .butterfly-lower { fill:var(--butterfly-wing-soft); stroke:var(--butterfly-detail); stroke-width:1.5; }
 .butterfly-mark { fill:none; stroke:var(--butterfly-detail); stroke-width:2; stroke-linecap:round; }
-.butterfly-center,.butterfly-head { fill:var(--butterfly-ink); }
+.butterfly-center { fill:var(--butterfly-ink); }
 .butterfly-antennae { fill:none; stroke:var(--butterfly-ink); stroke-width:1.5; stroke-linecap:round; }
-.butterfly-wing { transform-box:fill-box; transform-origin:right bottom; animation:butterfly-wings 3.2s ease-in-out infinite; }
-.butterfly-wing-back { opacity:.82; }
+.butterfly-wing { transform-box:fill-box; animation:butterfly-wings 2.4s ease-in-out infinite; }
+.butterfly-wing-left { transform-origin:right center; }
+.butterfly-wing-right { transform-origin:left center; }
 .butterfly-flutter .butterfly-wing { animation-duration:.7s; }
 .butterfly-takeoff { animation:butterfly-takeoff .9s ease-out both; }
 .butterfly-takeoff .butterfly-wing { animation-duration:.3s; }
-@keyframes butterfly-wings { 0%,100% { transform:scaleX(1); } 50% { transform:scaleX(.82); } }
+@keyframes butterfly-wings { 0%,100% { transform:scaleX(1); } 50% { transform:scaleX(.55); } }
 @keyframes butterfly-takeoff { from { transform:translate(0,0); opacity:1; } to { transform:translate(22px,-65px); opacity:0; } }
 @media(prefers-reduced-motion:reduce) { .butterfly-wing,.butterfly-takeoff { animation:none; } }
