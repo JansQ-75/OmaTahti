@@ -199,7 +199,7 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
         set={s.setIndex} sets={pe.sets} done={hold?s.seconds:s.reps} target={target} suspended={interrupting || !!rest}
         onRep={() => setS(cur => ({...cur,reps:Math.min(target,cur.reps+1)}))}
         onTick={() => setS(cur => ({...cur,seconds:Math.min(target,cur.seconds+1)}))}
-        onComplete={cameraComplete} onFallback={() => {setCameraOff(true);setRunning(false);}} onInterrupt={() => setInterrupting(true)} onExit={exitWorkout}
+        onComplete={cameraComplete} onFallback={() => {setCameraOff(true);setRunning(false);}} onInterrupt={() => setInterrupting(true)} started={setStarted} onExit={exitWorkout}
       /> : <>
 
       <div className="mx-auto flex min-h-full max-w-2xl flex-col px-5 py-5">

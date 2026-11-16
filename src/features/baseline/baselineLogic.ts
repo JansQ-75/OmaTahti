@@ -28,3 +28,11 @@ export function baselineComparison(client: Client) {
     other: client.baselineResults?.find(r => r.testId === test.id && r.bodyArea === client.intake?.bodyArea && r.side !== client.intake?.side),
   }));
 }
+type BaselineExercise = "ankle-flex" | "single-leg-balance";
+/** Countdown text: HYVÄ ASENTO until 3 s remain, then a test-specific prepare cue. */
+export function baselineCountdownWord(exercise: BaselineExercise, countdown: number | null) {
+  if (countdown === null || countdown > 3) return "HYVÄ ASENTO";
+  return exercise === "ankle-flex" ? "VALMISTAUDU LIIKUTTAMAAN NILKKAA" : "VALMISTAUDU NOSTAMAAN JALKA";
+}
+/** Shown for the first 2 s of a test; afterwards only the timer is visible. */
+export const baselineStartWord = (exercise: BaselineExercise) => exercise === "ankle-flex" ? "LIIKUTA NILKKAA" : "NOSTA JALKA";
