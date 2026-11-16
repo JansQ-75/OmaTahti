@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { BONES, observe, readyElapsed, validEstimate } from "@/features/workout/cameraLogic";
 import type { Point } from "@/features/workout/cameraLogic";
 import type { createPose } from "@/features/workout/pose";
+import { baselineCountdownWord, baselineStartWord } from "./baselineLogic";
 import type { BaselineTest } from "@/data/baselineTests";
 import type { BaselineResult, BodyArea } from "@/types";
 
