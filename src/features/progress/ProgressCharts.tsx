@@ -56,7 +56,7 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
 
   return (
     <div className="space-y-4">
-      {!compact && (
+      {!compact && showStats && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <StatCard
             icon={<Flame className="h-5 w-5" />}

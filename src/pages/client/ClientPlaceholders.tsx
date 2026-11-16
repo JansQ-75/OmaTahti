@@ -30,7 +30,8 @@ export function ClientProgressPage() {
   return (
     <div className="space-y-5">
       <PageHeader title="Edistyminen" subtitle="Harjoittelu, kipu, liikkuvuus ja tasapaino" />
-      {client && <ProgressCharts client={client} />}
+      {client && <ClientWeeklySummaryCard client={client} />}
+      {client && <ProgressCharts client={client} showStats={false} />}
       {client && (
         <details ref={intakeSection} id="oma-alkukartoitus" className="group scroll-mt-5 rounded-3xl border border-border bg-card shadow-sm">
           <summary className="flex cursor-pointer list-none items-center justify-between p-5 text-lg font-semibold">

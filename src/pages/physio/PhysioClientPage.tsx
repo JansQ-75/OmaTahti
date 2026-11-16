@@ -51,6 +51,7 @@ export function PhysioClientPage({ clientId }: { clientId: string }) {
       </div>
 
       <ContactsCard client={client} />
+      <PhysioSituationSummaryCard client={client} />
       <ProgressCard client={client} />
       <ProgressCharts client={client} compact showMobilityChart />
 
