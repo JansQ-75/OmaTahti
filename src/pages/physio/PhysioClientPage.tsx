@@ -1,13 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { BaselineSummary } from "@/features/baseline/BaselineSummary";
 import { intakeComplete } from "@/features/baseline/baselineLogic";
-import { ArrowLeft, ChevronDown, MessageCircle } from "lucide-react";
+import { ArrowLeft, ChevronDown } from "lucide-react";
 import { SoftCard, SourceBadge } from "@/components/common/Section";
 import { bodyAreaLabel } from "@/data/bodyAreas";
 import { getExercise } from "@/data/exercises";
 import { IntakeSummary, formatDate, timeSince } from "@/features/intake/IntakeSummary";
 import { answersFromIntake } from "@/features/intake/intakeLogic";
-import { hasContacted, progressSummary } from "@/features/physio/physioLogic";
+import { progressSummary } from "@/features/physio/physioLogic";
 import { ProgressCharts } from "@/features/progress/ProgressCharts";
 import { PhysioProgramEditor } from "@/features/program/PhysioProgramEditor";
 import { useAppData } from "@/hooks/useAppData";
@@ -35,11 +35,6 @@ export function PhysioClientPage({ clientId }: { clientId: string }) {
       <div>
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-2xl font-bold md:text-3xl">{client.name}</h1>
-          {hasContacted(client) && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2.5 py-1 text-xs font-semibold text-primary">
-              <MessageCircle className="h-3.5 w-3.5" /> Ottanut yhteyttä
-            </span>
-          )}
         </div>
         <p className="mt-1 text-muted-foreground">
           {client.intake
@@ -50,10 +45,8 @@ export function PhysioClientPage({ clientId }: { clientId: string }) {
         </p>
       </div>
 
-      <ContactsCard client={client} />
       <PhysioSituationSummaryCard client={client} />
       <ProgressCard client={client} />
-      <ProgressCharts client={client} compact showMobilityChart />
 
       <Fold title="Harjoitusohjelma">
         <PhysioProgramEditor client={client} bare />
@@ -94,36 +87,6 @@ function BackLink() {
   );
 }
 
-function ContactsCard({ client }: { client: Client }) {
-  const recent = client.messages.slice(-4);
-  return (
-    <SoftCard>
-      <h2 className="text-lg font-semibold">Yhteydenotot</h2>
-      {recent.length === 0 ? (
-        <p className="mt-2 text-muted-foreground">Asiakas ei ole vielä ottanut yhteyttä.</p>
-      ) : (
-        <ul className="mt-3 space-y-2">
-          {recent.map((m) => (
-            <li key={m.id} className={`rounded-xl p-3 text-sm ${m.from === "client" ? "bg-primary-soft" : "bg-muted"}`}>
-              <p className="text-xs font-medium text-muted-foreground">
-                {m.from === "client" ? client.firstName : "Sinä"} · {formatDate(m.date)}
-              </p>
-              <p className="mt-0.5">{m.text}</p>
-            </li>
-          ))}
-        </ul>
-      )}
-      <Link
-        to="/fysioterapeutti/viestit"
-        search={{ asiakas: client.id }}
-        className="mt-3 inline-block text-sm font-medium text-primary hover:underline"
-      >
-        Avaa keskustelu ja vastaa →
-      </Link>
-    </SoftCard>
-  );
-}
-
 function ProgressCard({ client }: { client: Client }) {
   const s = progressSummary(client, 14);
   const interrupted = client.sessions.filter((x) => x.status === "interrupted").slice(-3).reverse();
@@ -138,8 +101,8 @@ function ProgressCard({ client }: { client: Client }) {
       ) : (
         <>
           <div className="mt-3 grid grid-cols-2 gap-3">
-            <Figure label="Harjoituskerrat 14 pv" value={s.target ? `${s.completed} / ${s.target}` : String(s.completed)} />
-            <Figure label="Keskeytetyt 14 pv" value={String(s.interrupted)} />
+            <Figure label="Harjoituskerrat 2 viikon aikana" value={s.target ? `${s.completed} / ${s.target}` : String(s.completed)} />
+            <Figure label="Keskeytetyt harjoitukset 2 viikon aikana" value={String(s.interrupted)} />
           </div>
           <p className="mt-2 text-xs text-muted-foreground">Vain loppuun asti tehdyt harjoitukset lasketaan harjoituskerroiksi.</p>
 
@@ -189,6 +152,9 @@ function ProgressCard({ client }: { client: Client }) {
           )}
         </>
       )}
+      <div className="mt-5">
+        <ProgressCharts client={client} compact showMobilityChart />
+      </div>
     </SoftCard>
   );
 }

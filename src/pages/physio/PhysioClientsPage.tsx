@@ -1,11 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronRight, MessageCircle } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { PageHeader, SoftCard } from "@/components/common/Section";
 import { useAppData } from "@/hooks/useAppData";
 import { bodyAreaLabel } from "@/data/bodyAreas";
 import { getProgram } from "@/data/programs";
-import { hasContacted, lastClientMessage, sortForPhysio } from "@/features/physio/physioLogic";
-import { formatDate } from "@/features/intake/IntakeSummary";
+import { sortForPhysio } from "@/features/physio/physioLogic";
 
 export function PhysioClientsPage() {
   const data = useAppData();
@@ -13,11 +12,9 @@ export function PhysioClientsPage() {
 
   return (
     <div>
-      <PageHeader title="Asiakkaat" subtitle="Yhteyttä ottaneet asiakkaat näkyvät ensimmäisenä. Avaa asiakkaan tiedot kortista." />
+      <PageHeader title="Asiakkaat" subtitle="Avaa asiakkaan tiedot kortista." />
       <div className="grid gap-4 md:grid-cols-2">
         {sortForPhysio(data.clients).map((c) => {
-          const contacted = hasContacted(c);
-          const last = lastClientMessage(c);
           const status = !c.program
             ? "Ei vielä ohjelmaa"
             : c.program.status === "active"
@@ -42,28 +39,10 @@ export function PhysioClientsPage() {
                       {c.intake ? `${bodyAreaLabel(c.intake.bodyArea)} (${c.intake.side})` : c.intakeDraft ? "Alkukartoitus kesken" : "Alkukartoitus tekemättä"}
                     </p>
                   </div>
-                  {contacted ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2.5 py-1 text-xs font-semibold text-primary">
-                      <MessageCircle className="h-3.5 w-3.5" /> Ottanut yhteyttä
-                    </span>
-                  ) : (
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                  )}
+                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
                 </div>
-                {last && (
-                  <p className="mt-3 line-clamp-2 rounded-xl bg-primary-soft p-2.5 text-sm">
-                    <span className="text-muted-foreground">{formatDate(last.date)}: </span>
-                    {last.text}
-                  </p>
-                )}
-                {c.intake && (
-                  <p className="mt-3 text-sm">
-                    Alkukartoitus tehty {formatDate(c.intake.completedAt)} · kipu liikkuessa {c.intake.painLevel}/10
-                    {c.intake.redFlags.length > 0 && <span className="ml-1 font-semibold text-destructive">· hälytysmerkkejä</span>}
-                  </p>
-                )}
                 <p className="mt-3 text-sm">
-                  Ohjelman tila:{" "}
+                  Kuntoutuksen tila:{" "}
                   <span className={c.program?.status === "active" ? "font-medium text-success" : "font-medium text-accent-foreground"}>
                     {status}
                   </span>
