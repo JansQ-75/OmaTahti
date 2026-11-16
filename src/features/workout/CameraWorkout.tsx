@@ -85,8 +85,10 @@ export function CameraWorkout(props: Props) {
         const points=model.detectForVideo(v,now).landmarks[0]??[];
         const observation=observe(points,p.exercise,p.side,v.videoWidth,v.videoHeight);
         obs=observation;
-        if(p.exercise==="single-leg-balance" && stage==="active")setButterfly(previous=>updateButterfly(previous,observation,points[liftedKneeIndex(p.side)],now));
-        else setButterfly(null);
+         if(p.exercise==="single-leg-balance" && stage==="active"){
+          const kneeIndex=observation.liftedSide?liftedKneeIndex(observation.liftedSide):undefined;
+          setButterfly(previous=>updateButterfly(previous,observation,kneeIndex===undefined?undefined:points[kneeIndex],now));
+         }else setButterfly(null);
        }catch{setButterfly(null);setError("Liikkeentunnistus ei onnistunut. Voit jatkaa ilman kameraa.");return;}
      }
      setOk(obs.reliable);setDots(mode==="camera"?(obs.dots??[]):[]);

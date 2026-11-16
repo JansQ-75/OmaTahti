@@ -30,6 +30,14 @@ it("shows the butterfly only during active balance on a lifted leg, and hides it
   expect(view.container.querySelector(".workout-butterfly")).toBeNull();
 });
 
+it("anchors to the detected lifted knee when the rehabilitated side is right", async () => {
+  const view = render(<CameraWorkout {...props} side="oikea" exercise="single-leg-balance" />);
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Käytä kameraa" })); });
+  await advance(7200);
+  camera.lifted = true; await advance(100);
+  expect(view.container.querySelector(".workout-butterfly")?.getAttribute("transform")).toBe("translate(320 360)");
+});
+
 it("does not add butterfly feedback to ankle camera exercises", async () => {
   const view = render(<CameraWorkout {...props} exercise="ankle-flex" />);
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Käytä kameraa" })); });

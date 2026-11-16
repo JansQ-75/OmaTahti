@@ -29,9 +29,23 @@ describe("camera safety", () => {
   expect(observe(pts,"single-leg-balance","vasen",640,480).reliable).toBe(true);
  });
   it("withholds estimates when visibility coverage is unreliable", () => { expect(validEstimate(7000,10000)).toBe(false); expect(validEstimate(9000,10000)).toBe(true); });
-  it("stays reliable when the lifted leg's hip and knee are partly occluded", () => {
-   const pts=Array.from({length:33},(_,i)=>({x:.5,y:.1+i*.025,visibility:.9})); [24,26].forEach(i=>pts[i]={x:.5,y:.5,visibility:.5});
-   expect(observe(pts,"single-leg-balance","vasen",640,480).reliable).toBe(true);
+  it("stays reliable when the dynamically detected lifted leg is partly occluded", () => {
+   const pts=Array.from({length:33},(_,i)=>({x:.5,y:.1+i*.025,visibility:.9}));
+   pts[11]={x:.45,y:.2,visibility:.9};pts[12]={x:.55,y:.2,visibility:.9};pts[23]={x:.45,y:.5,visibility:.5};pts[24]={x:.55,y:.5,visibility:.9};
+   pts[25]={x:.45,y:.45,visibility:.5};pts[26]={x:.55,y:.7,visibility:.9};pts[27]={x:.45,y:.9,visibility:.9};pts[28]={x:.55,y:.9,visibility:.9};
+   const obs=observe(pts,"single-leg-balance","vasen",640,480);
+   expect(obs.reliable).toBe(true);expect(obs.liftedSide).toBe("vasen");expect(obs.lifted).toBe(true);
+  });
+  it("detects the same lifted leg when front-camera mirroring swaps anatomical labels", () => {
+   const pts=Array.from({length:33},(_,i)=>({x:.5,y:.1+i*.025,visibility:.9}));
+   pts[11]={x:.45,y:.2,visibility:.9};pts[12]={x:.55,y:.2,visibility:.9};pts[23]={x:.45,y:.5,visibility:.9};pts[24]={x:.55,y:.5,visibility:.9};
+   pts[25]={x:.45,y:.45,visibility:.9};pts[26]={x:.55,y:.7,visibility:.9};pts[27]={x:.45,y:.9,visibility:.9};pts[28]={x:.55,y:.9,visibility:.9};
+   const normal=observe(pts,"single-leg-balance","oikea",640,480);
+   const mirroredPoints=pts.map((point,i)=>({...point,x:1-point.x}));
+   for(const [a,b] of [[23,24],[25,26],[27,28]] as const){const point=mirroredPoints[a]!;mirroredPoints[a]=mirroredPoints[b]!;mirroredPoints[b]=point;}
+   const mirrored=observe(mirroredPoints,"single-leg-balance","oikea",640,480);
+   expect(normal).toMatchObject({reliable:true,lifted:true,liftedSide:"vasen",touching:false});
+   expect(mirrored).toMatchObject({reliable:true,lifted:true,liftedSide:"oikea",touching:false});
   });
   it("still asks for more light when the support leg is faint", () => {
    const pts=Array.from({length:33},(_,i)=>({x:.5,y:.1+i*.025,visibility:.9})); [23,25,27].forEach(i=>pts[i]={x:.5,y:.5,visibility:.5});

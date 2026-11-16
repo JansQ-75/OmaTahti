@@ -174,14 +174,13 @@
 .butterfly-upper { fill:var(--butterfly-wing); stroke:var(--butterfly-detail); stroke-width:1.5; }
 .butterfly-lower { fill:var(--butterfly-wing-soft); stroke:var(--butterfly-detail); stroke-width:1.5; }
 .butterfly-mark { fill:none; stroke:var(--butterfly-detail); stroke-width:2; stroke-linecap:round; }
-.butterfly-center { fill:var(--butterfly-ink); }
+.butterfly-center,.butterfly-head { fill:var(--butterfly-ink); }
 .butterfly-antennae { fill:none; stroke:var(--butterfly-ink); stroke-width:1.5; stroke-linecap:round; }
-.butterfly-wing { transform-box:fill-box; animation:butterfly-wings 2.4s ease-in-out infinite; }
-.butterfly-wing-left { transform-origin:right center; }
-.butterfly-wing-right { transform-origin:left center; }
+.butterfly-wing { transform-box:fill-box; transform-origin:right bottom; animation:butterfly-wings 3.2s ease-in-out infinite; }
+.butterfly-wing-back { opacity:.82; }
 .butterfly-flutter .butterfly-wing { animation-duration:.7s; }
 .butterfly-takeoff { animation:butterfly-takeoff .9s ease-out both; }
 .butterfly-takeoff .butterfly-wing { animation-duration:.3s; }
-@keyframes butterfly-wings { 0%,100% { transform:scaleX(1); } 50% { transform:scaleX(.55); } }
+@keyframes butterfly-wings { 0%,100% { transform:scaleX(1); } 50% { transform:scaleX(.82); } }
 @keyframes butterfly-takeoff { from { transform:translate(0,0); opacity:1; } to { transform:translate(22px,-65px); opacity:0; } }
 @media(prefers-reduced-motion:reduce) { .butterfly-wing,.butterfly-takeoff { animation:none; } }
