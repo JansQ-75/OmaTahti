@@ -12,12 +12,27 @@ export function observe(points: Point[], exercise: CameraExercise, side: "vasen"
   const dots = found.filter(q => (q.visibility ?? 0) >= .75 && inside(q));
   if (found.length < ids.length) return { reliable: false, hint: "ASETU KUVAAN", dots };
   if (found.some(q => !inside(q))) return { reliable: false, hint: "KAUEMMAS", dots };
-  // Single-leg balance: the lifted leg's hip/knee may be occluded at a high (e.g. 90°) knee lift,
-  // so accept MediaPipe's estimate at a lower threshold there; anchors (shoulders, support leg) stay strict.
-  const relaxed = exercise === "single-leg-balance" ? (left ? [24, 26] : [23, 25]) : [];
+  const p = (i: number) => points[i] ?? { x: 0, y: 0 };
+  let liftedSide: "vasen" | "oikea" | undefined;
+  let lifted = false;
+  let relaxed: number[] = [];
+  if (exercise === "single-leg-balance") {
+    const torso = Math.abs((p(23).y+p(24).y-p(11).y-p(12).y)/2);
+    // Front-camera mirroring can swap MediaPipe's anatomical labels. Compare both legs
+    // directly instead of assuming that the selected rehabilitation side is supporting.
+    const ankleDifference = p(27).y-p(28).y;
+    const kneeDifference = p(25).y-p(26).y;
+    const safeTorso = Math.max(torso,.001);
+    const rightLift = Math.max(ankleDifference/(safeTorso*.12),kneeDifference/(safeTorso*.15));
+    const leftLift = Math.max(-ankleDifference/(safeTorso*.12),-kneeDifference/(safeTorso*.15));
+    liftedSide = rightLift >= leftLift ? "oikea" : "vasen";
+    lifted = Math.max(rightLift,leftLift) > 1;
+    // At a high (e.g. 90°) lift only the detected free leg gets a lower visibility
+    // threshold; shoulders and the support leg remain strict anchors.
+    if (lifted) relaxed = liftedSide === "vasen" ? [23,25] : [24,26];
+  }
   const faint = (q: Point) => (q.visibility ?? 0) < (q.i !== undefined && relaxed.includes(q.i) ? .45 : .75);
   if (found.some(faint)) return { reliable: false, hint: found.every(q => (q.visibility ?? 0) < .3) ? "ASETU KUVAAN" : "LISÄÄ VALOA", dots };
-  const p = (i: number) => points[i] ?? { x: 0, y: 0 };
   if (exercise === "ankle-flex") {
     const k = p(left ? 25 : 26), a = p(left ? 27 : 28), h = p(left ? 29 : 30), t = p(left ? 31 : 32);
     const ux = (k.x-a.x)*width, uy = (k.y-a.y)*height, vx = (t.x-h.x)*width, vy = (t.y-h.y)*height;
@@ -25,13 +40,9 @@ export function observe(points: Point[], exercise: CameraExercise, side: "vasen"
     if (len < 150) return { reliable: false, hint: "LÄHEMMÄS", dots };
     return { reliable: true, dots, center: a.x, angle: Math.acos(Math.max(-1,Math.min(1,(ux*vx+uy*vy)/len)))*180/Math.PI };
   }
-  const support = p(left ? 27 : 28), free = p(left ? 28 : 27);
-  const supportKnee = p(left ? 25 : 26), freeKnee = p(left ? 26 : 25);
   const torso = Math.abs((p(23).y+p(24).y-p(11).y-p(12).y)/2);
   if (torso < .12) return { reliable: false, hint: "LÄHEMMÄS", dots };
-  // A lift counts when the free ankle is off the ground OR the free knee is clearly raised (high knee lift).
-  const lifted = support.y-free.y > torso*.12 || supportKnee.y-freeKnee.y > torso*.15;
-  return { reliable: true, dots, lifted, touching: !lifted, center: (p(11).x+p(12).x+p(23).x+p(24).x)/4 };
+  return { reliable: true, dots, lifted, liftedSide, touching: !lifted, center: (p(11).x+p(12).x+p(23).x+p(24).x)/4 };
 }
 export interface RepTracker { min: number; max: number; smooth: number; phase: "low" | "high"; lastRep: number }
 export function calibrated(min: number, max: number): boolean { return max-min >= 3; }
