@@ -116,3 +116,26 @@ export function physioSituationSummary(client: Client, now = new Date()): Physio
     hasData: client.sessions.length > 0 || client.painLog.length > 0 || client.assessments.length > 0,
   };
 }
+
+const fiDate = (iso: string) => new Date(iso).toLocaleDateString("fi-FI", { day: "numeric", month: "numeric" });
+
+/** 2–4 factual sentences for the physio. States facts only, never advice. */
+export function physioSummarySentences(client: Client, now = new Date()): string[] {
+  const s = physioSituationSummary(client, now);
+  const out: string[] = [];
+  if (!client.intake) out.push("Alkukartoitus on tekemättä, eikä harjoitusohjelmaa ole vielä aloitettu.");
+  else if (!client.program) out.push("Alkukartoitus on aloitettu, mutta harjoitusohjelmaa ei vielä ole.");
+  else {
+    out.push(`Asiakas on tehnyt tällä viikolla ${s.sessionsThisWeek} ${s.sessionsThisWeek === 1 ? "harjoituksen" : "harjoitusta"}${s.weeklyTarget !== null ? ` (tavoite ${s.weeklyTarget} viikossa)` : ""}.`);
+  }
+  if (s.latestPain !== null) {
+    const dir = s.painChange === null || s.painChange === 0 ? "pysynyt ennallaan" : s.painChange < 0 ? "laskenut" : "noussut";
+    out.push(s.firstPain !== null && s.painChange !== null ? `Kipu on ${dir} lähtötasosta ${s.firstPain}/10 tasolle ${s.latestPain}/10.` : `Viimeisin kipu on ${s.latestPain}/10.`);
+  }
+  if (s.interruptedLast14Days > 0) {
+    out.push(`Viimeisen 2 viikon aikana ${s.interruptedLast14Days} ${s.interruptedLast14Days === 1 ? "harjoitus on keskeytetty" : "harjoitusta on keskeytetty"}${s.interruptionReasons[0] ? ` (syy: ${s.interruptionReasons[0].toLowerCase()})` : ""}.`);
+  }
+  const last = [...client.messages].reverse().find((m) => m.from === "client");
+  if (last) out.push(`Viimeisin viesti asiakkaalta ${fiDate(last.date)}: ”${last.text}”`);
+  return out;
+}
