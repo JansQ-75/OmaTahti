@@ -20,7 +20,7 @@ function client(overrides: Partial<Client> = {}): Client {
 }
 
 describe("clientWeeklySummary", () => {
-  it("counts two completed sessions this week and excludes the interrupted session", () => {
+  it("counts only Monday's completed session this week and excludes the interrupted session", () => {
     const result = clientWeeklySummary(client({
       sessions: [
         { id: "1", exerciseId: "ankle-flex", date: "2026-11-16T08:00:00Z", status: "completed" },
