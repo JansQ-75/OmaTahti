@@ -7,6 +7,10 @@ Sovelluksen ideana on tarjota vaihtoehto perinteisille reaaliaikaisille etävast
 
 Projektin ensimmäinen demoversio on toteutettu [Lovable](https://lovable.dev/)-kehitysalustalla. Sovelluksen lähdekoodi on yhdistetty GitHubiin, mikä mahdollistaa projektin jatkokehityksen myös paikallisessa kehitysympäristössä.
 
+<p align="center">
+  <img src="src\assets\frontpage.png" alt="OmaTahdin etusivu" width="500">
+</p>
+
 ## Projektin tavoitteet
 
 OmaTahdin tavoitteena on:
