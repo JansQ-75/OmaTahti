@@ -32,6 +32,10 @@ export function mobilitySeries(assessments: MovementAssessment[], movement = "ni
       terve: a.otherSideDegrees,
       ero: a.otherSideDegrees !== undefined ? a.otherSideDegrees - a.valueDegrees! : undefined,
       source: a.source,
+      fullDate: new Date(a.date).toLocaleDateString("fi-FI"),
+      kind: a.kind,
+      setup: a.setup,
+      confidence: a.confidence,
     }));
 }
 
@@ -158,4 +162,42 @@ export function weekDots(sessions: ExerciseSession[], programIds: string[], now 
     const dots = Object.values(r.counts).reduce((a, b) => a + b, 0);
     return { day: r.day, dots, done, total: need.size, complete: need.size > 0 && done === need.size, counts: r.counts };
   });
+}
+
+/** Camera confidence colour band: ≥ 80 % good, 70–79 % moderate, < 70 % weak. */
+export function confidenceLevel(confidence: number): "good" | "moderate" | "weak" {
+  const pct = Math.round(confidence * 100);
+  return pct >= 80 ? "good" : pct >= 70 ? "moderate" : "weak";
+}
+
+/** Last `days` days (oldest first, today last) as dot rows, same completion rule as weekDots. */
+export function rangeDots(sessions: ExerciseSession[], programIds: string[], days = 14, now = new Date()) {
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+  const start = today.getTime() - (days - 1) * 86400000;
+  const rows = Array.from({ length: days }, (_, i) => {
+    const d = new Date(start + i * 86400000);
+    return { day: `${DAYS[(d.getDay() + 6) % 7]} ${d.getDate()}.${d.getMonth() + 1}.`, counts: {} as Record<string, number> };
+  });
+  const totals: Record<string, number> = {};
+  for (const s of sessions) {
+    if (s.status !== "completed") continue;
+    const d = new Date(s.date);
+    d.setHours(0, 0, 0, 0);
+    const i = Math.round((d.getTime() - start) / 86400000);
+    if (i < 0 || i >= days) continue;
+    for (const id of s.exerciseIds ?? [s.exerciseId]) {
+      rows[i]!.counts[id] = (rows[i]!.counts[id] ?? 0) + 1;
+      totals[id] = (totals[id] ?? 0) + 1;
+    }
+  }
+  const need = new Set(programIds);
+  return {
+    totals,
+    rows: rows.map((r) => {
+      const done = [...need].filter((id) => r.counts[id]).length;
+      const dots = Object.values(r.counts).reduce((a, b) => a + b, 0);
+      return { day: r.day, dots, done, total: need.size, complete: need.size > 0 && done === need.size, counts: r.counts };
+    }),
+  };
 }

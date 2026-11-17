@@ -1,7 +1,7 @@
 import { SoftCard, SourceBadge } from "@/components/common/Section";
 import { ProgressStats } from "@/features/progress/ProgressCharts";
 import type { Client } from "@/types";
-import { clientWeeklySummary, physioSummarySentences } from "./summaryLogic";
+import { clientWeeklySummary, physioLatestClientMessage, physioSummarySentences } from "./summaryLogic";
 
 function SummaryHeading({ title }: { title: string }) {
   return (
@@ -26,11 +26,18 @@ export function ClientWeeklySummaryCard({ client }: { client: Client }) {
 }
 
 export function PhysioSituationSummaryCard({ client }: { client: Client }) {
+  const message = physioLatestClientMessage(client);
   return (
     <SoftCard>
       <SummaryHeading title="Tilannekooste" />
-      <div className="mt-3 space-y-2 text-sm leading-relaxed">
+      <div className="mt-3 space-y-3 text-sm leading-relaxed sm:text-base">
         {physioSummarySentences(client).map((line) => <p key={line}>{line}</p>)}
+        {message && (
+          <div>
+            <p>Viimeisin viesti asiakkaalta ({message.date}):</p>
+            <blockquote className="mt-1 border-l-4 border-primary pl-3 italic text-muted-foreground">”{message.text}”</blockquote>
+          </div>
+        )}
       </div>
     </SoftCard>
   );

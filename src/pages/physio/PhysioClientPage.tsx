@@ -2,13 +2,14 @@ import { Link } from "@tanstack/react-router";
 import { BaselineSummary } from "@/features/baseline/BaselineSummary";
 import { intakeComplete } from "@/features/baseline/baselineLogic";
 import { ArrowLeft, ChevronDown } from "lucide-react";
-import { SoftCard, SourceBadge } from "@/components/common/Section";
+import { SoftCard } from "@/components/common/Section";
 import { bodyAreaLabel } from "@/data/bodyAreas";
 import { getExercise } from "@/data/exercises";
 import { IntakeSummary, formatDate, timeSince } from "@/features/intake/IntakeSummary";
 import { answersFromIntake } from "@/features/intake/intakeLogic";
 import { progressSummary } from "@/features/physio/physioLogic";
-import { ProgressCharts } from "@/features/progress/ProgressCharts";
+import { DotWeek, ProgressCharts } from "@/features/progress/ProgressCharts";
+import { rangeDots } from "@/features/progress/progressLogic";
 import { PhysioProgramEditor } from "@/features/program/PhysioProgramEditor";
 import { useAppData } from "@/hooks/useAppData";
 import type { Client } from "@/types";
@@ -106,6 +107,8 @@ function ProgressCard({ client }: { client: Client }) {
           </div>
           <p className="mt-2 text-xs text-muted-foreground">Vain loppuun asti tehdyt harjoitukset lasketaan harjoituskerroiksi.</p>
 
+          <TwoWeekTraining client={client} />
+
           {interrupted.length > 0 && (
             <div className="mt-5">
               <h3 className="font-semibold">Keskeytetyt harjoitukset</h3>
@@ -126,30 +129,6 @@ function ProgressCard({ client }: { client: Client }) {
             </div>
           )}
 
-          {assessments.length > 0 && (
-            <div className="mt-5">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="font-semibold">Liikkuvuusarviot</h3>
-                <SourceBadge source="camera" />
-              </div>
-              <ul className="mt-2 divide-y divide-border text-sm">
-                {assessments.map((a) => (
-                  <li key={a.id} className="flex flex-wrap justify-between gap-2 py-2">
-                    <span>
-                      {formatDate(a.date)} · {a.movement} ({a.kind === "baseline" ? "lähtötaso" : "seuranta"})
-                    </span>
-                    <span className="font-medium">
-                      {a.valueDegrees ?? "–"}°{a.otherSideDegrees !== undefined && <span className="font-normal text-muted-foreground"> (toinen puoli {a.otherSideDegrees}°)</span>}
-                    </span>
-                    <span className="w-full text-xs text-muted-foreground">
-                      Kuvattu {a.setup.view}, {a.setup.distanceMeters} m, valaistus {a.setup.lighting} · luotettavuus {Math.round(a.confidence * 100)} %
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-1 text-xs text-muted-foreground">Kamera-arvio, ei kliininen mittaus.</p>
-            </div>
-          )}
         </>
       )}
       <div className="mt-5">
@@ -164,6 +143,27 @@ function Figure({ label, value }: { label: string; value: string }) {
     <div className="rounded-2xl bg-primary-soft p-3 text-center">
       <p className="text-xl font-bold">{value}</p>
       <p className="text-xs text-muted-foreground">{label}</p>
+    </div>
+  );
+}
+
+function TwoWeekTraining({ client }: { client: Client }) {
+  const programIds = client.program?.exercises.map((e) => e.exerciseId) ?? [];
+  const { rows, totals } = rangeDots(client.sessions, programIds, 14);
+  const ids = [...new Set([...programIds, ...Object.keys(totals)])];
+  return (
+    <div className="mt-5">
+      <h3 className="font-semibold">Harjoittelu 2 viikon aikana</h3>
+      <p className="mt-1 text-xs text-muted-foreground">Yksi pallo = yksi tehty liike. Vihreä päivä = kaikki ohjelman liikkeet tehty. Keskeytetyt eivät näy.</p>
+      <div className="mt-3"><DotWeek rows={rows} programIds={programIds} cols={14} /></div>
+      <ul className="mt-3 divide-y divide-border text-sm">
+        {ids.map((id) => (
+          <li key={id} className="flex justify-between gap-3 py-2">
+            <span>{getExercise(id)?.name ?? id}</span>
+            <span className="font-semibold">{totals[id] ?? 0} krt</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

@@ -71,3 +71,28 @@ describe("weekDots", () => {
     expect(d.complete).toBe(true);
   });
 });
+
+import { confidenceLevel, rangeDots } from "./progressLogic";
+describe("confidenceLevel", () => {
+  it("colours ≥80 % green, 70–79 % yellow, <70 % red", () => {
+    expect(confidenceLevel(0.82)).toBe("good");
+    expect(confidenceLevel(0.8)).toBe("good");
+    expect(confidenceLevel(0.71)).toBe("moderate");
+    expect(confidenceLevel(0.69)).toBe("weak");
+  });
+});
+describe("rangeDots", () => {
+  const now = new Date(2026, 10, 17, 12);
+  const at = (d: number) => new Date(2026, 10, 17 - d, 9).toISOString();
+  it("covers 14 days and ignores interrupted and older sessions", () => {
+    const r = rangeDots([
+      { id: "1", exerciseId: "a", date: at(0), status: "completed" },
+      { id: "2", exerciseId: "a", date: at(13), status: "completed" },
+      { id: "3", exerciseId: "a", date: at(14), status: "completed" },
+      { id: "4", exerciseId: "a", date: at(2), status: "interrupted" },
+    ], ["a"], 14, now);
+    expect(r.rows).toHaveLength(14);
+    expect(r.totals["a"]).toBe(2);
+    expect(r.rows[13]!.complete).toBe(true);
+  });
+});

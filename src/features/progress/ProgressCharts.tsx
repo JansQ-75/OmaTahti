@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, LabelList, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Flame, Gauge, HelpCircle, TrendingDown, TrendingUp } from "lucide-react";
 import { SoftCard, SourceBadge } from "@/components/common/Section";
 import { getExercise } from "@/data/exercises";
@@ -8,6 +8,7 @@ import type { Client } from "@/types";
 import {
   BALANCE_LEVELS,
   BALANCE_TARGET_S,
+  confidenceLevel,
   balanceLevel,
   balanceSeries,
   hasProgressData,
@@ -96,7 +97,7 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
                   Lähtötaso: {lsi.baseline} → Kehitys: <span className="font-semibold text-success">{lsi.change >= 0 ? "+" : ""}{lsi.change} pistettä</span>
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Mitatut asteet: Kuntoutettava {lsi.kuntoutettava}° | Terve puoli {lsi.terve}° (puoliero {lsi.ero}°)
+                  Viimeisimmät mitatut asteet: Kuntoutettava {lsi.kuntoutettava}° | Terve puoli {lsi.terve}° (puoliero {lsi.ero}°)
                 </p>
               </div>
             ) : null}
@@ -106,10 +107,14 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
                   <CartesianGrid stroke={grid} vertical={false} />
                   <XAxis dataKey="date" tick={axis} />
                   <YAxis unit="°" tick={axis} />
-                  <Tooltip {...tip} formatter={(v, n) => [`${v}°`, n === "kuntoutettava" ? "Kuntoutettava puoli" : "Terve puoli"]} />
+                  <Tooltip cursor={{ fill: "var(--muted)", opacity: 0.4 }} content={<MobilityTip />} />
                   <Legend formatter={(v) => (v === "kuntoutettava" ? "Kuntoutettava puoli" : "Terve puoli")} />
-                  <Bar dataKey="kuntoutettava" fill="var(--primary)" radius={[6, 6, 0, 0]} />
-                  <Bar dataKey="terve" fill="var(--muted-foreground)" fillOpacity={0.35} radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="kuntoutettava" fill="var(--primary)" radius={[6, 6, 0, 0]}>
+                    <LabelList dataKey="kuntoutettava" position="insideTop" formatter={(v: unknown) => `${v}°`} style={{ fill: "var(--primary-foreground)", fontSize: 12, fontWeight: 700 }} />
+                  </Bar>
+                  <Bar dataKey="terve" fill="var(--muted-foreground)" fillOpacity={0.35} radius={[6, 6, 0, 0]}>
+                    <LabelList dataKey="terve" position="insideTop" formatter={(v: unknown) => `${v}°`} style={{ fill: "var(--foreground)", fontSize: 12, fontWeight: 700 }} />
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -146,7 +151,7 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
               Taso {balNow.level} / 5: {BALANCE_LEVELS[balNow.level - 1]!.name}
             </p>
             <p className="text-sm text-muted-foreground">
-              Pitoaika {balNow.sekunnit} / {BALANCE_TARGET_S} s | {balNow.kosketukset === 0 ? "Ei maakosketuksia" : `${balNow.kosketukset} maakosketusta`}
+              Viimeisin suoritus: Pitoaika {balNow.sekunnit} / {BALANCE_TARGET_S} s | {balNow.kosketukset === 0 ? "Ei maakosketuksia" : `${balNow.kosketukset} maakosketusta`}
             </p>
             {balNow.sway !== undefined && <p className="text-sm text-muted-foreground">Huojunta-arvio: vartalon sivuttaisvaihtelu {Math.round(balNow.sway*1000)/10} % kuvan leveydestä.</p>}
             <p className="mt-2 text-sm">
@@ -289,7 +294,28 @@ function Empty({ text = "Ei vielä merkintöjä." }: { text?: string }) {
 
 const FULL_DAYS: Record<string, string> = { Ma: "Maanantai", Ti: "Tiistai", Ke: "Keskiviikko", To: "Torstai", Pe: "Perjantai", La: "Lauantai", Su: "Sunnuntai" };
 
-function DotWeek({ rows, programIds }: { rows: { day: string; dots: number; done: number; total: number; complete: boolean; counts: Record<string, number>; tavoite?: number | undefined }[]; programIds: string[] }) {
+const CONF_CLASS = { good: "bg-success-soft text-success", moderate: "bg-warning-soft text-warning", weak: "bg-destructive/10 text-destructive" } as const;
+const CONF_LABEL = { good: "hyvä", moderate: "kohtalainen", weak: "heikko" } as const;
+
+type MobilityPoint = { fullDate: string; kind: "baseline" | "follow-up"; kuntoutettava: number; terve?: number; ero?: number; setup: { view: string; distanceMeters?: number; lighting?: string }; confidence: number };
+function MobilityTip({ active, payload }: { active?: boolean; payload?: { payload: MobilityPoint }[] }) {
+  const p = active ? payload?.[0]?.payload : undefined;
+  if (!p) return null;
+  const level = confidenceLevel(p.confidence);
+  return (
+    <div className="max-w-xs rounded-xl border border-border bg-card p-3 text-sm shadow-md">
+      <p className="font-semibold">{p.fullDate} · {p.kind === "baseline" ? "Alkukartoitus" : "Seuranta"}</p>
+      <p className="mt-1">Kuntoutettava puoli: <strong>{p.kuntoutettava}°</strong></p>
+      {p.terve !== undefined && <p>Terve puoli: <strong>{p.terve}°</strong>{p.ero !== undefined && <span className="text-muted-foreground"> (puoliero {p.ero}°)</span>}</p>}
+      <p className="mt-1 text-xs text-muted-foreground">
+        Kuvattu {p.setup.view}{p.setup.distanceMeters !== undefined && `, ${p.setup.distanceMeters} m`}{p.setup.lighting && `, valaistus ${p.setup.lighting}`}
+      </p>
+      <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${CONF_CLASS[level]}`}>Luotettavuus {Math.round(p.confidence * 100)} % ({CONF_LABEL[level]})</span>
+    </div>
+  );
+}
+
+export function DotWeek({ rows, programIds, cols = 7 }: { cols?: number; rows: { day: string; dots: number; done: number; total: number; complete: boolean; counts: Record<string, number>; tavoite?: number | undefined }[]; programIds: string[] }) {
   const [sel, setSel] = useState<string | null>(null);
   const D = 18, STEP = 13, GAP = 10;
   const programSet = new Set(programIds);
@@ -329,7 +355,7 @@ function DotWeek({ rows, programIds }: { rows: { day: string; dots: number; done
     <div>
       <div>
         <div>
-          <div className="relative grid grid-cols-7 gap-1">
+          <div className="relative grid gap-0.5 sm:gap-1" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
             {rows.map((r) => {
               const { green, blue } = split(r);
               const tip = tipOf(r);
@@ -343,7 +369,7 @@ function DotWeek({ rows, programIds }: { rows: { day: string; dots: number; done
                     {green > 0 && blue > 0 && <div style={{ height: GAP }} />}
                     {blue > 0 && stack(blue, "bg-primary")}
                   </div>
-                  <span className="mt-2 text-xs text-muted-foreground">{r.day}</span>
+                  {r.day.split(" ").map((part, i) => <span key={i} className={`${i ? "" : "mt-2 "}text-[11px] leading-tight text-muted-foreground sm:text-xs`}>{part}</span>)}
                 </button>
               );
             })}
