@@ -32,14 +32,14 @@ export function PhysioClientsPage() {
               aria-label={`Avaa asiakkaan ${c.name} tiedot`}
             >
               <SoftCard className="h-full">
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center justify-between gap-3">
                   <div>
                     <h2 className="text-lg font-semibold">{c.name}</h2>
                     <p className="text-sm text-muted-foreground">
                       {c.intake ? `${bodyAreaLabel(c.intake.bodyArea)} (${c.intake.side})` : c.intakeDraft ? "Alkukartoitus kesken" : "Alkukartoitus tekemättä"}
                     </p>
                   </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                  <ChevronRight className="h-7 w-7 shrink-0 self-center text-muted-foreground" />
                 </div>
                 <p className="mt-3 text-sm">
                   Kuntoutuksen tila:{" "}
@@ -48,7 +48,7 @@ export function PhysioClientsPage() {
                   </span>
                 </p>
                 {programName && <p className="mt-1 text-sm text-muted-foreground">{programName}</p>}
-                <p className="mt-3 text-sm font-semibold text-primary">Avaa tiedot →</p>
+                
               </SoftCard>
             </Link>
           );

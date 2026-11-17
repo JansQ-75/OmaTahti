@@ -41,7 +41,7 @@ export function PhysioSituationSummaryCard({ client }: { client: Client }) {
           <div>
             <h3 className="border-l-4 border-primary pl-2 text-xs font-bold uppercase tracking-wider text-primary">Yhteydenotto</h3>
             <p className="mt-1.5">Viimeisin viesti asiakkaalta ({message.date}):</p>
-            <blockquote className="mt-1 border-l-4 border-primary pl-3 italic text-muted-foreground">”{message.text}”</blockquote>
+            <blockquote className="mt-1 text-sm italic text-muted-foreground">”{message.text}”</blockquote>
           </div>
         )}
       </div>

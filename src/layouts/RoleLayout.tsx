@@ -89,7 +89,7 @@ export function RoleLayout({ role, items, roleLabel }: { role: Role; items: NavI
           <Logo />
           <span className="text-xs font-medium text-muted-foreground">{roleLabel}</span>
         </header>
-        <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-28 pt-6 md:px-10 md:pb-12 md:pt-10">
+        <main className="mx-auto w-full max-w-5xl xl:max-w-7xl flex-1 px-4 pb-28 pt-6 md:px-10 md:pb-12 md:pt-10">
           <Outlet />
         </main>
       </div>

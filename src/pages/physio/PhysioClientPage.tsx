@@ -31,7 +31,7 @@ export function PhysioClientPage({ clientId }: { clientId: string }) {
     );
   }
 
-  return (
+    return (
     <div className="space-y-5">
       <BackLink />
       <div>
@@ -47,26 +47,47 @@ export function PhysioClientPage({ clientId }: { clientId: string }) {
         </p>
       </div>
 
-      <PhysioSituationSummaryCard client={client} />
-      <ProgressCard client={client} />
+      {/* Responsiivinen 2-sarakkeinen grid: 1 sarake mobiilissa/tabletissa, 2 saraketta xl-koossa (≥1280px) */}
+      <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-2">
+        {/* VASEN SARAKE */}
+        <div className="space-y-5">
+          <PhysioSituationSummaryCard client={client} />
 
-      <Fold title="Harjoitusohjelma">
-        <PhysioProgramEditor client={client} bare />
-      </Fold>
+          <Fold title="Harjoitusohjelma">
+            <PhysioProgramEditor client={client} bare />
+          </Fold>
 
-      <Fold title="Alkukartoitus">
-        {client.intake && !intakeComplete(client) && <p className="mb-4 font-semibold text-primary">Alkukartoitus on kesken · kameratestit puuttuvat</p>}
-        <BaselineSummary client={client} />
-        {client.intake ? (
-          <IntakeSummary audience="physio" answers={answersFromIntake(client.intake)} completedAt={client.intake.completedAt} />
-        ) : (
-          <p className="text-muted-foreground">
-            {client.intakeDraft ? "Asiakas on aloittanut alkukartoituksen, mutta ei ole vielä tallentanut sitä." : "Asiakas ei ole vielä tehnyt alkukartoitusta."}
-          </p>
-        )}
-      </Fold>
+          <Fold title="Alkukartoitus">
+            {client.intake && !intakeComplete(client) && (
+              <p className="mb-4 font-semibold text-primary">
+                Alkukartoitus on kesken · kameratestit puuttuvat
+              </p>
+            )}
+            <BaselineSummary client={client} />
+            {client.intake ? (
+              <IntakeSummary
+                audience="physio"
+                answers={answersFromIntake(client.intake)}
+                completedAt={client.intake.completedAt}
+              />
+            ) : (
+              <p className="text-muted-foreground">
+                {client.intakeDraft
+                  ? "Asiakas on aloittanut alkukartoituksen, mutta ei ole vielä tallentanut sitä."
+                  : "Asiakas ei ole vielä tehnyt alkukartoitusta."}
+              </p>
+            )}
+          </Fold>
+        </div>
+
+        {/* OIKEA SARAKE */}
+        <div className="space-y-5">
+          <ProgressCard client={client} />
+        </div>
+      </div>
     </div>
   );
+
 }
 
 function Fold({ title, children }: { title: string; children: React.ReactNode }) {
