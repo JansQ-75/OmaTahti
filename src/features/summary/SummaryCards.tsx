@@ -29,11 +29,17 @@ export function PhysioSituationSummaryCard({ client }: { client: Client }) {
   const message = physioLatestClientMessage(client);
   return (
     <SoftCard>
-      <SummaryHeading title="Tilannekooste" />
+      <SummaryHeading title="Pikakatsaus" />
       <div className="mt-3 space-y-3 text-sm leading-relaxed sm:text-base">
-        {physioSummarySentences(client).map((line) => <p key={line}>{line}</p>)}
+        {physioSummarySentences(client).map((line, i) => (
+          <div key={line}>
+            <h3 className="font-semibold text-foreground">{i === 0 ? "Harjoitukset" : "Kiputilanne"}</h3>
+            <p>{line}</p>
+          </div>
+        ))}
         {message && (
           <div>
+            <h3 className="font-semibold text-foreground">Yhteydenotto</h3>
             <p>Viimeisin viesti asiakkaalta ({message.date}):</p>
             <blockquote className="mt-1 border-l-4 border-primary pl-3 italic text-muted-foreground">”{message.text}”</blockquote>
           </div>

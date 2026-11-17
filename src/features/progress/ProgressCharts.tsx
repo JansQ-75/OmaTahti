@@ -50,10 +50,7 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
   const balNow = balLevels.at(-1);
   const balFirst = balLevels[0];
 
-  return (
-    <div className="space-y-4">
-      {!compact && showStats && <ProgressStats client={client} />}
-
+  const painChart = (
       <ChartCard title="Kivun kehitys" badge={<SourceBadge source="client-reported" />} note="Kipu kirjataan harjoituksen jälkeen (0–10).">
         {pain.length ? (
           <ResponsiveContainer width="100%" height={200}>
@@ -67,6 +64,13 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
           </ResponsiveContainer>
         ) : <Empty />}
       </ChartCard>
+  );
+
+  return (
+    <div className="space-y-4">
+      {!compact && showStats && <ProgressStats client={client} />}
+
+      {!compact && painChart}
 
       <ChartCard
         title="Liikkuvuuden symmetriaindeksi"
@@ -95,9 +99,6 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
                 </div>
                 <p className="mt-3 text-sm">
                   Lähtötaso: {lsi.baseline} → Kehitys: <span className="font-semibold text-success">{lsi.change >= 0 ? "+" : ""}{lsi.change} pistettä</span>
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Viimeisimmät mitatut asteet: Kuntoutettava {lsi.kuntoutettava}° | Terve puoli {lsi.terve}° (puoliero {lsi.ero}°)
                 </p>
               </div>
             ) : null}
@@ -160,6 +161,8 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
           </>
         ) : <Empty text="Tasapainon arvio kertyy luotettavasta kameraseurannasta." />}
       </ChartCard>
+
+      {compact && painChart}
 
       {!compact && (
   <ChartCard title="Tämän viikon harjoittelu" note="Yksi pallo = yksi tehty liike. Vihreä päivä = kaikki ohjelman eri liikkeet tehty. Keskeytetyt eivät näy.">
