@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { BaselineSummary } from "@/features/baseline/BaselineSummary";
 import { intakeComplete } from "@/features/baseline/baselineLogic";
 import { ArrowLeft, ChevronDown } from "lucide-react";
+import { useState } from "react";
 import { SoftCard } from "@/components/common/Section";
 import { bodyAreaLabel } from "@/data/bodyAreas";
 import { getExercise } from "@/data/exercises";
@@ -71,7 +72,7 @@ export function PhysioClientPage({ clientId }: { clientId: string }) {
 function Fold({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <details className="group rounded-3xl border border-border bg-card shadow-sm">
-      <summary className="flex cursor-pointer list-none items-center justify-between p-5 text-lg font-semibold">
+      <summary className="flex cursor-pointer list-none items-center justify-between p-5 text-xl font-bold tracking-tight sm:text-2xl">
         {title}
         <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-open:rotate-180" />
       </summary>
@@ -90,13 +91,15 @@ function BackLink() {
 
 function ProgressCard({ client }: { client: Client }) {
   const s = progressSummary(client, 14);
-  const interrupted = client.sessions.filter((x) => x.status === "interrupted").slice(-3).reverse();
+  const [showAll, setShowAll] = useState(false);
+  const allInterrupted = client.sessions.filter((x) => x.status === "interrupted").reverse();
+  const interrupted = showAll ? allInterrupted : allInterrupted.slice(0, 3);
   const assessments = [...client.assessments].sort((a, b) => a.date.localeCompare(b.date));
   const empty = client.sessions.length === 0 && client.painLog.length === 0 && assessments.length === 0;
 
   return (
     <SoftCard>
-      <h2 className="text-lg font-semibold">Edistyminen ja kipuseuranta</h2>
+      <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Edistyminen ja kipuseuranta</h2>
       {empty ? (
         <p className="mt-2 text-muted-foreground">Harjoittelu- ja kipukirjauksia ei vielä ole.</p>
       ) : (
@@ -126,6 +129,11 @@ function ProgressCard({ client }: { client: Client }) {
                   </li>
                 ))}
               </ul>
+              {allInterrupted.length > 3 && (
+                <button type="button" onClick={() => setShowAll(!showAll)} className="mt-2 min-h-10 text-sm font-semibold text-primary hover:underline">
+                  {showAll ? "Näytä vähemmän" : `Näytä kaikki (${allInterrupted.length})`}
+                </button>
+              )}
             </div>
           )}
 

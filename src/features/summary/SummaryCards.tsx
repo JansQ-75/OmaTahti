@@ -6,7 +6,7 @@ import { clientWeeklySummary, physioLatestClientMessage, physioSummarySentences 
 function SummaryHeading({ title }: { title: string }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-2">
-      <h2 className="text-lg font-semibold">{title}</h2>
+      <h2 className="text-xl font-bold tracking-tight sm:text-2xl">{title}</h2>
       <SourceBadge source="ai-summary" />
     </div>
   );
@@ -30,17 +30,17 @@ export function PhysioSituationSummaryCard({ client }: { client: Client }) {
   return (
     <SoftCard>
       <SummaryHeading title="Pikakatsaus" />
-      <div className="mt-3 space-y-3 text-sm leading-relaxed sm:text-base">
+      <div className="mt-4 space-y-5 text-sm leading-relaxed sm:text-base">
         {physioSummarySentences(client).map((line, i) => (
           <div key={line}>
-            <h3 className="font-semibold text-foreground">{i === 0 ? "Harjoitukset" : "Kiputilanne"}</h3>
-            <p>{line}</p>
+            <h3 className="border-l-4 border-primary pl-2 text-xs font-bold uppercase tracking-wider text-primary">{i === 0 ? "Harjoitukset" : "Kiputilanne"}</h3>
+            <p className="mt-1.5">{line}</p>
           </div>
         ))}
         {message && (
           <div>
-            <h3 className="font-semibold text-foreground">Yhteydenotto</h3>
-            <p>Viimeisin viesti asiakkaalta ({message.date}):</p>
+            <h3 className="border-l-4 border-primary pl-2 text-xs font-bold uppercase tracking-wider text-primary">Yhteydenotto</h3>
+            <p className="mt-1.5">Viimeisin viesti asiakkaalta ({message.date}):</p>
             <blockquote className="mt-1 border-l-4 border-primary pl-3 italic text-muted-foreground">”{message.text}”</blockquote>
           </div>
         )}
