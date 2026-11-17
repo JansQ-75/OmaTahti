@@ -5,6 +5,7 @@ import { BONES, calibrated, observe, readyElapsed, trackRep, validEstimate } fro
 import type { CameraExercise, Observation, RepTracker, TrackingEstimate } from "./cameraLogic";
 import type { createPose } from "./pose";
 import { Butterfly } from "./Butterfly";
+import { baselineCountdownWord, baselineStartWord } from "@/features/baseline/baselineLogic";
 import { liftedKneeIndex, updateButterfly } from "./butterflyLogic";
 import type { ButterflyState } from "./butterflyLogic";
 
@@ -96,7 +97,7 @@ export function CameraWorkout(props: Props) {
      }
      const needsTwoFeet=p.exercise==="single-leg-balance"&&stage==="waiting"&&obs.reliable&&obs.lifted;
      setOk(obs.reliable&&!needsTwoFeet);setDots(mode==="camera"?(obs.dots??[]):[]);
-     setWord(needsTwoFeet?"SEISO KAHDELLA JALALLA":!obs.reliable?(obs.hint??"ASETU KUVAAN"):stage==="calibrating"?"LIIKUTA NILKKAA":now<announceUntil?(p.exercise==="ankle-flex"?"ALOITA TOISTOT":"ALOITA"):stage==="active"?"":"HYVÄ ASENTO");
+     setWord(needsTwoFeet?"SEISO KAHDELLA JALALLA":!obs.reliable?(obs.hint??"ASETU KUVAAN"):stage==="calibrating"?"LIIKUTA NILKKAA":now<announceUntil?baselineStartWord(p.exercise):stage==="active"?"":baselineCountdownWord(p.exercise,previousCountdown));
      const dt=Math.min(250,last?now-last:0);last=now;
      if(stage==="waiting"){
       const stationary = obs.center !== undefined && (previousCenter === undefined || Math.abs(obs.center-previousCenter)<.02);
@@ -148,7 +149,7 @@ export function CameraWorkout(props: Props) {
    {mode==="camera" && hold && phase==="active" && !props.suspended && !error && butterfly && <svg className="camera-butterfly" viewBox={`0 0 ${video.current?.videoWidth||640} ${video.current?.videoHeight||480}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true"><Butterfly state={butterfly} width={video.current?.videoWidth||640} height={video.current?.videoHeight||480}/></svg>}
   <div className="camera-ui">
    <header className="flex flex-wrap items-center justify-between gap-3"><div><p className="font-semibold">{props.name}</p><p className="text-sm">Sarja {props.set+1} / {props.sets} · {props.side} kuntoutettava puoli</p></div><div className="flex gap-2"><Button variant="secondary" size="icon" className="rounded-full" aria-label={muted?"Äänimerkit päälle":"Äänimerkit pois"} title={muted?"Äänimerkit päälle":"Äänimerkit pois"} onClick={()=>{sound.current=muted;setMuted(!muted);}}>{muted?<VolumeX/>:<Volume2/>}</Button>{(phase==="active"||props.started)?<Button variant="destructive" size="icon" className="rounded-full" aria-label="Keskeytä" title="Keskeytä" onClick={props.onInterrupt}><X/></Button>:<Button variant="secondary" className="rounded-full px-4 text-sm" onClick={props.onExit}>Poistu</Button>}</div></header>
-   <main className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
+   <main className={`flex flex-1 flex-col items-center gap-5 text-center ${mode!=="setup"&&!hold?"justify-start":"justify-center"}`}>
      {mode==="setup" ? <><Camera className="h-12 w-12"/><h2 className="text-2xl font-bold">Valmista kamera</h2><p className="max-w-lg text-lg">{hold?"Aseta laite tukevasti noin 2–3 metrin päähän, kuva edestä. Koko vartalon ja molempien jalkojen tulee näkyä. Seiso tukevan tuolin vieressä.":"Aseta laite sivullesi nilkan korkeudelle. Istu tuolilla: polven, nilkan ja koko jalkaterän tulee näkyä sivulta."}</p><p className="max-w-lg">Hyvä valaistus ja paljas jalkaterä helpottavat tunnistusta. Kamera ei arvioi, teetkö liikkeen oikein.</p><div className="flex w-full max-w-xs flex-col items-center gap-3"><Button size="lg" className="min-h-16 w-full text-lg" onClick={enable}><Camera/> Käytä kameraa</Button><Button variant="secondary" size="sm" onClick={props.onFallback}>Tee ilman kameraa</Button></div></> : <>
      {error?<p className="camera-status" role="alert">{error}</p>:word&&<p className={`camera-word ${ok?"is-ok":"is-wait"}`} role="status">{word}</p>}
      {countdown!==null?<p className="camera-count">{countdown}{phase==="calibrating"&&<span className="text-3xl"> s</span>}</p>:<p className="camera-count">{props.done}<span className="text-3xl"> / {props.target}{hold?" s":""}</span></p>}

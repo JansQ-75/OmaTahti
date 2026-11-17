@@ -22,6 +22,7 @@
   - [x] Later single-leg balance sets wait for a stable two-footed stance, then run a fresh three-second countdown before the hold timer starts; lifted-leg interruption and timer behavior tested.
   - [x] Replace the small central camera guide with a transparent, glowing outline around only the camera area between the header and footer, in both workouts and baseline; browser geometry and appearance checked.
 - [x] Phase 9 – Rule-based summaries: factual physio situation overview without treatment suggestions, and a client weekly review retaining the original streak, pain-face and mobility-trend cards with encouragement below; pure rules tested.
+- [x] Workout camera cues match the baseline (HYVÄ ASENTO → prepare → start word → timer only); rest screen uses theme green
 - [ ] Phase 10 – End-to-end polish
 
 ## Janinan kommentit (toteutettu)

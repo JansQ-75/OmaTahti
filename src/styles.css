@@ -164,7 +164,7 @@
 @media(max-width:600px) { .camera-count {font-size:4rem;} .camera-status {font-size:1.125rem;} .camera-ui {gap:.5rem;} .camera-ui main {gap:.75rem;padding:1rem 0;} }
 
 .rest-overlay {
-  background: color-mix(in oklch, var(--info) 22%, color-mix(in oklch, var(--background) 70%, transparent));
+  background: color-mix(in oklch, var(--primary) 22%, color-mix(in oklch, var(--background) 70%, transparent));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }

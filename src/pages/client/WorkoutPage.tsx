@@ -339,7 +339,7 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
 
       {rest && !interrupting && (
         <div role="dialog" aria-label="Tauko" className="rest-overlay fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 p-6 text-center">
-          <p className="text-5xl font-bold tracking-wide text-info">TAUKO</p>
+          <p className="text-5xl font-bold tracking-wide text-primary">TAUKO</p>
           <p className="text-8xl font-bold tabular-nums" aria-live="polite">{rest.left}<span className="text-4xl"> s</span></p>
           {rest.kind === "exercise" ? (
             <p className="text-xl font-semibold">Liike valmis! Seuraavaksi: {ex?.name}</p>
