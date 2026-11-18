@@ -1,6 +1,7 @@
 import type { AppData, Client } from "@/types";
+import { buildPhysioTestClients } from "./physioTestClients";
 
-export const DATA_VERSION = 7;
+export const DATA_VERSION = 8;
 
 // Dates are relative to "today" so the demo always looks current.
 // Built lazily (never at module scope).
@@ -185,6 +186,6 @@ export function buildSeedData(): AppData {
   return {
     version: DATA_VERSION,
     activeClientId: "client-aino",
-    clients: [buildClientA(), buildClientB()],
+    clients: [buildClientA(), buildClientB(), ...buildPhysioTestClients()],
   };
 }

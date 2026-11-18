@@ -53,3 +53,4 @@ use the editor.
 - An unfinished saved questionnaire has an empty completedAt and a separate questionnaireSavedAt; only full baseline finalization stamps completedAt, so the shared correction deadline starts at full completion.
 - Baseline camera onboarding is a separate feature view shown on entry before pending test instructions; long instructions stay outside the live camera so the measurement view remains unobstructed.
 - Workout butterfly feedback is an SVG overlay in video coordinates driven by pure butterflyLogic; it never feeds measurements or storage, keeping decoration separate from rehabilitation rules.
+- Physio-only test clients are generated in `src/data/physioTestClients.ts` (ids `test-*`) and hidden from the client role picker, so client demos stay Aino/Mikko only.

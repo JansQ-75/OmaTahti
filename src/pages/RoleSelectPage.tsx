@@ -41,7 +41,7 @@ export function RoleSelectPage() {
 
           <div className="mt-8 flex max-w-md flex-col gap-3">
             <p className="text-sm font-semibold text-foreground">Jatka asiakkaana</p>
-            {(data?.clients ?? []).map((c) => (
+            {(data?.clients ?? []).filter((c) => !c.id.startsWith("test-")).map((c) => (
               <button
                 key={c.id}
                 onClick={() => choose("client", c.id)}
