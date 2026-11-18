@@ -1,5 +1,5 @@
 // Pure rules for the physio's client views: who has contacted and a short progress summary.
-import type { Client, Message, PainEntry } from "@/types";
+import type { BodyArea, Client, Message, PainEntry } from "@/types";
 import { completedSessions, currentStreak } from "@/utils/progress";
 
 export function lastClientMessage(c: Client): Message | undefined {
@@ -19,6 +19,34 @@ export function sortForPhysio(clients: Client[]): Client[] {
     .sort((a, b) => t(b.c) - t(a.c) || a.i - b.i)
     .map((x) => x.c);
 }
+
+export interface ClientFilter {
+  /** Free-text name search, always applied. */
+  query: string;
+  /** Selected body areas; empty means "no body-area restriction". */
+  areas: BodyArea[];
+  /** Show clients whose intake is not done yet. */
+  onlyWithoutIntake: boolean;
+}
+
+/**
+ * Clients matching the physio list filters. The name search always narrows the
+ * result; the body-area checkboxes and "intake not done" form one group where
+ * any selected option may match (a client without an intake has no body area,
+ * so the two options would otherwise never combine).
+ */
+export function filterForPhysio(clients: Client[], f: ClientFilter): Client[] {
+  const q = f.query.trim().toLowerCase();
+  const anyGroup = f.areas.length > 0 || f.onlyWithoutIntake;
+  return sortForPhysio(clients).filter((c) => {
+    if (q && !c.name.toLowerCase().includes(q)) return false;
+    if (!anyGroup) return true;
+    if (f.onlyWithoutIntake && !c.intake) return true;
+    return f.areas.includes(c.intake?.bodyArea as BodyArea);
+  });
+}
+
+export const countWithoutIntake = (clients: Client[]) => clients.filter((c) => !c.intake).length;
 
 export interface ProgressSummary {
   /** Completed sessions in the last `days` days (interrupted never count). */

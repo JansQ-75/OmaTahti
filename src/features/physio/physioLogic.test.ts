@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildSeedData } from "@/data/seed";
-import { hasContacted, progressSummary, sortForPhysio } from "./physioLogic";
+import { countWithoutIntake, filterForPhysio, hasContacted, progressSummary, sortForPhysio } from "./physioLogic";
+import type { ClientFilter } from "./physioLogic";
 import type { Client } from "@/types";
 
 const clients = () => buildSeedData().clients;
@@ -17,6 +18,41 @@ describe("physio client list", () => {
     const mikkoNew: Client = { ...mikko, messages: [{ id: "m", date: new Date().toISOString(), from: "client", text: "Hei" }] };
     expect(sortForPhysio([mikko, aino]).map((c) => c.id)).toEqual(["client-aino", "client-mikko"]);
     expect(sortForPhysio([aino, mikkoNew]).map((c) => c.id)).toEqual(["client-mikko", "client-aino"]);
+  });
+});
+
+describe("physio client list filters", () => {
+  const noFilter: ClientFilter = { query: "", areas: [], onlyWithoutIntake: false };
+
+  it("without filters every client shows, in contact order", () => {
+    const r = filterForPhysio(clients(), noFilter);
+    expect(r.length).toBe(clients().length);
+    expect(r[0]!.id).toBe("client-aino");
+  });
+
+  it("the intake option shows only clients with no completed intake", () => {
+    const r = filterForPhysio(clients(), { ...noFilter, onlyWithoutIntake: true });
+    expect(r.map((c) => c.id)).toContain("client-mikko");
+    expect(r.every((c) => !c.intake)).toBe(true);
+    expect(r.some((c) => c.id === "client-aino")).toBe(false);
+    expect(r.length).toBe(countWithoutIntake(clients()));
+  });
+
+  it("body area and the intake option combine: both groups are shown", () => {
+    const r = filterForPhysio(clients(), { query: "", areas: ["ankle"], onlyWithoutIntake: true });
+    expect(r.some((c) => c.id === "client-aino")).toBe(true);
+    expect(r.some((c) => c.id === "client-mikko")).toBe(true);
+    expect(r.every((c) => c.intake?.bodyArea === "ankle" || !c.intake)).toBe(true);
+  });
+
+  it("a body area with no clients yields nothing on its own", () => {
+    expect(filterForPhysio(clients(), { ...noFilter, areas: ["knee"] })).toEqual([]);
+  });
+
+  it("the name search always narrows, also inside the intake option", () => {
+    const r = filterForPhysio(clients(), { query: "mikko", areas: [], onlyWithoutIntake: true });
+    expect(r.map((c) => c.id)).toEqual(["client-mikko"]);
+    expect(filterForPhysio(clients(), { query: "ei-oolemassa", areas: [], onlyWithoutIntake: true })).toEqual([]);
   });
 });
 

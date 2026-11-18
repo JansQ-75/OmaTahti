@@ -10,20 +10,21 @@ import { PageHeader, SoftCard } from "@/components/common/Section";
 import { useAppData } from "@/hooks/useAppData";
 import { BODY_AREAS, bodyAreaLabel } from "@/data/bodyAreas";
 import { getProgram } from "@/data/programs";
-import { sortForPhysio } from "@/features/physio/physioLogic";
+import { countWithoutIntake, filterForPhysio } from "@/features/physio/physioLogic";
 
 export function PhysioClientsPage() {
   const data = useAppData();
   const [query, setQuery] = useState("");
   const [areas, setAreas] = useState<BodyArea[]>([]);
+  const [withoutIntake, setWithoutIntake] = useState(false);
   if (!data) return null;
-  const q = query.trim().toLowerCase();
-  const visible = sortForPhysio(data.clients).filter(
-    (c) => (!q || c.name.toLowerCase().includes(q)) && (areas.length === 0 || (c.intake && areas.includes(c.intake.bodyArea))),
-  );
+  const visible = filterForPhysio(data.clients, { query, areas, onlyWithoutIntake: withoutIntake });
   const count = (a: BodyArea) => data.clients.filter((c) => c.intake?.bodyArea === a).length;
+  const noIntake = countWithoutIntake(data.clients);
   const toggle = (a: BodyArea) => setAreas((p) => (p.includes(a) ? p.filter((x) => x !== a) : [...p, a]));
-  const areaText = areas.length === 0 ? "Kaikki" : areas.length === 1 ? bodyAreaLabel(areas[0]!) : `${areas.length} valittu`;
+  const chosen = [...areas.map(bodyAreaLabel), ...(withoutIntake ? ["Alkukartoitus tekemättä"] : [])];
+  const areaText = chosen.length === 0 ? "Kaikki" : chosen.length === 1 ? chosen[0]! : `${chosen.length} valittu`;
+  const clearAll = () => { setQuery(""); setAreas([]); setWithoutIntake(false); };
 
   return (
     <div>
@@ -41,7 +42,7 @@ export function PhysioClientsPage() {
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" className="justify-between sm:w-64">
-              Vamma-alue: {areaText}
+              Suodatus: {areaText}
               <ChevronDown className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
@@ -52,7 +53,12 @@ export function PhysioClientsPage() {
                 <span className={count(b.id) === 0 ? "text-muted-foreground" : ""}>{b.label} ({count(b.id)})</span>
               </label>
             ))}
-            <button type="button" onClick={() => setAreas([])} className="mt-1 w-full border-t border-border px-2 pt-2 text-left text-sm text-primary">
+            <div className="my-1 border-t border-border" />
+            <label className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted">
+              <Checkbox checked={withoutIntake} onCheckedChange={() => setWithoutIntake((v) => !v)} />
+              <span className={noIntake === 0 ? "text-muted-foreground" : ""}>Alkukartoitus tekemättä ({noIntake})</span>
+            </label>
+            <button type="button" onClick={() => { setAreas([]); setWithoutIntake(false); }} className="mt-1 w-full border-t border-border px-2 pt-2 text-left text-sm text-primary">
               Tyhjennä valinnat
             </button>
           </PopoverContent>
@@ -63,7 +69,7 @@ export function PhysioClientsPage() {
         <SoftCard className="text-center">
           <p className="font-semibold">Ei tuloksia</p>
           <p className="mt-1 text-sm text-muted-foreground">Ei asiakkaita valituilla hakuehdoilla.</p>
-          <Button variant="outline" className="mt-3" onClick={() => { setQuery(""); setAreas([]); }}>Tyhjennä suodatukset</Button>
+          <Button variant="outline" className="mt-3" onClick={clearAll}>Tyhjennä suodatukset</Button>
         </SoftCard>
       )}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
