@@ -21,3 +21,16 @@ describe("messages", () => {
     expect(validMessageText("  hei ")).toBe("hei");
   });
 });
+
+import { sortConversations, filterConversations } from "./messageLogic";
+describe("conversation list", () => {
+  const mk = (id: string, name: string, dates: string[]) =>
+    ({ id, name, messages: dates.map((date) => ({ from: "client", text: "x", date })) }) as never;
+  const list = [mk("a", "Öhman", []), mk("b", "Berg", ["2026-01-01"]), mk("c", "Aalto", []), mk("d", "Dahl", ["2026-02-01"])];
+  it("orders newest message first, then no-message clients alphabetically", () => {
+    expect(sortConversations(list).map((c: { id: string }) => c.id)).toEqual(["d", "b", "c", "a"]);
+  });
+  it("filters by name case-insensitively", () => {
+    expect(filterConversations(list, "ber").map((c: { id: string }) => c.id)).toEqual(["b"]);
+  });
+});
