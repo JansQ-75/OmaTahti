@@ -49,7 +49,7 @@ export function ClientProgressPage() {
                     <Link to="/asiakas/alkukartoitus/kysely" onClick={() => {
                       if (!client.intakeDraft) saveIntakeDraft(client.id, { step: 1, answers: answersFromIntake(client.intake) });
                     }}>
-                      <RotateCcw /> Päivitä
+                      <RotateCcw /> Muokkaa vastauksiasi
                     </Link>
                   </Button>
                 )}
