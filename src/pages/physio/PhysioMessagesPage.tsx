@@ -26,8 +26,8 @@ export function PhysioMessagesPage({ clientId }: { clientId?: string | undefined
   return (
     <div>
       <PageHeader title="Viestit" subtitle="Keskustelut asiakkaiden kanssa" />
-      <div className="grid gap-4 md:grid-cols-[260px_1fr]">
-        <div className="md:sticky md:top-4 md:self-start">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[260px_1fr]">
+        <div className="min-w-0 md:sticky md:top-4 md:self-start">
           <div className="relative mb-2">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
             <input
@@ -44,7 +44,7 @@ export function PhysioMessagesPage({ clientId }: { clientId?: string | undefined
               </button>
             )}
           </div>
-        <ul className="max-h-[calc(100vh-220px)] space-y-2 overflow-y-auto pr-1" aria-label="Keskustelut">
+        <ul className="max-h-72 md:max-h-[calc(100vh-220px)] space-y-2 overflow-y-auto pr-1" aria-label="Keskustelut">
           {visible.length === 0 && <li className="p-3 text-sm text-muted-foreground">Ei hakutuloksia</li>}
           {visible.map((c) => {
             const last = lastMessage(c);
@@ -71,7 +71,7 @@ export function PhysioMessagesPage({ clientId }: { clientId?: string | undefined
         </ul>
         </div>
         {selected && (
-          <section className="md:sticky md:top-4 md:self-start" aria-label={`Keskustelu: ${selected.name}`}>
+          <section className="min-w-0 md:sticky md:top-4 md:self-start" aria-label={`Keskustelu: ${selected.name}`}>
             <h2 className="mb-3 text-lg font-semibold">{selected.name}</h2>
             <MessageThread client={selected} role="physio" emptyText="Ei viestejä vielä. Voit aloittaa keskustelun." />
           </section>
