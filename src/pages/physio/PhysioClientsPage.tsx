@@ -1,20 +1,73 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { ChevronDown, ChevronRight, Search, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { BodyArea } from "@/types";
 import { PageHeader, SoftCard } from "@/components/common/Section";
 import { useAppData } from "@/hooks/useAppData";
-import { bodyAreaLabel } from "@/data/bodyAreas";
+import { BODY_AREAS, bodyAreaLabel } from "@/data/bodyAreas";
 import { getProgram } from "@/data/programs";
 import { sortForPhysio } from "@/features/physio/physioLogic";
 
 export function PhysioClientsPage() {
   const data = useAppData();
+  const [query, setQuery] = useState("");
+  const [areas, setAreas] = useState<BodyArea[]>([]);
   if (!data) return null;
+  const q = query.trim().toLowerCase();
+  const visible = sortForPhysio(data.clients).filter(
+    (c) => (!q || c.name.toLowerCase().includes(q)) && (areas.length === 0 || (c.intake && areas.includes(c.intake.bodyArea))),
+  );
+  const count = (a: BodyArea) => data.clients.filter((c) => c.intake?.bodyArea === a).length;
+  const toggle = (a: BodyArea) => setAreas((p) => (p.includes(a) ? p.filter((x) => x !== a) : [...p, a]));
+  const areaText = areas.length === 0 ? "Kaikki" : areas.length === 1 ? bodyAreaLabel(areas[0]!) : `${areas.length} valittu`;
 
   return (
     <div>
       <PageHeader title="Asiakkaat" subtitle="Avaa asiakkaan tiedot kortista." />
-      <div className="grid gap-4 md:grid-cols-2">
-        {sortForPhysio(data.clients).map((c) => {
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Hae nimellä (esim. Aino)…" aria-label="Hae asiakasta nimellä" className="pl-9 pr-9" />
+          {query && (
+            <button type="button" onClick={() => setQuery("")} aria-label="Tyhjennä haku" className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground">
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="justify-between sm:w-64">
+              Vamma-alue: {areaText}
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-64 p-2">
+            {BODY_AREAS.map((b) => (
+              <label key={b.id} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted">
+                <Checkbox checked={areas.includes(b.id)} onCheckedChange={() => toggle(b.id)} />
+                <span className={count(b.id) === 0 ? "text-muted-foreground" : ""}>{b.label} ({count(b.id)})</span>
+              </label>
+            ))}
+            <button type="button" onClick={() => setAreas([])} className="mt-1 w-full border-t border-border px-2 pt-2 text-left text-sm text-primary">
+              Tyhjennä valinnat
+            </button>
+          </PopoverContent>
+        </Popover>
+      </div>
+      <p className="mb-3 text-sm text-muted-foreground">Näytetään {visible.length} asiakasta</p>
+      {visible.length === 0 && (
+        <SoftCard className="text-center">
+          <p className="font-semibold">Ei tuloksia</p>
+          <p className="mt-1 text-sm text-muted-foreground">Ei asiakkaita valituilla hakuehdoilla.</p>
+          <Button variant="outline" className="mt-3" onClick={() => { setQuery(""); setAreas([]); }}>Tyhjennä suodatukset</Button>
+        </SoftCard>
+      )}
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {visible.map((c) => {
           const status = !c.program
             ? "Ei vielä ohjelmaa"
             : c.program.status === "active"
