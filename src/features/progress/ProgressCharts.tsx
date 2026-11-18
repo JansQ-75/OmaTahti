@@ -32,7 +32,7 @@ function painFace(level: number) {
 }
 
 /** Shared progress view: the client page and the physio's client page render the same charts from the same data. */
-export function ProgressCharts({ client, compact = false, showMobilityChart = false, showStats = true }: { client: Client; compact?: boolean; showMobilityChart?: boolean; showStats?: boolean }) {
+export function ProgressCharts({ client, compact = false, showMobilityChart = false, showStats = true, weekFirst = false }: { client: Client; compact?: boolean; showMobilityChart?: boolean; showStats?: boolean; weekFirst?: boolean }) {
   if (!hasProgressData(client)) {
     return <SoftCard className="text-muted-foreground">Edistymistietoja ei vielä ole. Kaaviot täyttyvät, kun harjoituksia tehdään.</SoftCard>;
   }
@@ -66,8 +66,32 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
       </ChartCard>
   );
 
+  const weekCard = !compact && (
+  <ChartCard title="Tämän viikon harjoittelu" note="Yksi pallo = yksi tehty liike. Vihreä päivä = kaikki ohjelman eri liikkeet tehty. Keskeytetyt eivät näy.">
+        <DotWeek rows={dots} programIds={programIds} />
+        <h4 className="mt-4 font-semibold">Tällä viikolla harjoitellut liikkeet</h4>
+        <ul className="mt-2 divide-y divide-border">
+          {programIds.map((id) => (
+            <li key={id} className="flex flex-wrap justify-between gap-x-3 py-2 text-sm">
+              <span>{getExercise(id)?.name ?? id}</span>
+              <span>
+                <span className="font-semibold">{counts[id] ?? 0} krt</span>
+                {results[id] && (
+                  <span className="text-muted-foreground">
+                    {" "}• Viimeksi: {results[id].latest} / {results[id].target} {results[id].unit === "seconds" ? "s" : "toistoa"}
+                    {results[id].first !== results[id].latest && <> • Kehitys: {results[id].first} → {results[id].latest}</>}
+                  </span>
+                )}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </ChartCard>
+  );
+
   return (
     <div className="space-y-4">
+      {weekFirst && weekCard}
       {!compact && showStats && <ProgressStats client={client} />}
 
       {!compact && painChart}
@@ -164,28 +188,7 @@ export function ProgressCharts({ client, compact = false, showMobilityChart = fa
 
       {compact && painChart}
 
-      {!compact && (
-  <ChartCard title="Tämän viikon harjoittelu" note="Yksi pallo = yksi tehty liike. Vihreä päivä = kaikki ohjelman eri liikkeet tehty. Keskeytetyt eivät näy.">
-        <DotWeek rows={dots} programIds={programIds} />
-        <h4 className="mt-4 font-semibold">Tällä viikolla harjoitellut liikkeet</h4>
-        <ul className="mt-2 divide-y divide-border">
-          {programIds.map((id) => (
-            <li key={id} className="flex flex-wrap justify-between gap-x-3 py-2 text-sm">
-              <span>{getExercise(id)?.name ?? id}</span>
-              <span>
-                <span className="font-semibold">{counts[id] ?? 0} krt</span>
-                {results[id] && (
-                  <span className="text-muted-foreground">
-                    {" "}• Viimeksi: {results[id].latest} / {results[id].target} {results[id].unit === "seconds" ? "s" : "toistoa"}
-                    {results[id].first !== results[id].latest && <> • Kehitys: {results[id].first} → {results[id].latest}</>}
-                  </span>
-                )}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </ChartCard>
-      )}
+      {!weekFirst && weekCard}
     </div>
   );
 }

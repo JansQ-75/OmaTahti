@@ -37,7 +37,7 @@ export function SourceBadge({ source }: { source: "client-reported" | "camera" |
     "client-reported": ["Asiakkaan ilmoittama", "bg-secondary text-secondary-foreground"],
     camera: ["Kamera-arvio", "bg-primary-soft text-primary"],
     "rule-based": ["Sääntöpohjainen havainto", "bg-muted text-muted-foreground"],
-    "ai-summary": ["Tekoälyyhteenveto (demo)", "bg-accent-soft text-accent-foreground"],
+    "ai-summary": ["Tekoäly-yhteenveto (demo)", "bg-accent-soft text-accent-foreground"],
   } as const;
   const [label, cls] = map[source];
   return <span className={cn("inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium", cls)}>{label}</span>;
