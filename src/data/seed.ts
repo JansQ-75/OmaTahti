@@ -1,7 +1,7 @@
 import type { AppData, Client } from "@/types";
 import { buildPhysioTestClients } from "./physioTestClients";
 
-export const DATA_VERSION = 8;
+export const DATA_VERSION = 9;
 
 // Dates are relative to "today" so the demo always looks current.
 // Built lazily (never at module scope).
@@ -45,7 +45,7 @@ function buildClientA(): Client {
       injuryType: "Nilkan nivelsidevamma (nyrjähdys)",
       mechanism: "Nilkka kääntyi sisäänpäin polkujuoksussa.",
       injuryDate: daysAgo(28, 18),
-      painLocation: "Ulkokehrän etupuoli",
+      painLocation: "Ulkokehräsen etupuoli",
       painAtRest: 2,
       painLevel: 5,
       symptoms: ["Turvotus", "Jäykkyys", "Epävakauden tunne (nilkka pettää)"],

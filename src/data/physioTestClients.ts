@@ -117,7 +117,7 @@ function buildClient(i: number): Client {
       injuryType: "Nilkan nivelsidevamma (nyrjähdys)",
       mechanism: pick(MECH),
       injuryDate: daysAgo(start + 5, 18),
-      painLocation: "Ulkokehrän etupuoli",
+      painLocation: "Ulkokehräsen etupuoli",
       painAtRest: Math.max(0, startPain - 3),
       painLevel: startPain,
       symptoms: r() < 0.5 ? ["Turvotus", "Jäykkyys"] : ["Jäykkyys", "Epävakauden tunne (nilkka pettää)"],

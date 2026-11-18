@@ -23,9 +23,9 @@ export const INTAKE_OPTIONS: Partial<Record<BodyArea, IntakeAreaOptions>> = {
       "Muu syy",
     ],
     painLocations: [
-      "Ulkokehrän etupuoli",
-      "Ulkokehrän alapuoli",
-      "Sisäkehrän seutu",
+      "Ulkokehräsen etupuoli",
+      "Ulkokehräsen alapuoli",
+      "Sisäkehräsen seutu",
       "Nilkan etuosa",
       "Akillesjänne / kantapää",
     ],

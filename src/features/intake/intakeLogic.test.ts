@@ -13,7 +13,7 @@ const complete: IntakeAnswers = {
   injuryDate: "2026-11-01",
   painAtRest: 1,
   painLevel: 4,
-  painLocation: "Ulkokehrän etupuoli",
+  painLocation: "Ulkokehräsen etupuoli",
   symptoms: [],
   redFlags: [],
   weightBearing: "ontuen",
