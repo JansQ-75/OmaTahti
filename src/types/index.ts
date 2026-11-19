@@ -110,6 +110,8 @@ export interface AssignedProgram {
   cautions?: string[];
 }
 
+export type SwellingAfter = "ei-ollenkaan" | "vaheni" | "ennallaan" | "lisaantyi";
+
 export interface ExerciseSession {
   id: string;
   exerciseId: string;
@@ -118,6 +120,8 @@ export interface ExerciseSession {
   interruptReason?: string;
   painBefore?: number;
   painAfter?: number;
+  /** Client-reported swelling after the workout. */
+  swellingAfter?: SwellingAfter;
   comment?: string;
   trackedReps?: number;
   trackingSource?: TrackingMode | "none";
@@ -176,7 +180,7 @@ export interface Message {
 export interface AppNotification {
   id: string;
   date: string;
-  type: "pain-rising" | "activity-dropping" | "new-message" | "program-pending" | "function-declining";
+  type: "pain-rising" | "activity-dropping" | "new-message" | "program-pending" | "function-declining" | "swelling";
   text: string;
   audience: Role[];
   handled: boolean;

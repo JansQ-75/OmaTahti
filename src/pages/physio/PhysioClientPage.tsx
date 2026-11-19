@@ -1,3 +1,4 @@
+import { swellingLabel } from "@/features/swelling/swellingLogic";
 import { Link } from "@tanstack/react-router";
 import { BaselineSummary } from "@/features/baseline/BaselineSummary";
 import { intakeComplete } from "@/features/baseline/baselineLogic";
@@ -133,6 +134,17 @@ function ProgressCard({ client }: { client: Client }) {
 
           <TwoWeekTraining client={client} />
 
+          {client.sessions.some((x) => x.swellingAfter) && (
+            <div className="mt-5">
+              <h3 className="font-semibold">Turvotus harjoitusten jälkeen</h3>
+              <ul className="mt-2 space-y-1 text-sm">
+                {client.sessions.filter((x) => x.swellingAfter).slice(-5).reverse().map((x) => (
+                  <li key={x.id}>{formatDate(x.date)} · {swellingLabel(x.swellingAfter!)}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {interrupted.length > 0 && (
             <div className="mt-5">
               <h3 className="font-semibold">Keskeytetyt harjoitukset</h3>
@@ -147,6 +159,7 @@ function ProgressCard({ client }: { client: Client }) {
                         (kipu {x.painBefore}/10 → {x.painAfter}/10)
                       </span>
                     )}
+                    {x.swellingAfter && <span className="text-muted-foreground"> · turvotus: {swellingLabel(x.swellingAfter).toLowerCase()}</span>}
                   </li>
                 ))}
               </ul>

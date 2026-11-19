@@ -1,3 +1,5 @@
+import { SWELLING_OPTIONS, SWELLING_QUESTION } from "@/features/swelling/swellingLogic";
+import type { SwellingAfter } from "@/types";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { canAccessProgram } from "@/features/baseline/baselineLogic";
 import { IntakePending } from "@/features/baseline/IntakePending";
@@ -45,6 +47,8 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
   const saved = useRef(false);
   const [pain, setPain] = useState<number | null>(null);
   const [interruptPain, setInterruptPain] = useState<number | null>(null);
+  const [swelling, setSwelling] = useState<SwellingAfter | null>(null);
+  const [interruptSwelling, setInterruptSwelling] = useState<SwellingAfter | null>(null);
   const [result, setResult] = useState<ReturnType<typeof painAdvice> | null>(null);
 
   useEffect(() => {
@@ -111,6 +115,7 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
         interruptReason: reason,
         comment: comment.trim(),
         ...(interruptPain !== null ? { painAfter: interruptPain } : {}),
+        ...(interruptSwelling ? { swellingAfter: interruptSwelling } : {}),
       }),
     );
     if (advice?.show) toast(CALM_TITLE, { description: CALM_TEXT, duration: 12000 });
@@ -123,7 +128,7 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
     saved.current = true;
     setResult(painAdvice(pain, client.painLog));
     markProgramStarted(client.id);
-    saveWorkoutSession(client.id, buildSession(s, exercises, { id: `s-${Date.now()}`, single, painAfter: pain }));
+    saveWorkoutSession(client.id, buildSession(s, exercises, { id: `s-${Date.now()}`, single, painAfter: pain, ...(swelling ? { swellingAfter: swelling } : {}) }));
   };
 
   if (s.finished && !result) {
@@ -132,7 +137,9 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
         <h1 className="text-2xl font-bold">Miltä nilkka tuntuu nyt?</h1>
         <p className="mt-2 text-muted-foreground">Arvioi kipu harjoituksen jälkeen: 0 = ei kipua, 10 = pahin mahdollinen.</p>
         <PainPicker value={pain} onChange={setPain} />
-        <button type="button" className={`${primary} mt-6 w-full`} disabled={pain === null} onClick={savePain}>
+        <p className="mt-6 text-lg font-semibold">{SWELLING_QUESTION}</p>
+        <SwellingPicker value={swelling} onChange={setSwelling} />
+        <button type="button" className={`${primary} mt-6 w-full`} disabled={pain === null || swelling === null} onClick={savePain}>
           Tallenna ja lopeta
         </button>
       </Overlay>
@@ -377,6 +384,8 @@ export function WorkoutPage({ startAt, single = false }: { startAt: number; sing
             </div>
             <p className="mt-4 text-sm font-medium">Kipu nyt (vapaaehtoinen)</p>
             <PainPicker value={interruptPain} onChange={setInterruptPain} compact />
+            <p className="mt-4 text-sm font-medium">{SWELLING_QUESTION} (vapaaehtoinen)</p>
+            <SwellingPicker value={interruptSwelling} onChange={setInterruptSwelling} compact />
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -427,6 +436,28 @@ function PainPicker({ value, onChange, compact }: { value: number | null; onChan
           )}
         >
           {n}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function SwellingPicker({ value, onChange, compact }: { value: SwellingAfter | null; onChange: (v: SwellingAfter) => void; compact?: boolean }) {
+  return (
+    <div className={cn("grid grid-cols-2 gap-2", compact ? "mt-2" : "mt-3")} role="radiogroup" aria-label="Turvotustilanne">
+      {SWELLING_OPTIONS.map((o) => (
+        <button
+          key={o.value}
+          type="button"
+          role="radio"
+          aria-checked={value === o.value}
+          onClick={() => onChange(o.value)}
+          className={cn(
+            "rounded-xl border px-3 py-3 text-sm font-semibold",
+            value === o.value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card",
+          )}
+        >
+          {o.label}
         </button>
       ))}
     </div>

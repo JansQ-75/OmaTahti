@@ -1,3 +1,4 @@
+import { SWELLING_ADVICE, SWELLING_ADVICE_TITLE } from "@/features/swelling/swellingLogic";
 import { Link } from "@tanstack/react-router";
 import { canAccessProgram, intakeComplete } from "@/features/baseline/baselineLogic";
 import { IntakePending } from "@/features/baseline/IntakePending";
@@ -50,7 +51,15 @@ export function ClientHomePage() {
               </span>
               <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Ilmoitus</p>
-                <p className="mt-0.5 font-semibold">{n.text}</p>
+                <p className="mt-0.5 font-semibold">{n.type === "swelling" ? SWELLING_ADVICE_TITLE : n.text}</p>
+                {n.type === "swelling" && (
+                  <>
+                    <p className="mt-1 text-sm">{n.text}</p>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
+                      {SWELLING_ADVICE.map((a) => <li key={a}>{a}</li>)}
+                    </ul>
+                  </>
+                )}
                 <Link
                   to="/asiakas/viestit"
                   className="mt-1 inline-block text-sm text-primary underline-offset-2 hover:underline"

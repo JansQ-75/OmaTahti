@@ -74,7 +74,7 @@ export function exerciseSegments(s: WorkoutState, count: number) {
 export function buildSession(
   s: WorkoutState,
   exercises: ProgramExercise[],
-  opts: { id: string; single?: boolean; now?: Date; interruptReason?: string; comment?: string; painAfter?: number },
+  opts: { id: string; single?: boolean; now?: Date; interruptReason?: string; comment?: string; painAfter?: number; swellingAfter?: import("@/types").SwellingAfter },
 ): ExerciseSession {
   const interrupted = opts.interruptReason !== undefined || !s.finished;
   const at = exercises[Math.min(s.exIndex, exercises.length - 1)];
@@ -93,6 +93,7 @@ export function buildSession(
       : {}),
     ...(s.log.length ? { sets: s.log } : {}),
     ...(opts.painAfter !== undefined ? { painAfter: opts.painAfter } : {}),
+    ...(opts.swellingAfter ? { swellingAfter: opts.swellingAfter } : {}),
   };
 }
 
