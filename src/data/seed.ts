@@ -17,7 +17,7 @@ function buildClientA(): Client {
   // mobility improving, but activity dropped last week and pain spiked once.
   // Days since Monday of the current week (Mon=0). Today and future days stay empty.
   const weekIdx = (new Date().getDay() + 6) % 7;
-  const sessionDays: [number, string][] = [
+  const allSessionDays: [number, string][] = [
     [34, "ankle-flex"],
     [32, "single-leg-balance"],
     [30, "ankle-flex"],
@@ -37,19 +37,21 @@ function buildClientA(): Client {
     [3, "ankle-flex"],
     [2, "heel-raise"],
     [1, "ankle-flex"],
-  ].filter(([d]) => d > weekIdx || d === 0) as [number, string][];
+  ];
+  const sessionDays = allSessionDays.filter(([d]) => d > weekIdx);
   const ALL = ["ankle-flex", "single-leg-balance", "heel-raise", "band-eversion"];
   // Current week: up to 3 past days (oldest first): full+singles, full, 2 singles.
   const pastDays = Array.from({ length: weekIdx }, (_, i) => weekIdx - i).slice(-3);
-  const weekPlan: { kind: "full" | "single"; ids: string[] }[][] = [
+  type Plan = { kind: "full" | "single"; ids: string[] };
+  const weekPlan: Plan[][] = ([
     [{ kind: "full", ids: ALL }, { kind: "single", ids: ["ankle-flex"] }, { kind: "single", ids: ["single-leg-balance"] }],
     [{ kind: "full", ids: ALL }],
     [{ kind: "single", ids: ["ankle-flex"] }, { kind: "single", ids: ["heel-raise"] }],
-  ].slice(3 - pastDays.length);
+  ] as Plan[][]).slice(3 - pastDays.length);
   const weekSessions = pastDays.flatMap((d, di) =>
-    weekPlan[di].map((s, si) => ({
+    (weekPlan[di] ?? []).map((s, si) => ({
       id: `a-w${di}-${si}`,
-      exerciseId: s.ids[0],
+      exerciseId: s.ids[0] ?? "ankle-flex",
       date: daysAgo(d, 9 + si * 4),
       status: "completed" as const,
       painBefore: 2,
