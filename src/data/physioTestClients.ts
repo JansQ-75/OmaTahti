@@ -111,6 +111,8 @@ function buildClient(i: number): Client {
       completedAt: daysAgo(start, 10),
       age: 20 + Math.floor(r() * 50),
       sex: FEMALE.has(firstName) ? "nainen" : "mies",
+      goalSport: i % 3 === 0 ? "kyllä" : "ei",
+      regularExercise: i % 4 === 3 ? "ei" : "kyllä",
       previousInjuries: r() < 0.3 ? "Aiempi nyrjähdys samassa nilkassa." : "",
       bodyArea: "ankle",
       side,

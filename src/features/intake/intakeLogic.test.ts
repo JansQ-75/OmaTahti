@@ -6,6 +6,8 @@ const today = new Date("2026-11-09T12:00:00");
 const complete: IntakeAnswers = {
   age: 40,
   sex: "nainen",
+  goalSport: "ei",
+  regularExercise: "kyllä",
   bodyArea: "ankle",
   side: "oikea",
   injuryType: "Nilkan nivelsidevamma (nyrjähdys)",

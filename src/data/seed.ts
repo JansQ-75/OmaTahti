@@ -1,7 +1,7 @@
 import type { AppData, Client } from "@/types";
 import { buildPhysioTestClients } from "./physioTestClients";
 
-export const DATA_VERSION = 10;
+export const DATA_VERSION = 11;
 
 // Dates are relative to "today" so the demo always looks current.
 // Built lazily (never at module scope).
@@ -73,6 +73,8 @@ function buildClientA(): Client {
       completedAt: daysAgo(35, 10),
       age: 34,
       sex: "nainen",
+      goalSport: "ei",
+      regularExercise: "kyllä",
       previousInjuries: "Sama nilkka nyrjähti kevyesti 5 vuotta sitten.",
       bodyArea: "ankle",
       side: "oikea",

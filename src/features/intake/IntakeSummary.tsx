@@ -91,6 +91,8 @@ export function IntakeSummary({
       <Block title="Perustiedot" step="basics" onEdit={onEdit}>
         <Row label="Ikä" value={a.age !== undefined ? `${a.age} v` : "–"} />
         <Row label="Sukupuoli" value={a.sex} />
+        <Row label="Tavoitteellinen urheilu" value={a.goalSport ?? "–"} />
+        <Row label="Säännöllinen liikunta" value={a.regularExercise ?? "–"} />
       </Block>
 
       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">

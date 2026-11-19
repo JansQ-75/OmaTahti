@@ -156,6 +156,24 @@ export function IntakeWizard({ client }: { client: Client }) {
                 columns={2}
               />
             </Question>
+            <Question title="Harrastatko tavoitteellisesti urheilua?">
+              <SingleChoice
+                label="Tavoitteellinen urheilu"
+                options={["kyllä", "ei"] as const}
+                value={a.goalSport}
+                onChange={(goalSport) => set({ goalSport })}
+                columns={2}
+              />
+            </Question>
+            <Question title="Harrastatko säännöllisesti liikuntaa?">
+              <SingleChoice
+                label="Säännöllinen liikunta"
+                options={["kyllä", "ei"] as const}
+                value={a.regularExercise}
+                onChange={(regularExercise) => set({ regularExercise })}
+                columns={2}
+              />
+            </Question>
           </>
         )}
 

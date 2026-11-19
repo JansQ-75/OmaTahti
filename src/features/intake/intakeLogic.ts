@@ -25,6 +25,8 @@ export function validateStep(step: IntakeStepId, a: IntakeAnswers, today: Date =
     case "basics":
       if (typeof a.age !== "number" || a.age < 15 || a.age > 100) return "Kirjoita ikäsi (15–100 vuotta).";
       if (!a.sex) return "Valitse sukupuoli.";
+      if (!a.goalSport) return "Vastaa, harrastatko tavoitteellisesti urheilua.";
+      if (!a.regularExercise) return "Vastaa, harrastatko säännöllisesti liikuntaa.";
       return null;
     case "area":
       if (!a.bodyArea) return "Valitse kehon alue.";
@@ -80,6 +82,8 @@ export function toIntake(a: IntakeAnswers, now: Date = new Date()): Intake | nul
     completedAt: now.toISOString(),
     age: a.age!,
     sex: a.sex!,
+    goalSport: a.goalSport!,
+    regularExercise: a.regularExercise!,
     previousInjuries: a.previousInjuries?.trim() || "Ei aiempia vammoja.",
     bodyArea: a.bodyArea!,
     side: a.side!,

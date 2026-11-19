@@ -15,6 +15,10 @@ export interface Intake {
   questionnaireSavedAt?: string;
   age: number;
   sex: "nainen" | "mies" | "muu" | "ei halua kertoa";
+  /** Harrastaa tavoitteellisesti urheilua. Optional for intakes saved before the question existed. */
+  goalSport?: "kyllä" | "ei";
+  /** Harrastaa säännöllisesti liikuntaa. */
+  regularExercise?: "kyllä" | "ei";
   previousInjuries: string;
   bodyArea: BodyArea;
   side: "vasen" | "oikea";
